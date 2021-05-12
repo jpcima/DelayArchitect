@@ -1,0 +1,9 @@
+[submodule "thirdparty/JUCE"]
+	path = thirdparty/JUCE
+	url = https://github.com/juce-framework/JUCE.git
+[submodule "thirdparty/imgui"]
+	path = thirdparty/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "thirdparty/simde"]
+	path = thirdparty/simde
+	url = https://github.com/simd-everywhere/simde.git
