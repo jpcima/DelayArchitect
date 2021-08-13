@@ -13,7 +13,7 @@ enum {
     // maximum number of delay lines
     GdMaxLines = 26,
     // maximum delay length in seconds
-    GdMaxDelay = 5,
+    GdMaxDelay = 10,
 };
 
 // parameter smoothing time in seconds
@@ -59,6 +59,7 @@ Ignorable static constexpr float GdMinGainDB = -80.0f;
 
 #define GD_EACH_LINE_PARAMETER(_, X, I)                                        \
     /* Name, Min, Max, Def, Flags, Label */                                    \
+    /* NOTE: Tap Enable must always appear first */                            \
     _(TAP_##X##_ENABLE, false, true, false, GDP_BOOLEAN, "Tap " #X " Enable", I) \
     _(TAP_##X##_DELAY, 0, GdMaxDelay, 0, GDP_FLOAT, "Tap " #X " Delay", I)     \
     _(TAP_##X##_LEVEL, GdMinGainDB, 10, 0, GDP_FLOAT, "Tap " #X " Level", I)   \

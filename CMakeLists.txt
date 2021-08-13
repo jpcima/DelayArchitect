@@ -43,10 +43,22 @@ target_sources(GroovyDelay
   "sources/processor/Processor.h"
   "sources/processor/Processor.cpp"
   "sources/editor/Editor.h"
-  "sources/editor/Editor.cpp")
+  "sources/editor/Editor.cpp"
+  "sources/editor/LookAndFeel.h"
+  "sources/editor/LookAndFeel.cpp"
+  "sources/editor/parts/MainComponent.h"
+  "sources/editor/parts/MainComponent.cpp"
+  "sources/editor/parts/TapEditScreen.h"
+  "sources/editor/parts/TapEditScreen.cpp"
+  "sources/editor/utility/FunctionalTimer.h")
+
+juce_add_binary_data(GroovyDelayResources
+  SOURCES
+  "resources/fonts/LiberationSans-Regular.ttf")
 
 target_link_libraries(GroovyDelay
   PRIVATE
+  GroovyDelayResources
   juce::juce_audio_processors
   juce::juce_opengl
   juce::juce_recommended_config_flags
