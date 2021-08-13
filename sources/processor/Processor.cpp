@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-2-Clause
-#include "Processor.h"
-#include "Editor.h"
+#include "processor/Processor.h"
+#include "editor/Editor.h"
 #include "Gd.h"
 
 struct Processor::Impl : public juce::AudioProcessorListener {

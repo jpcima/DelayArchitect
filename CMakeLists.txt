@@ -34,16 +34,16 @@ target_compile_definitions(GroovyDelay
   "JUCE_VST3_CAN_REPLACE_VST2=0"
   "JUCE_DISPLAY_SPLASH_SCREEN=0")
 
+target_include_directories(GroovyDelay
+  PRIVATE
+  "sources")
+
 target_sources(GroovyDelay
   PRIVATE
-  "sources/plugin/Processor.h"
-  "sources/plugin/Processor.cpp"
-  "sources/plugin/Editor.h"
-  "sources/plugin/Editor.cpp"
-  "sources/plugin/ImGuiComponent.h"
-  "sources/plugin/ImGuiComponent.cpp"
-  "sources/plugin/ImGuiHelpers.h"
-  "sources/plugin/ImGuiHelpers.cpp")
+  "sources/processor/Processor.h"
+  "sources/processor/Processor.cpp"
+  "sources/editor/Editor.h"
+  "sources/editor/Editor.cpp")
 
 target_link_libraries(GroovyDelay
   PRIVATE
@@ -82,28 +82,6 @@ target_include_directories(Gd
 target_link_libraries(GroovyDelay
   PRIVATE
   Gd)
-
-###
-find_package(GLEW REQUIRED)
-add_library(imgui STATIC
-  "thirdparty/imgui/imgui.cpp"
-  "thirdparty/imgui/imgui_draw.cpp"
-  "thirdparty/imgui/imgui_tables.cpp"
-  "thirdparty/imgui/imgui_widgets.cpp"
-  "thirdparty/imgui/backends/imgui_impl_opengl2.cpp"
-  "thirdparty/imgui/backends/imgui_impl_opengl3.cpp")
-target_include_directories(imgui
-  PUBLIC
-  "thirdparty/imgui"
-  "thirdparty/imgui/backends")
-target_link_libraries(imgui
-  PUBLIC
-  GLEW::glew)
-
-###
-target_link_libraries(GroovyDelay
-  PRIVATE
-  imgui)
 
 ###
 add_library(simde INTERFACE)
