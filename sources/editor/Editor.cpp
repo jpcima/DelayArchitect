@@ -306,10 +306,10 @@ void Editor::Impl::parameterValueChanged(int parameterIndex, float newValueNorma
         tapEdit->setTapDelay(tapNumber, newValue, juce::dontSendNotification);
         break;
     case GDP_TAP_A_LEVEL:
-        // TODO
+        tapEdit->setTapLevel(tapNumber, newValue, juce::dontSendNotification);
         break;
     case GDP_TAP_A_PAN:
-        // TODO
+        tapEdit->setTapPan(tapNumber, newValue, juce::dontSendNotification);
         break;
     case GDP_TAP_A_WIDTH:
         // TODO

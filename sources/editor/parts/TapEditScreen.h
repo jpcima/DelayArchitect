@@ -33,6 +33,8 @@ public:
 
     void setTapEnabled(int tapNumber, bool enabled, juce::NotificationType nt = juce::sendNotificationSync);
     void setTapDelay(int tapNumber, float delay, juce::NotificationType nt = juce::sendNotificationSync);
+    void setTapPan(int tapNumber, float pan, juce::NotificationType nt = juce::sendNotificationSync);
+    void setTapLevel(int tapNumber, float level, juce::NotificationType nt = juce::sendNotificationSync);
 
     void beginTap();
     void endTap();
@@ -51,6 +53,8 @@ public:
         enum ChangeId {
             kChangeEnabled = GDP_TAP_A_ENABLE,
             kChangeDelay = GDP_TAP_A_DELAY,
+            kChangePan = GDP_TAP_A_PAN,
+            kChangeLevel = GDP_TAP_A_LEVEL,
         };
 
         virtual void tapEditStarted(TapEditScreen *, int tapNumber, ChangeId id) { (void)tapNumber; (void)id; }
@@ -90,6 +94,8 @@ public:
 
     void setTapEnabled(bool enabled, juce::NotificationType nt = juce::sendNotificationSync);
     void setTapDelay(float delay, juce::NotificationType nt = juce::sendNotificationSync);
+    void setTapPan(float pan, juce::NotificationType nt = juce::sendNotificationSync);
+    void setTapLevel(float level, juce::NotificationType nt = juce::sendNotificationSync);
 
     class Listener {
     public:
@@ -110,6 +116,8 @@ protected:
     void mouseDown(const juce::MouseEvent &e) override;
     void mouseUp(const juce::MouseEvent &e) override;
     void mouseDrag(const juce::MouseEvent &e) override;
+    void moved() override;
+    void resized() override;
 
 private:
     struct Impl;
