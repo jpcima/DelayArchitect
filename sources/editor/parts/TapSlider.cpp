@@ -1,6 +1,8 @@
 #include "TapSlider.h"
 
 struct TapSlider::Impl {
+    bool isBipolar_ = false;
+    float centerValue_ = 0;
 };
 
 TapSlider::TapSlider()
@@ -8,15 +10,27 @@ TapSlider::TapSlider()
 {
     setSliderStyle(LinearBarVertical);
     setTextBoxStyle(NoTextBox, true, 0, 0);
-    setRange(-1.0, 1.0);
 }
 
 TapSlider::~TapSlider()
 {
 }
 
+void TapSlider::setBipolarAround(bool isBipolar, float centerValue)
+{
+    Impl &impl = *impl_;
+
+    if (impl.isBipolar_ == isBipolar && impl.centerValue_ == centerValue)
+        return;
+
+    impl.isBipolar_ = isBipolar;
+    impl.centerValue_ = centerValue;
+    repaint();
+}
+
 void TapSlider::paint(juce::Graphics &g)
 {
+    Impl &impl = *impl_;
     juce::LookAndFeel &lnf = getLookAndFeel();
     juce::Slider::SliderLayout layout = lnf.getSliderLayout(*this);
 
@@ -31,7 +45,34 @@ void TapSlider::paint(juce::Graphics &g)
     g.setColour(findColour(backgroundColourId));
     g.fillRect(sliderRect);
 
+    juce::Rectangle<float> filledRect;
+    if (isHorizontal()) {
+        float fillX, fillWidth;
+        if (!impl.isBipolar_) {
+            fillX = (float)x;
+            fillWidth = sliderPos - (float)x;
+        }
+        else {
+            float centerPos = getPositionOfValue(impl.centerValue_);
+            fillX = (sliderPos < centerPos) ? sliderPos : centerPos;
+            fillWidth = ((sliderPos < centerPos) ? centerPos : sliderPos) - fillX;
+        }
+        filledRect = juce::Rectangle<float>(fillX, (float)y + 0.5f, fillWidth, (float)height - 1.0f);
+    }
+    else {
+        float fillY, fillHeight;
+        if (!impl.isBipolar_) {
+            fillY = sliderPos;
+            fillHeight = (float)y + ((float)height - sliderPos);
+        }
+        else {
+            float centerPos = getPositionOfValue(impl.centerValue_);
+            fillY = (sliderPos < centerPos) ? sliderPos : centerPos;
+            fillHeight = ((sliderPos < centerPos) ? centerPos : sliderPos) - fillY;
+        }
+        filledRect = juce::Rectangle<float>((float)x + 0.5f, fillY, (float)width - 1.0f, fillHeight);
+    }
+
     g.setColour(findColour(trackColourId));
-    g.fillRect(isHorizontal() ? juce::Rectangle<float>((float)x, (float)y + 0.5f, sliderPos - (float)x, (float)height - 1.0f)
-               : juce::Rectangle<float>((float)x + 0.5f, sliderPos, (float)width - 1.0f, (float)y + ((float)height - sliderPos)));
+    g.fillRect(filledRect);
 }

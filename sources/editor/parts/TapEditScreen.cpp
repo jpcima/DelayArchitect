@@ -77,6 +77,8 @@ void TapEditScreen::setEditMode(TapEditMode mode)
         const TapEditData &data = item.getData();
         item.setEditMode(data.enabled ? mode : kTapEditOff);
     }
+
+    repaint();
 }
 
 float TapEditScreen::getTimeRange() const noexcept
@@ -225,6 +227,20 @@ void TapEditScreen::paint(juce::Graphics &g)
     Impl &impl = *impl_;
     juce::Rectangle<int> bounds = getLocalBounds();
 
+    switch (impl.editMode_) {
+    case kTapEditTune:
+    case kTapEditPan:
+        {
+            juce::Colour lineColour = findColour(lineColourId);
+            g.setColour(lineColour);
+            float lineY = 0.5f * (float)(bounds.getHeight() - impl.items_[0]->getLabelHeight());
+            g.drawHorizontalLine((int)(lineY + 0.5f), (float)bounds.getX(), (float)bounds.getRight());
+            break;
+        }
+    default:
+        break;
+    }
+
     if (impl.tapHasBegun_) {
         juce::Colour tapLineColour = findColour(tapLineColourId);
         float tapLineX = impl.delayToX(impl.currentTapTime());
@@ -324,7 +340,9 @@ TapEditItem::TapEditItem(TapEditScreen *screen, int itemNumber)
     impl.itemNumber_ = itemNumber;
     impl.screen_ = screen;
 
-    auto createSlider = [this, &impl](TapEditMode mode, Listener::ChangeId id) {
+    auto createSlider = [this, &impl]
+        (TapEditMode mode, Listener::ChangeId id, bool isBipolar)
+    {
         TapSlider *slider = new TapSlider;
         impl.sliders_[mode] = std::unique_ptr<TapSlider>(slider);
         float min = GdParameterMin((GdParameter)id);
@@ -333,18 +351,19 @@ TapEditItem::TapEditItem(TapEditScreen *screen, int itemNumber)
         slider->setRange(min, max);
         slider->setValue(def);
         slider->setDoubleClickReturnValue(true, def);
-        slider->setSliderStyle(TapSlider::LinearVertical);
+        if (isBipolar)
+            slider->setBipolarAround(true, def);
         slider->addListener(&impl);
         slider->getProperties().set("X-Change-ID", (int)id);
         addChildComponent(slider);
     };
 
     // TODO
-    //createSlider(kTapEditCutoff, Listener::ChangeId::kChangeCutoff);
-    //createSlider(kTapEditResonance, Listener::ChangeId::kChangeResonance);
-    //createSlider(kTapEditTune, Listener::ChangeId::kChangeTune);
-    createSlider(kTapEditPan, Listener::ChangeId::kChangePan);
-    createSlider(kTapEditLevel, Listener::ChangeId::kChangeLevel);
+    //createSlider(kTapEditCutoff, Listener::ChangeId::kChangeCutoff, false);
+    //createSlider(kTapEditResonance, Listener::ChangeId::kChangeResonance, false);
+    //createSlider(kTapEditTune, Listener::ChangeId::kChangeTune, true);
+    createSlider(kTapEditPan, Listener::ChangeId::kChangePan, true);
+    createSlider(kTapEditLevel, Listener::ChangeId::kChangeLevel, false);
 }
 
 TapEditItem::~TapEditItem()
@@ -367,6 +386,12 @@ int TapEditItem::getLabelWidth() const noexcept
 {
     Impl &impl = *impl_;
     return impl.labelWidth_;
+}
+
+int TapEditItem::getLabelHeight() const noexcept
+{
+    Impl &impl = *impl_;
+    return impl.labelHeight_;
 }
 
 TapEditMode TapEditItem::getEditMode() const noexcept

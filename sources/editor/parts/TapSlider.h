@@ -7,6 +7,8 @@ public:
     TapSlider();
     ~TapSlider() override;
 
+    void setBipolarAround(bool isBipolar, float centerValue);
+
 protected:
     void paint(juce::Graphics &g) override;
 

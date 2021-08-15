@@ -88,6 +88,7 @@ public:
     int getItemNumber() const noexcept;
     const TapEditData &getData() const noexcept;
     int getLabelWidth() const noexcept;
+    int getLabelHeight() const noexcept;
 
     TapEditMode getEditMode() const noexcept;
     void setEditMode(TapEditMode mode);
