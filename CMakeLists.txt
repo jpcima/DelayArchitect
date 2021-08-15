@@ -50,6 +50,8 @@ target_sources(GroovyDelay
   "sources/editor/parts/MainComponent.cpp"
   "sources/editor/parts/TapEditScreen.h"
   "sources/editor/parts/TapEditScreen.cpp"
+  "sources/editor/parts/TapSlider.h"
+  "sources/editor/parts/TapSlider.cpp"
   "sources/editor/utility/FunctionalTimer.h")
 
 juce_add_binary_data(GroovyDelayResources

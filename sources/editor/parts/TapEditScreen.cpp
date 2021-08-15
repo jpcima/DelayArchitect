@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: BSD-2-Clause
 #include "TapEditScreen.h"
+#include "TapSlider.h"
 #include "editor/utility/FunctionalTimer.h"
 #include <Gd.h>
 #include <chrono>
@@ -290,7 +291,7 @@ void TapEditScreen::Impl::tapValueChanged(TapEditItem *item, ChangeId id, float 
 }
 
 //------------------------------------------------------------------------------
-struct TapEditItem::Impl : public juce::Slider::Listener {
+struct TapEditItem::Impl : public TapSlider::Listener {
     using Listener = TapEditItem::Listener;
 
     TapEditItem *self_ = nullptr;
@@ -303,10 +304,10 @@ struct TapEditItem::Impl : public juce::Slider::Listener {
     int labelWidth_ = 20;
     int labelHeight_ = 20;
     TapEditMode editMode_ = kTapEditOff;
-    std::map<TapEditMode, std::unique_ptr<juce::Slider>> sliders_;
+    std::map<TapEditMode, std::unique_ptr<TapSlider>> sliders_;
 
-    juce::Slider *getCurrentSlider() const;
-    juce::Slider *getSliderForEditMode(TapEditMode editMode) const;
+    TapSlider *getCurrentSlider() const;
+    TapSlider *getSliderForEditMode(TapEditMode editMode) const;
     void updateSliderVisibility();
     void repositionSliders();
 
@@ -324,15 +325,15 @@ TapEditItem::TapEditItem(TapEditScreen *screen, int itemNumber)
     impl.screen_ = screen;
 
     auto createSlider = [this, &impl](TapEditMode mode, Listener::ChangeId id) {
-        juce::Slider *slider = new juce::Slider;
-        impl.sliders_[mode] = std::unique_ptr<juce::Slider>(slider);
+        TapSlider *slider = new TapSlider;
+        impl.sliders_[mode] = std::unique_ptr<TapSlider>(slider);
         float min = GdParameterMin((GdParameter)id);
         float max = GdParameterMax((GdParameter)id);
         float def = GdParameterDefault((GdParameter)id);
         slider->setRange(min, max);
         slider->setValue(def);
         slider->setDoubleClickReturnValue(true, def);
-        slider->setSliderStyle(juce::Slider::LinearVertical);
+        slider->setSliderStyle(TapSlider::LinearVertical);
         slider->addListener(&impl);
         slider->getProperties().set("X-Change-ID", (int)id);
         addChildComponent(slider);
@@ -419,7 +420,7 @@ void TapEditItem::setTapPan(float pan, juce::NotificationType nt)
 {
     Impl &impl = *impl_;
 
-    if (juce::Slider *slider = impl.getSliderForEditMode(kTapEditPan))
+    if (TapSlider *slider = impl.getSliderForEditMode(kTapEditPan))
         slider->setValue(pan, nt);
 }
 
@@ -427,7 +428,7 @@ void TapEditItem::setTapLevel(float level, juce::NotificationType nt)
 {
     Impl &impl = *impl_;
 
-    if (juce::Slider *slider = impl.getSliderForEditMode(kTapEditLevel))
+    if (TapSlider *slider = impl.getSliderForEditMode(kTapEditLevel))
         slider->setValue(level, nt);
 }
 
@@ -537,12 +538,12 @@ void TapEditItem::resized()
     impl.repositionSliders();
 }
 
-juce::Slider *TapEditItem::Impl::getCurrentSlider() const
+TapSlider *TapEditItem::Impl::getCurrentSlider() const
 {
     return getSliderForEditMode(editMode_);
 }
 
-juce::Slider *TapEditItem::Impl::getSliderForEditMode(TapEditMode editMode) const
+TapSlider *TapEditItem::Impl::getSliderForEditMode(TapEditMode editMode) const
 {
     auto it = sliders_.find(editMode);
     return (it == sliders_.end()) ? nullptr : it->second.get();
@@ -550,9 +551,9 @@ juce::Slider *TapEditItem::Impl::getSliderForEditMode(TapEditMode editMode) cons
 
 void TapEditItem::Impl::updateSliderVisibility()
 {
-    juce::Slider *currentSlider = getCurrentSlider();
+    TapSlider *currentSlider = getCurrentSlider();
     for (const auto &sliderPair : sliders_) {
-        juce::Slider *slider = sliderPair.second.get();
+        TapSlider *slider = sliderPair.second.get();
         slider->setVisible(slider == currentSlider);
     }
 }
@@ -562,9 +563,10 @@ void TapEditItem::Impl::repositionSliders()
     TapEditItem *self = self_;
     juce::Rectangle<int> bounds = self->getLocalBounds();
     juce::Rectangle<int> sliderBounds = bounds.withTrimmedBottom(labelHeight_);
+    sliderBounds = sliderBounds.withSizeKeepingCentre(8, sliderBounds.getHeight());
 
     for (const auto &sliderPair : sliders_) {
-        juce::Slider *slider = sliderPair.second.get();
+        TapSlider *slider = sliderPair.second.get();
         slider->setBounds(sliderBounds);
     }
 }
