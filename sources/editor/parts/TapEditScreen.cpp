@@ -678,44 +678,67 @@ void TapEditItem::Impl::repositionSliders()
 
 void TapEditItem::Impl::sliderValueChanged(juce::Slider *slider)
 {
-    int id = (int)slider->getProperties().getWithDefault("X-Change-ID", -1);
-    int id2 = -1;
-    if (id == -1) {
-        id = (int)slider->getProperties().getWithDefault("X-Change-ID-1", -1);
-        id2 = (int)slider->getProperties().getWithDefault("X-Change-ID-2", -1);
+    double value{};
+    juce::String identifier;
+    switch (slider->getThumbBeingDragged()) {
+    default:
+        value = slider->getValue();
+        identifier = "X-Change-ID";
+        break;
+    case 1:
+        value = slider->getMinValue();
+        identifier = "X-Change-ID-1";
+        break;
+    case 2:
+        value = slider->getMaxValue();
+        identifier = "X-Change-ID-2";
+        break;
     }
 
     TapEditItem *self = self_;
-    if (id != -1 && id2 == -1) {
-        float value = (float)slider->getValue();
-        listeners_.call([self, id, value](Listener &l) { l.tapValueChanged(self, (Listener::ChangeId)id, value); });
-    }
-    else if (id != -1 && id2 != -1) {
-        float v1 = (float)slider->getMinValue();
-        float v2 = (float)slider->getMaxValue();
-        listeners_.call([self, id, id2, v1, v2](Listener &l) {
-            l.tapValueChanged(self, (Listener::ChangeId)id, v1);
-            l.tapValueChanged(self, (Listener::ChangeId)id2, v2);
-        });
-    }
+    int id = (int)slider->getProperties().getWithDefault(identifier, -1);
+    if (id != -1)
+        listeners_.call([self, id, value](Listener &l) { l.tapValueChanged(self, (Listener::ChangeId)id, (float)value); });
 }
 
 void TapEditItem::Impl::sliderDragStarted(juce::Slider *slider)
 {
-    int id = (int)slider->getProperties().getWithDefault("X-Change-ID", -1);
-    if ((int)id == -1)
-        return;
+    juce::String identifier;
+    switch (slider->getThumbBeingDragged()) {
+    default:
+        identifier = "X-Change-ID";
+        break;
+    case 1:
+        identifier = "X-Change-ID-1";
+        break;
+    case 2:
+        identifier = "X-Change-ID-2";
+        break;
+    }
 
     TapEditItem *self = self_;
-    listeners_.call([self, id](Listener &l) { l.tapEditStarted(self, (Listener::ChangeId)id); });
+    int id = (int)slider->getProperties().getWithDefault(identifier, -1);
+    if (id != -1)
+        listeners_.call([self, id](Listener &l) { l.tapEditStarted(self, (Listener::ChangeId)id); });
 }
 
 void TapEditItem::Impl::sliderDragEnded(juce::Slider *slider)
 {
-    int id = (int)slider->getProperties().getWithDefault("X-Change-ID", -1);
-    if ((int)id == -1)
-        return;
+    juce::String identifier;
+    switch (slider->getThumbBeingDragged()) {
+    default:
+        identifier = "X-Change-ID";
+        break;
+    case 1:
+        identifier = "X-Change-ID-1";
+        break;
+    case 2:
+        identifier = "X-Change-ID-2";
+        break;
+    }
 
     TapEditItem *self = self_;
-    listeners_.call([self, id](Listener &l) { l.tapEditEnded(self, (Listener::ChangeId)id); });
+    int id = (int)slider->getProperties().getWithDefault(identifier, -1);
+    if (id != -1)
+        listeners_.call([self, id](Listener &l) { l.tapEditEnded(self, (Listener::ChangeId)id); });
 }
