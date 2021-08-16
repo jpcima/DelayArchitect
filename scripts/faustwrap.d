@@ -118,6 +118,8 @@ void main(string[] args)
         code = addMethodStartEnd(code, method);
     code = addClassStartEnd(code);
 
+    code = cleanupWhitespace(code);
+
     File outFile = stdout;
     if (opts.outputPath)
         outFile = File(opts.outputPath, "w");
@@ -272,9 +274,9 @@ string addParameters(string code, Parameter[] params)
     {
         string camelName = param.name.camelify;
         addedLines ~= "";
-        addedLines ~= format(`    FAUSTFLOAT get%s() const { return %s; }`, camelName, param.var);
+        addedLines ~= format("\tFAUSTFLOAT get%s() const { return %s; }", camelName, param.var);
         if (!param.readonly)
-            addedLines ~= format(`    void set%s(FAUSTFLOAT value) { %s = value; }`, camelName, param.var);
+            addedLines ~= format("\tvoid set%s(FAUSTFLOAT value) { %s = value; }", camelName, param.var);
     }
 
     return addToClass(code, addedLines.join('\n'));
@@ -347,6 +349,19 @@ string addToClass(string code, string addend)
     auto match = code.matchLast(expr);
     ulong index = match[0].ptr - code.ptr;
     return code[0..index] ~ addend ~ '\n' ~ code[index..$];
+}
+
+string cleanupWhitespace(string code)
+{
+    string[] newLines;
+    newLines.reserve(1024);
+
+    foreach (string line; code.lineSplitter)
+    {
+        newLines ~= line.stripRight;
+    }
+
+    return newLines.join('\n');
 }
 
 string camelify(string name)
