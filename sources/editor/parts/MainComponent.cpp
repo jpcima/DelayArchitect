@@ -19,7 +19,7 @@
 
 //[Headers] You can add your own extra header files here...
 #include "TapEditScreen.h"
-#include "GdDefs.h"
+#include "Gd.h"
 #include <array>
 #include <cstdio>
 //[/Headers]
@@ -41,6 +41,10 @@ struct MainComponent::Impl : public TapEditScreen::Listener {
     ///
     void tappingHasStarted(TapEditScreen *) override;
     void tappingHasEnded(TapEditScreen *) override;
+
+    //
+    static void setSliderRangeFromParameter(juce::Slider &slider, GdParameter id);
+    static void setComboBoxChoicesFromParameter(juce::ComboBox &comboBox, GdParameter id);
 };
 //[/MiscUserDefs]
 
@@ -243,6 +247,16 @@ MainComponent::MainComponent ()
     tapEditScreen_->addListener(&impl);
 
     tapEnabledButton_->setClickingTogglesState(true);
+
+    impl.setSliderRangeFromParameter(*tapDelaySlider_, GDP_TAP_A_DELAY);
+    impl.setComboBoxChoicesFromParameter(*feedbackTapChoice_, GDP_FEEDBACK_TAP);
+    impl.setSliderRangeFromParameter(*feedbackTapGainSlider_, GDP_FEEDBACK_GAIN);
+    impl.setSliderRangeFromParameter(*wetSlider_, GDP_MIX_WET);
+    impl.setSliderRangeFromParameter(*drySlider_, GDP_MIX_DRY);
+
+    feedbackTapGainSlider_->setNumDecimalPlacesToDisplay(2);
+    wetSlider_->setNumDecimalPlacesToDisplay(2);
+    drySlider_->setNumDecimalPlacesToDisplay(2);
     //[/Constructor]
 }
 
@@ -579,6 +593,22 @@ END_JUCER_METADATA
 void MainComponent::setActiveTapLabelText(const juce::String &newText)
 {
     activeTapLabel_->setText(newText, juce::dontSendNotification);
+}
+
+void MainComponent::Impl::setSliderRangeFromParameter(juce::Slider &slider, GdParameter id)
+{
+    float def = GdParameterDefault(id);
+    float min = GdParameterMin(id);
+    float max = GdParameterMax(id);
+    slider.setRange(min, max);
+    slider.setDoubleClickReturnValue(true, def);
+}
+
+void MainComponent::Impl::setComboBoxChoicesFromParameter(juce::ComboBox &comboBox, GdParameter id)
+{
+    const char *const *choices = GdParameterChoices(id);
+    for (int i = 0; choices[i]; ++i)
+        comboBox.addItem(choices[i], i + 1);
 }
 
 constexpr std::array<float, 8> MainComponent::Impl::presetTimeRanges;

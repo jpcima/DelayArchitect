@@ -20,8 +20,6 @@ struct Editor::Impl : public TapEditScreen::Listener,
     void setActiveTap(int tapNumber);
     void syncActiveTapParametersToControls();
     void syncActiveTapParameterToControls(GdParameter decomposedIndex);
-    void setSliderRangeFromParameter(juce::Slider *slider, int parameterIndex);
-    void setComboBoxChoicesFromParameter(juce::ComboBox *comboBox, int parameterIndex);
     int getParameterForSlider(juce::Slider *slider);
     int getParameterForButton(juce::Button *button);
     int getParameterForComboBox(juce::ComboBox *comboBox);
@@ -62,16 +60,6 @@ Editor::Editor(Processor &p)
 
     setSize(mainComponent->getWidth(), mainComponent->getHeight());
     addAndMakeVisible(mainComponent);
-
-    impl.setSliderRangeFromParameter(mainComponent->getTapDelaySlider(), GDP_TAP_A_DELAY);
-    impl.setComboBoxChoicesFromParameter(mainComponent->getFeedbackTapChoice(), GDP_FEEDBACK_TAP);
-    impl.setSliderRangeFromParameter(mainComponent->getFeedbackTapGainSlider(), GDP_FEEDBACK_GAIN);
-    impl.setSliderRangeFromParameter(mainComponent->getWetSlider(), GDP_MIX_WET);
-    impl.setSliderRangeFromParameter(mainComponent->getDrySlider(), GDP_MIX_DRY);
-
-    mainComponent->getFeedbackTapGainSlider()->setNumDecimalPlacesToDisplay(2);
-    mainComponent->getWetSlider()->setNumDecimalPlacesToDisplay(2);
-    mainComponent->getDrySlider()->setNumDecimalPlacesToDisplay(2);
 
     for (int i = 0, n = impl.parameters_.size(); i < n; ++i) {
         juce::AudioProcessorParameter *parameter = impl.parameters_[i];
@@ -151,23 +139,6 @@ void Editor::Impl::syncActiveTapParameterToControls(GdParameter decomposedIndex)
         break;
     default:
         break;
-    }
-}
-
-void Editor::Impl::setSliderRangeFromParameter(juce::Slider *slider, int parameterIndex)
-{
-    juce::RangedAudioParameter *parameter = static_cast<juce::RangedAudioParameter *>(parameters_[parameterIndex]);
-    slider->setRange(parameter->getNormalisableRange().start, parameter->getNormalisableRange().end);
-}
-
-void Editor::Impl::setComboBoxChoicesFromParameter(juce::ComboBox *comboBox, int parameterIndex)
-{
-    juce::AudioParameterChoice *parameter = static_cast<juce::AudioParameterChoice *>(parameters_[parameterIndex]);
-
-    int numChoices = parameter->choices.size();
-    for (int i = 0; i < numChoices; ++i) {
-        const juce::String &choice = parameter->choices[i];
-        comboBox->addItem(choice, i + 1);
     }
 }
 
