@@ -4,6 +4,7 @@
 #include "GdTapFx.h"
 #include "GdDefs.h"
 #include "utility/LinearSmoother.h"
+#include <array>
 #include <vector>
 #include <memory>
 
@@ -67,19 +68,30 @@ private:
 
         // parameters
         bool enable_ = false;
-        float levelDB_ = 0;
         float delay_ = 0;
+        float levelDB_ = 0;
+        int filter_ = GdFilterOff;
+        float lpfCutoff_ = 0;
+        float hpfCutoff_ = 0;
+        float resonanceDB_ = 0;
         float pan_ = 0;
         float width_ = 0;
         // smoothers
-        LinearSmoother smoothLevelLinear_;
         LinearSmoother smoothDelay_;
+        LinearSmoother smoothLevelLinear_;
+        LinearSmoother smoothLpfCutoff_;
+        LinearSmoother smoothHpfCutoff_;
+        LinearSmoother smoothResonanceLinear_;
         LinearSmoother smoothPan_;
         LinearSmoother smoothWidth_;
+        enum { kNumSmoothers = 7 };
+        std::array<LinearSmoother *, kNumSmoothers> getSmoothers();
+        std::array<float, kNumSmoothers> getSmootherTargets();
     };
 
     TapControl tapControls_[GdMaxLines];
 
     // internal
-    std::vector<float> temp_[11];
+    enum { kNumTempBuffers = 14 };
+    std::array<std::vector<float>, kNumTempBuffers> temp_;
 };

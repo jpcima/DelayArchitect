@@ -87,11 +87,23 @@ void GdNetwork::setParameter(unsigned parameter, float value)
                 tapControl.clear();
             }
             break;
+        case GDP_TAP_A_DELAY:
+            tapControl.delay_ = value;
+            break;
         case GDP_TAP_A_LEVEL:
             tapControl.levelDB_ = value;
             break;
-        case GDP_TAP_A_DELAY:
-            tapControl.delay_ = value;
+        case GDP_TAP_A_FILTER:
+            tapControl.filter_ = (int)value;
+            break;
+        case GDP_TAP_A_LPF_CUTOFF:
+            tapControl.lpfCutoff_ = value;
+            break;
+        case GDP_TAP_A_HPF_CUTOFF:
+            tapControl.hpfCutoff_ = value;
+            break;
+        case GDP_TAP_A_RESONANCE:
+            tapControl.resonanceDB_ = value;
             break;
         case GDP_TAP_A_PAN:
             tapControl.pan_ = value;
@@ -115,14 +127,25 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
     float *leftOutput = outputs[0];
     float *rightOutput = outputs[1];
 
-    float *delays = temp_[0].data();
-    float *feedbackGain = temp_[1].data();
-    float *level = temp_[2].data();
-    float *pan = temp_[3].data();
-    float *width = temp_[4].data();
-    float *feedbackTapOutputs[2] = { temp_[5].data(), temp_[6].data() };
-    float *ordinaryTapOutputs[2] = { temp_[7].data(), temp_[8].data() };
-    float *inputAndFeedbackSums[2] = { temp_[9].data(), temp_[10].data() };
+    size_t iTemp = 0;
+    auto allocateTemp = [this, &iTemp]() -> float * {
+        assert(iTemp < kNumTempBuffers);
+        return temp_[iTemp++].data();
+    };
+
+    float *delays = allocateTemp();
+    float *feedbackGain = allocateTemp();
+    float *level = allocateTemp();
+    float *pan = allocateTemp();
+    float *width = allocateTemp();
+    float *feedbackTapOutputs[2] = { allocateTemp(), allocateTemp() };
+    float *ordinaryTapOutputs[2] = { allocateTemp(), allocateTemp() };
+    float *inputAndFeedbackSums[2] = { allocateTemp(), allocateTemp() };
+
+    GdTapFx::Control fxControl;
+    fxControl.lpfCutoff = allocateTemp();
+    fxControl.hpfCutoff = allocateTemp();
+    fxControl.resonance = allocateTemp();
 
     const float *tapInputs[2] = { leftInput, rightInput };
 
@@ -165,6 +188,15 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
                 tapControl.smoothWidth_.process(width, width, count, true);
             }
 
+            // compute FX parameters
+            fxControl.filter = tapControl.filter_;
+            std::fill_n(fxControl.lpfCutoff, count, tapControl.lpfCutoff_);
+            tapControl.smoothLpfCutoff_.process(fxControl.lpfCutoff, fxControl.lpfCutoff, count, true);
+            std::fill_n(fxControl.hpfCutoff, count, tapControl.hpfCutoff_);
+            tapControl.smoothHpfCutoff_.process(fxControl.hpfCutoff, fxControl.hpfCutoff, count, true);
+            std::fill_n(fxControl.resonance, count, db2linear(tapControl.resonanceDB_));
+            tapControl.smoothResonanceLinear_.process(fxControl.resonance, fxControl.resonance, count, true);
+
             // compute the feedback gain
             std::fill_n(feedbackGain, count, db2linear(fbTapGainDB_));
             smoothFbGainLinear_.process(feedbackGain, feedbackGain, count, true);
@@ -184,7 +216,7 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
                     inputAndFeedbackSum[i] = in;
 
                     float out = tap.line_.processOne(in, delays[i]);
-                    out = tap.fx_.processOne(out);
+                    out = tap.fx_.processOne(out, fxControl, i);
 
                     feedbackTapOutput[i] = out;
                     feedback = out;
@@ -230,6 +262,15 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
                 tapControl.smoothWidth_.process(width, width, count, true);
             }
 
+            // compute FX parameters
+            fxControl.filter = tapControl.filter_;
+            std::fill_n(fxControl.lpfCutoff, count, tapControl.lpfCutoff_);
+            tapControl.smoothLpfCutoff_.process(fxControl.lpfCutoff, fxControl.lpfCutoff, count, true);
+            std::fill_n(fxControl.hpfCutoff, count, tapControl.hpfCutoff_);
+            tapControl.smoothHpfCutoff_.process(fxControl.hpfCutoff, fxControl.hpfCutoff, count, true);
+            std::fill_n(fxControl.resonance, count, db2linear(tapControl.resonanceDB_));
+            tapControl.smoothResonanceLinear_.process(fxControl.resonance, fxControl.resonance, count, true);
+
             for (unsigned chanIndex = 0; chanIndex < numInputs; ++chanIndex) {
                 ChannelDsp &chan = channels_[chanIndex];
                 TapDsp &tap = chan.taps_[tapIndex];
@@ -239,7 +280,7 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
                 float *ordinaryTapOutput = ordinaryTapOutputs[chanIndex];
 
                 tap.line_.process(tapInput, delays, ordinaryTapOutput, count);
-                tap.fx_.process(ordinaryTapOutput, ordinaryTapOutput, count);
+                tap.fx_.process(ordinaryTapOutput, ordinaryTapOutput, fxControl, count);
             }
 
             // add to stereo mix
@@ -356,24 +397,46 @@ void GdNetwork::ChannelDsp::setBufferSize(unsigned bufferSize)
 //==============================================================================
 GdNetwork::TapControl::TapControl()
 {
-    smoothLevelLinear_.setSmoothTime(GdParamSmoothTime);
-    smoothDelay_.setSmoothTime(GdParamSmoothTime);
-    smoothPan_.setSmoothTime(GdParamSmoothTime);
-    smoothWidth_.setSmoothTime(GdParamSmoothTime);
+    for (LinearSmoother *smoother : getSmoothers())
+        smoother->setSmoothTime(GdParamSmoothTime);
 }
 
 void GdNetwork::TapControl::clear()
 {
-    smoothLevelLinear_.clear(db2linear(levelDB_));
-    smoothDelay_.clear(delay_);
-    smoothPan_.clear(pan_);
-    smoothWidth_.clear(width_);
+    std::array<LinearSmoother *, kNumSmoothers> smoothers = getSmoothers();
+    std::array<float, kNumSmoothers> targets = getSmootherTargets();
+    for (unsigned i = 0; i < kNumSmoothers; ++i)
+        smoothers[i]->clear(targets[i]);
 }
 
 void GdNetwork::TapControl::setSampleRate(float sampleRate)
 {
-    smoothLevelLinear_.setSampleRate(sampleRate);
-    smoothDelay_.setSampleRate(sampleRate);
-    smoothPan_.setSampleRate(sampleRate);
-    smoothWidth_.setSampleRate(sampleRate);
+    for (LinearSmoother *smoother : getSmoothers())
+        smoother->setSampleRate(sampleRate);
+}
+
+auto GdNetwork::TapControl::getSmoothers() -> std::array<LinearSmoother *, kNumSmoothers>
+{
+    return {{
+        &smoothDelay_,
+        &smoothLevelLinear_,
+        &smoothLpfCutoff_,
+        &smoothHpfCutoff_,
+        &smoothResonanceLinear_,
+        &smoothPan_,
+        &smoothWidth_,
+    }};
+}
+
+auto GdNetwork::TapControl::getSmootherTargets() -> std::array<float, kNumSmoothers>
+{
+    return {{
+        delay_,
+        db2linear(levelDB_),
+        lpfCutoff_,
+        hpfCutoff_,
+        db2linear(resonanceDB_),
+        pan_,
+        width_,
+    }};
 }
