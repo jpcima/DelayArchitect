@@ -109,8 +109,13 @@ void main(string[] args)
         code = removeMethod(code, method);
     foreach (string method; ["getNumInputs", "getNumOutputs"])
         code = makeMethodStaticConstexpr(code, method);
+    if (opts.oneSample)
+    {
+        foreach (string method; ["getNumIntControls", "getNumRealControls"])
+            code = makeMethodStaticConstexpr(code, method);
+    }
     if (!opts.superclassName)
-        code = removeSuperclass(code);
+        code = removeSuperclass(code, opts.oneSample ? "one_sample_dsp" : "dsp");
     code = makePointerArgsConst(code, opts.oneSample);
     code = addParameters(code, params);
 
@@ -200,7 +205,7 @@ string makeMethodStaticConstexpr(string code, string method)
     string[] newLines;
     newLines.reserve(1024);
 
-    auto expr = regex(`^(\s*)(.*\b` ~ method.escaper.to!string ~ `\s*\(.*\{\s*)$`);
+    auto expr = regex(`^(\s*)(.*\b` ~ method.escaper.to!string ~ `\s*\(.*\{.*)$`);
 
     foreach (string line; code.lineSplitter)
     {
@@ -214,9 +219,9 @@ string makeMethodStaticConstexpr(string code, string method)
     return newLines.join('\n');
 }
 
-string removeSuperclass(string code)
+string removeSuperclass(string code, string superClassName)
 {
-    auto expr = regex(`\s*:\s*public\s+dsp\s*`);
+    auto expr = regex(`\s*:\s*public\s+` ~ superClassName.escaper.to!string ~ `\s*`);
     return code.replaceFirst(expr, " ");
 }
 

@@ -104,7 +104,7 @@ foreach(_filterType LP6 HP6 LP12 HP12)
     "sources/gd/filters/GdFilters.dsp"
     "sources/gd/filters/GdFilter${_filterType}.hxx"
     PROCESS_NAME "entry${_filterType}"
-    IN_PLACE MATH_APPROXIMATION)
+    ONE_SAMPLE MATH_APPROXIMATION)
 endforeach()
 
 ###
