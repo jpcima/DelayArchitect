@@ -19,19 +19,16 @@ struct Editor::Impl : public TapEditScreen::Listener,
 
     void setActiveTap(int tapNumber);
     void syncActiveTapParametersToControls();
-    void syncActiveTapParameterToControls(int switchableIndex);
+    void syncActiveTapParameterToControls(GdParameter decomposedIndex);
     void setSliderRangeFromParameter(juce::Slider *slider, int parameterIndex);
     void setComboBoxChoicesFromParameter(juce::ComboBox *comboBox, int parameterIndex);
     int getParameterForSlider(juce::Slider *slider);
     int getParameterForButton(juce::Button *button);
     int getParameterForComboBox(juce::ComboBox *comboBox);
 
-    static void breakDownParameterIndex(int parameterIndex, int &switchableIndex, int &tapNumber);
-    static int recomposeParameterIndex(int switchableIndex, int tapNumber);
-
-    void tapEditStarted(TapEditScreen *, int tapNumber, ChangeId id) override;
-    void tapEditEnded(TapEditScreen *, int tapNumber, ChangeId id) override;
-    void tapValueChanged(TapEditScreen *, int tapNumber, ChangeId id, float value) override;
+    void tapEditStarted(TapEditScreen *, int tapNumber, GdParameter id) override;
+    void tapEditEnded(TapEditScreen *, int tapNumber, GdParameter id) override;
+    void tapValueChanged(TapEditScreen *, int tapNumber, GdParameter id, float value) override;
 
     void sliderDragStarted(juce::Slider *slider) override;
     void sliderDragEnded(juce::Slider *slider) override;
@@ -131,24 +128,28 @@ void Editor::Impl::syncActiveTapParametersToControls()
     mainComponent.setActiveTapLabelText(tapText);
 
     ///
-    for (int i = 0; i < GDP_TAP_B_ENABLE; ++i)
-        syncActiveTapParameterToControls(i);
+    for (int i = 0; i < GdNumPametersPerTap; ++i) {
+        GdParameter decomposedIndex = (GdParameter)(GdFirstParameterOfFirstTap + i);
+        syncActiveTapParameterToControls(decomposedIndex);
+    }
 }
 
-void Editor::Impl::syncActiveTapParameterToControls(int switchableIndex)
+void Editor::Impl::syncActiveTapParameterToControls(GdParameter decomposedIndex)
 {
     int tapNumber = activeTapNumber_;
-    int parameterIndex = recomposeParameterIndex(switchableIndex, tapNumber);
+    int parameterIndex = GdRecomposeParameter(decomposedIndex, tapNumber);
     juce::RangedAudioParameter *parameter = static_cast<juce::RangedAudioParameter *>(parameters_[parameterIndex]);
 
     float value = parameter->convertFrom0to1(parameter->getValue());
 
-    switch (switchableIndex) {
+    switch (decomposedIndex) {
     case GDP_TAP_A_ENABLE:
         mainComponent_->getTapEnabledButton()->setToggleState((bool)value, juce::dontSendNotification);
         break;
     case GDP_TAP_A_DELAY:
         mainComponent_->getTapDelaySlider()->setValue(value, juce::dontSendNotification);
+        break;
+    default:
         break;
     }
 }
@@ -174,79 +175,56 @@ int Editor::Impl::getParameterForSlider(juce::Slider *slider)
 {
     MainComponent &mainComponent = *mainComponent_;
     int tapNumber = activeTapNumber_;
-    int switchableIndex = -1;
+    GdParameter decomposedIndex = GDP_NONE;
 
     if (slider == mainComponent.getTapDelaySlider())
-        switchableIndex = GDP_TAP_A_DELAY;
+        decomposedIndex = GDP_TAP_A_DELAY;
     else if (slider == mainComponent.getFeedbackTapGainSlider())
-        switchableIndex = GDP_FEEDBACK_GAIN;
+        decomposedIndex = GDP_FEEDBACK_GAIN;
     else if (slider == mainComponent.getWetSlider())
-        switchableIndex = GDP_MIX_WET;
+        decomposedIndex = GDP_MIX_WET;
     else if (slider == mainComponent.getDrySlider())
-        switchableIndex = GDP_MIX_DRY;
+        decomposedIndex = GDP_MIX_DRY;
 
-    if (switchableIndex == -1)
+    if (decomposedIndex == GDP_NONE)
         return -1;
     else
-        return recomposeParameterIndex(switchableIndex, tapNumber);
+        return GdRecomposeParameter(decomposedIndex, tapNumber);
 }
 
 int Editor::Impl::getParameterForButton(juce::Button *button)
 {
     MainComponent &mainComponent = *mainComponent_;
     int tapNumber = activeTapNumber_;
-    int switchableIndex = -1;
+    GdParameter decomposedIndex = GDP_NONE;
 
     if (button == mainComponent.getTapEnabledButton())
-        switchableIndex = GDP_TAP_A_ENABLE;
+        decomposedIndex = GDP_TAP_A_ENABLE;
 
-    if (switchableIndex == -1)
+    if (decomposedIndex == GDP_NONE)
         return -1;
     else
-        return recomposeParameterIndex(switchableIndex, tapNumber);
+        return GdRecomposeParameter(decomposedIndex, tapNumber);
 }
 
 int Editor::Impl::getParameterForComboBox(juce::ComboBox *comboBox)
 {
     MainComponent &mainComponent = *mainComponent_;
     int tapNumber = activeTapNumber_;
-    int switchableIndex = -1;
+    GdParameter decomposedIndex = GDP_NONE;
 
     if (comboBox == mainComponent.getFeedbackTapChoice())
-        switchableIndex = GDP_FEEDBACK_TAP;
+        decomposedIndex = GDP_FEEDBACK_TAP;
 
-    if (switchableIndex == -1)
+    if (decomposedIndex == GDP_NONE)
         return -1;
     else
-        return recomposeParameterIndex(switchableIndex, tapNumber);
+        return GdRecomposeParameter(decomposedIndex, tapNumber);
 }
 
-void Editor::Impl::breakDownParameterIndex(int parameterIndex, int &switchableIndex, int &tapNumber)
+void Editor::Impl::tapEditStarted(TapEditScreen *, int tapNumber, GdParameter id)
 {
-    if (parameterIndex < GDP_TAP_A_ENABLE) {
-        switchableIndex = parameterIndex;
-        tapNumber = -1;
-    }
-    else {
-        int numParametersPerTap = GDP_TAP_B_ENABLE - GDP_TAP_A_ENABLE;
-        switchableIndex = (parameterIndex - GDP_TAP_A_ENABLE) % numParametersPerTap + GDP_TAP_A_ENABLE;
-        tapNumber = (parameterIndex - GDP_TAP_A_ENABLE) / numParametersPerTap;
-    }
-}
-
-int Editor::Impl::recomposeParameterIndex(int switchableIndex, int tapNumber)
-{
-    int parameterIndex;
-    if (switchableIndex < GDP_TAP_A_ENABLE)
-        parameterIndex = switchableIndex;
-    else
-        parameterIndex = switchableIndex + tapNumber * (GDP_TAP_B_ENABLE - GDP_TAP_A_ENABLE);
-    return parameterIndex;
-}
-
-void Editor::Impl::tapEditStarted(TapEditScreen *, int tapNumber, ChangeId id)
-{
-    int parameterIndex = recomposeParameterIndex((int)id, tapNumber);
+    int parameterIndex = GdRecomposeParameter(id, tapNumber);
     juce::RangedAudioParameter *parameter = static_cast<juce::RangedAudioParameter *>(parameters_[parameterIndex]);
 
     parameter->beginChangeGesture();
@@ -254,9 +232,9 @@ void Editor::Impl::tapEditStarted(TapEditScreen *, int tapNumber, ChangeId id)
     setActiveTap(tapNumber);
 }
 
-void Editor::Impl::tapEditEnded(TapEditScreen *, int tapNumber, ChangeId id)
+void Editor::Impl::tapEditEnded(TapEditScreen *, int tapNumber, GdParameter id)
 {
-    int parameterIndex = recomposeParameterIndex((int)id, tapNumber);
+    int parameterIndex = GdRecomposeParameter(id, tapNumber);
     juce::RangedAudioParameter *parameter = static_cast<juce::RangedAudioParameter *>(parameters_[parameterIndex]);
 
     parameter->endChangeGesture();
@@ -264,9 +242,9 @@ void Editor::Impl::tapEditEnded(TapEditScreen *, int tapNumber, ChangeId id)
     setActiveTap(tapNumber);
 }
 
-void Editor::Impl::tapValueChanged(TapEditScreen *, int tapNumber, ChangeId id, float value)
+void Editor::Impl::tapValueChanged(TapEditScreen *, int tapNumber, GdParameter id, float value)
 {
-    int parameterIndex = recomposeParameterIndex((int)id, tapNumber);
+    int parameterIndex = GdRecomposeParameter(id, tapNumber);
     juce::RangedAudioParameter *parameter = static_cast<juce::RangedAudioParameter *>(parameters_[parameterIndex]);
 
     float valueNormalized = parameter->convertTo0to1(value);
@@ -276,7 +254,7 @@ void Editor::Impl::tapValueChanged(TapEditScreen *, int tapNumber, ChangeId id, 
     if (activeTapNumber_ != tapNumber)
         setActiveTap(tapNumber);
     else
-        syncActiveTapParameterToControls((int)id);
+        syncActiveTapParameterToControls(id);
 }
 
 void Editor::Impl::sliderDragStarted(juce::Slider *slider)
@@ -344,11 +322,11 @@ void Editor::Impl::parameterValueChanged(int parameterIndex, float newValueNorma
 
     float newValue = parameter->convertFrom0to1(newValueNormalized);
 
-    int switchableIndex;
+    GdParameter decomposedIndex;
     int tapNumber;
-    breakDownParameterIndex(parameterIndex, switchableIndex, tapNumber);
+    decomposedIndex = GdDecomposeParameter((GdParameter)parameterIndex, &tapNumber);
 
-    switch (switchableIndex) {
+    switch (decomposedIndex) {
     case GDP_FEEDBACK_TAP:
         mainComponent.getFeedbackTapChoice()->setSelectedItemIndex((int)newValue, juce::dontSendNotification);
         break;
@@ -388,10 +366,12 @@ void Editor::Impl::parameterValueChanged(int parameterIndex, float newValueNorma
     case GDP_TAP_A_WIDTH:
         // TODO
         break;
+    default:
+        break;
     }
 
     if (tapNumber == activeTapNumber_)
-        syncActiveTapParameterToControls(switchableIndex);
+        syncActiveTapParameterToControls(decomposedIndex);
 }
 
 void Editor::Impl::parameterGestureChanged(int parameterIndex, bool gestureIsStarting)

@@ -54,20 +54,9 @@ public:
         virtual void tappingHasStarted(TapEditScreen *) {}
         virtual void tappingHasEnded(TapEditScreen *) {}
 
-        enum ChangeId {
-            kChangeEnabled = GDP_TAP_A_ENABLE,
-            kChangeDelay = GDP_TAP_A_DELAY,
-            kChangeLPFCutoff = GDP_TAP_A_LPF_CUTOFF,
-            kChangeHPFCutoff = GDP_TAP_A_HPF_CUTOFF,
-            kChangeResonance = GDP_TAP_A_RESONANCE,
-            kChangeTune = GDP_TAP_A_TUNE,
-            kChangePan = GDP_TAP_A_PAN,
-            kChangeLevel = GDP_TAP_A_LEVEL,
-        };
-
-        virtual void tapEditStarted(TapEditScreen *, int tapNumber, ChangeId id) { (void)tapNumber; (void)id; }
-        virtual void tapEditEnded(TapEditScreen *, int tapNumber, ChangeId id) { (void)tapNumber; (void)id; }
-        virtual void tapValueChanged(TapEditScreen *, int tapNumber, ChangeId id, float value) { (void)tapNumber; (void)id; (void)value; }
+        virtual void tapEditStarted(TapEditScreen *, int tapNumber, GdParameter id) { (void)tapNumber; (void)id; }
+        virtual void tapEditEnded(TapEditScreen *, int tapNumber, GdParameter id) { (void)tapNumber; (void)id; }
+        virtual void tapValueChanged(TapEditScreen *, int tapNumber, GdParameter id, float value) { (void)tapNumber; (void)id; (void)value; }
     };
 
     void addListener(Listener *listener);
@@ -114,11 +103,9 @@ public:
     public:
         virtual ~Listener() {}
 
-        using ChangeId = TapEditScreen::Listener::ChangeId;
-
-        virtual void tapEditStarted(TapEditItem *, ChangeId id) { (void)id; }
-        virtual void tapEditEnded(TapEditItem *, ChangeId id) { (void)id; }
-        virtual void tapValueChanged(TapEditItem *, ChangeId id, float value) { (void)id; (void)value; }
+        virtual void tapEditStarted(TapEditItem *, GdParameter id) { (void)id; }
+        virtual void tapEditEnded(TapEditItem *, GdParameter id) { (void)id; }
+        virtual void tapValueChanged(TapEditItem *, GdParameter id, float value) { (void)id; (void)value; }
     };
 
     void addListener(Listener *listener);

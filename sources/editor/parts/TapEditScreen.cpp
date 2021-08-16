@@ -31,9 +31,9 @@ struct TapEditScreen::Impl : public TapEditItem::Listener {
     void updateItemSizeAndPosition(int itemNumber);
 
     ///
-    void tapEditStarted(TapEditItem *item, ChangeId id) override;
-    void tapEditEnded(TapEditItem *item, ChangeId id) override;
-    void tapValueChanged(TapEditItem *item, ChangeId id, float value) override;
+    void tapEditStarted(TapEditItem *item, GdParameter id) override;
+    void tapEditEnded(TapEditItem *item, GdParameter id) override;
+    void tapValueChanged(TapEditItem *item, GdParameter id, float value) override;
 };
 
 TapEditScreen::TapEditScreen()
@@ -320,19 +320,19 @@ void TapEditScreen::Impl::updateItemSizeAndPosition(int itemNumber)
     item.setTopLeftPosition((int)(delayToX(data.delay) - 0.5f * (float)width), 0);
 }
 
-void TapEditScreen::Impl::tapEditStarted(TapEditItem *item, ChangeId id)
+void TapEditScreen::Impl::tapEditStarted(TapEditItem *item, GdParameter id)
 {
     TapEditScreen *self = self_;
     listeners_.call([self, item, id](Listener &listener) { listener.tapEditStarted(self, item->getItemNumber(), id); });
 }
 
-void TapEditScreen::Impl::tapEditEnded(TapEditItem *item, ChangeId id)
+void TapEditScreen::Impl::tapEditEnded(TapEditItem *item, GdParameter id)
 {
     TapEditScreen *self = self_;
     listeners_.call([self, item, id](Listener &listener) { listener.tapEditEnded(self, item->getItemNumber(), id); });
 }
 
-void TapEditScreen::Impl::tapValueChanged(TapEditItem *item, ChangeId id, float value)
+void TapEditScreen::Impl::tapValueChanged(TapEditItem *item, GdParameter id, float value)
 {
     TapEditScreen *self = self_;
     listeners_.call([self, item, id, value](Listener &listener) { listener.tapValueChanged(self, item->getItemNumber(), id, value); });
@@ -345,7 +345,7 @@ struct TapEditItem::Impl : public TapSlider::Listener {
     TapEditItem *self_ = nullptr;
     juce::ListenerList<Listener> listeners_;
     juce::ComponentDragger dragger_;
-    int dragChangeId_ = -1;
+    GdParameter dragChangeId_ = GDP_NONE;
     TapEditData data_;
     TapEditScreen *screen_ = nullptr;
     int itemNumber_ {};
@@ -379,7 +379,7 @@ TapEditItem::TapEditItem(TapEditScreen *screen, int itemNumber)
     };
 
     auto createSlider = [this, &impl]
-        (TapEditMode mode, Listener::ChangeId id, Listener::ChangeId id2, int kind)
+        (TapEditMode mode, GdParameter id, GdParameter id2, int kind)
     {
         TapSlider *slider = new TapSlider;
         impl.sliders_[mode] = std::unique_ptr<TapSlider>(slider);
@@ -404,11 +404,11 @@ TapEditItem::TapEditItem(TapEditScreen *screen, int itemNumber)
         addChildComponent(slider);
     };
 
-    createSlider(kTapEditCutoff, Listener::ChangeId::kChangeHPFCutoff, Listener::ChangeId::kChangeLPFCutoff, kTapSliderTwoValues);
-    createSlider(kTapEditResonance, Listener::ChangeId::kChangeResonance, (Listener::ChangeId)-1, kTapSliderNormal);
-    createSlider(kTapEditTune, Listener::ChangeId::kChangeTune, (Listener::ChangeId)-1, kTapSliderBipolar);
-    createSlider(kTapEditPan, Listener::ChangeId::kChangePan, (Listener::ChangeId)-1, kTapSliderBipolar);
-    createSlider(kTapEditLevel, Listener::ChangeId::kChangeLevel, (Listener::ChangeId)-1, kTapSliderNormal);
+    createSlider(kTapEditCutoff, GDP_TAP_A_HPF_CUTOFF, GDP_TAP_A_LPF_CUTOFF, kTapSliderTwoValues);
+    createSlider(kTapEditResonance, GDP_TAP_A_RESONANCE, GDP_NONE, kTapSliderNormal);
+    createSlider(kTapEditTune, GDP_TAP_A_TUNE, GDP_NONE, kTapSliderBipolar);
+    createSlider(kTapEditPan, GDP_TAP_A_PAN, GDP_NONE, kTapSliderBipolar);
+    createSlider(kTapEditLevel, GDP_TAP_A_LEVEL, GDP_NONE, kTapSliderNormal);
 
     if (TapSlider *slider = impl.getSliderForEditMode(kTapEditCutoff))
         slider->setSkewFactor(0.25f);
@@ -470,7 +470,7 @@ void TapEditItem::setTapEnabled(bool enabled, juce::NotificationType nt)
     impl.data_.enabled = enabled;
 
     if (nt != juce::dontSendNotification)
-        impl.listeners_.call([this, enabled](Listener &l) { l.tapValueChanged(this, Listener::ChangeId::kChangeEnabled, enabled); });
+        impl.listeners_.call([this, enabled](Listener &l) { l.tapValueChanged(this, GDP_TAP_A_ENABLE, enabled); });
 
     setVisible(enabled);
 }
@@ -484,7 +484,7 @@ void TapEditItem::setTapDelay(float delay, juce::NotificationType nt)
     impl.data_.delay = delay;
 
     if (nt != juce::dontSendNotification)
-        impl.listeners_.call([this, delay](Listener &l) { l.tapValueChanged(this, Listener::ChangeId::kChangeDelay, delay); });
+        impl.listeners_.call([this, delay](Listener &l) { l.tapValueChanged(this, GDP_TAP_A_DELAY, delay); });
 
     impl.screen_->updateItemSizeAndPosition(impl.itemNumber_);
 }
@@ -574,10 +574,10 @@ void TapEditItem::mouseDown(const juce::MouseEvent &e)
     Impl &impl = *impl_;
     juce::Rectangle<int> bounds = getLocalBounds();
 
-    if (impl.dragChangeId_ == -1 && e.y >= bounds.getBottom() - impl.labelHeight_) {
-        impl.dragChangeId_ = Listener::ChangeId::kChangeDelay;
+    if (impl.dragChangeId_ == GDP_NONE && e.y >= bounds.getBottom() - impl.labelHeight_) {
+        impl.dragChangeId_ = GDP_TAP_A_DELAY;
         impl.dragger_.startDraggingComponent(this, e);
-        impl.listeners_.call([this](Listener &l) { l.tapEditStarted(this, (Listener::ChangeId)impl_->dragChangeId_); });
+        impl.listeners_.call([this](Listener &l) { l.tapEditStarted(this, impl_->dragChangeId_); });
         return;
     }
 
@@ -588,9 +588,9 @@ void TapEditItem::mouseUp(const juce::MouseEvent &e)
 {
     Impl &impl = *impl_;
 
-    if (impl.dragChangeId_ != -1) {
-        impl.listeners_.call([this](Listener &l) { l.tapEditEnded(this, (Listener::ChangeId)impl_->dragChangeId_); });
-        impl.dragChangeId_ = -1;
+    if (impl.dragChangeId_ != GDP_NONE) {
+        impl.listeners_.call([this](Listener &l) { l.tapEditEnded(this, impl_->dragChangeId_); });
+        impl.dragChangeId_ = GDP_NONE;
         return;
     }
 
@@ -601,7 +601,7 @@ void TapEditItem::mouseDrag(const juce::MouseEvent &e)
 {
     Impl &impl = *impl_;
 
-    if (impl.dragChangeId_ != -1) {
+    if (impl.dragChangeId_ != GDP_NONE) {
         class TapConstrainer : public juce::ComponentBoundsConstrainer {
         public:
             explicit TapConstrainer(TapEditScreen *screen)
@@ -696,9 +696,9 @@ void TapEditItem::Impl::sliderValueChanged(juce::Slider *slider)
     }
 
     TapEditItem *self = self_;
-    int id = (int)slider->getProperties().getWithDefault(identifier, -1);
-    if (id != -1)
-        listeners_.call([self, id, value](Listener &l) { l.tapValueChanged(self, (Listener::ChangeId)id, (float)value); });
+    GdParameter id = (GdParameter)(int)slider->getProperties().getWithDefault(identifier, -1);
+    if (id != GDP_NONE)
+        listeners_.call([self, id, value](Listener &l) { l.tapValueChanged(self, id, (float)value); });
 }
 
 void TapEditItem::Impl::sliderDragStarted(juce::Slider *slider)
@@ -717,9 +717,9 @@ void TapEditItem::Impl::sliderDragStarted(juce::Slider *slider)
     }
 
     TapEditItem *self = self_;
-    int id = (int)slider->getProperties().getWithDefault(identifier, -1);
-    if (id != -1)
-        listeners_.call([self, id](Listener &l) { l.tapEditStarted(self, (Listener::ChangeId)id); });
+    GdParameter id = (GdParameter)(int)slider->getProperties().getWithDefault(identifier, -1);
+    if (id != GDP_NONE)
+        listeners_.call([self, id](Listener &l) { l.tapEditStarted(self, id); });
 }
 
 void TapEditItem::Impl::sliderDragEnded(juce::Slider *slider)
@@ -738,7 +738,7 @@ void TapEditItem::Impl::sliderDragEnded(juce::Slider *slider)
     }
 
     TapEditItem *self = self_;
-    int id = (int)slider->getProperties().getWithDefault(identifier, -1);
-    if (id != -1)
-        listeners_.call([self, id](Listener &l) { l.tapEditEnded(self, (Listener::ChangeId)id); });
+    GdParameter id = (GdParameter)(int)slider->getProperties().getWithDefault(identifier, -1);
+    if (id != GDP_NONE)
+        listeners_.call([self, id](Listener &l) { l.tapEditEnded(self, id); });
 }

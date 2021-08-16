@@ -81,6 +81,8 @@ Ignorable static constexpr float GdMinGainDB = -80.0f;
     /* End */
 
 typedef enum GdParameter {
+    GDP_NONE = -1,
+    ///
     #define EACH(p, min, max, def, flags, label, group) GDP_##p,
     GD_EACH_PARAMETER(EACH)
     #undef EACH
@@ -95,3 +97,37 @@ typedef enum GdParameterFlag {
     GDP_CHOICE      = 4,
     GDP_LOGARITHMIC = 8
 } GdParameterFlag;
+
+enum {
+    GdFirstParameterOfFirstTap = GDP_TAP_A_ENABLE,
+    GdNumPametersPerTap = GDP_TAP_B_ENABLE - GDP_TAP_A_ENABLE,
+};
+
+inline GdParameter GdDecomposeParameter(GdParameter parameter, int *de_tap_ptr)
+{
+    int index = (int)parameter;
+    int de_tap;
+    int de_index;
+    if (index < GdFirstParameterOfFirstTap) {
+        de_index = index;
+        de_tap = -1;
+    }
+    else {
+        de_index = (index - GdFirstParameterOfFirstTap) % GdNumPametersPerTap + GdFirstParameterOfFirstTap;
+        de_tap = (index - GdFirstParameterOfFirstTap) / GdNumPametersPerTap;
+    }
+    if (de_tap_ptr)
+        *de_tap_ptr = de_tap;
+    return (GdParameter)de_index;
+}
+
+inline GdParameter GdRecomposeParameter(GdParameter de_parameter, int de_tap)
+{
+    int index;
+    int de_index = (int)de_parameter;
+    if (de_index < GdFirstParameterOfFirstTap)
+        index = de_index;
+    else
+        index = de_index + de_tap * GdNumPametersPerTap;
+    return (GdParameter)index;
+}
