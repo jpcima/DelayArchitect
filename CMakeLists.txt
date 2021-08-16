@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.7)
 project(GroovyDelay VERSION "0.0.1" LANGUAGES C CXX)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+include(FaustWrap)
+
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_VISIBILITY_PRESET "hidden")
@@ -84,6 +87,10 @@ add_library(Gd STATIC
   "sources/gd/GdNetwork.h"
   "sources/gd/GdTapFx.cpp"
   "sources/gd/GdTapFx.h"
+  "sources/gd/filters/GdFilterLP6.hxx"
+  "sources/gd/filters/GdFilterHP6.hxx"
+  "sources/gd/filters/GdFilterLP12.hxx"
+  "sources/gd/filters/GdFilterHP12.hxx"
   "sources/gd/utility/LinearSmoother.cpp"
   "sources/gd/utility/LinearSmoother.h"
   "sources/gd/utility/NextPowerOfTwo.h"
@@ -91,6 +98,14 @@ add_library(Gd STATIC
 target_include_directories(Gd
   PUBLIC
   "sources/gd")
+
+foreach(_filterType LP6 HP6 LP12 HP12)
+  add_faust_command(
+    "sources/gd/filters/GdFilters.dsp"
+    "sources/gd/filters/GdFilter${_filterType}.hxx"
+    PROCESS_NAME "entry${_filterType}"
+    IN_PLACE MATH_APPROXIMATION)
+endforeach()
 
 ###
 target_link_libraries(GroovyDelay
