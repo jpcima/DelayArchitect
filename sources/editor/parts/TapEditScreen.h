@@ -31,14 +31,7 @@ public:
     float getTimeRange() const noexcept;
     void setTimeRange(float maxTime);
 
-    void setTapEnabled(int tapNumber, bool enabled, juce::NotificationType nt = juce::sendNotificationSync);
-    void setTapDelay(int tapNumber, float delay, juce::NotificationType nt = juce::sendNotificationSync);
-    void setTapLPFCutoff(int tapNumber, float cutoff, juce::NotificationType nt = juce::sendNotificationSync);
-    void setTapHPFCutoff(int tapNumber, float cutoff, juce::NotificationType nt = juce::sendNotificationSync);
-    void setTapResonance(int tapNumber, float resonance, juce::NotificationType nt = juce::sendNotificationSync);
-    void setTapTune(int tapNumber, float tune, juce::NotificationType nt = juce::sendNotificationSync);
-    void setTapPan(int tapNumber, float pan, juce::NotificationType nt = juce::sendNotificationSync);
-    void setTapLevel(int tapNumber, float level, juce::NotificationType nt = juce::sendNotificationSync);
+    void setTapValue(GdParameter id, float value, juce::NotificationType nt = juce::sendNotificationSync);
 
     void beginTap();
     void endTap();

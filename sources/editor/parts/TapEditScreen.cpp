@@ -98,73 +98,40 @@ void TapEditScreen::setTimeRange(float maxTime)
         impl.updateItemSizeAndPosition(itemNumber);
 }
 
-void TapEditScreen::setTapEnabled(int tapNumber, bool enabled, juce::NotificationType nt)
+void TapEditScreen::setTapValue(GdParameter id, float value, juce::NotificationType nt)
 {
+    int tapNumber;
+    GdParameter decomposedId = GdDecomposeParameter(id, &tapNumber);
+
     Impl &impl = *impl_;
     TapEditItem &item = *impl.items_[tapNumber];
 
-    item.setTapEnabled(enabled, nt);
-    item.setEditMode(enabled ? impl.editMode_ : kTapEditOff);
-
-    if (enabled)
-        impl.updateItemSizeAndPosition(tapNumber);
-}
-
-void TapEditScreen::setTapDelay(int tapNumber, float delay, juce::NotificationType nt)
-{
-    Impl &impl = *impl_;
-    TapEditItem &item = *impl.items_[tapNumber];
-
-    item.setTapDelay(delay, nt);
-    impl.updateItemSizeAndPosition(tapNumber);
-}
-
-void TapEditScreen::setTapLPFCutoff(int tapNumber, float cutoff, juce::NotificationType nt)
-{
-    Impl &impl = *impl_;
-    TapEditItem &item = *impl.items_[tapNumber];
-
-    item.setTapLPFCutoff(cutoff, nt);
-}
-
-void TapEditScreen::setTapHPFCutoff(int tapNumber, float cutoff, juce::NotificationType nt)
-{
-    Impl &impl = *impl_;
-    TapEditItem &item = *impl.items_[tapNumber];
-
-    item.setTapHPFCutoff(cutoff, nt);
-}
-
-void TapEditScreen::setTapResonance(int tapNumber, float resonance, juce::NotificationType nt)
-{
-    Impl &impl = *impl_;
-    TapEditItem &item = *impl.items_[tapNumber];
-
-    item.setTapResonance(resonance, nt);
-}
-
-void TapEditScreen::setTapTune(int tapNumber, float tune, juce::NotificationType nt)
-{
-    Impl &impl = *impl_;
-    TapEditItem &item = *impl.items_[tapNumber];
-
-    item.setTapTune(tune, nt);
-}
-
-void TapEditScreen::setTapPan(int tapNumber, float pan, juce::NotificationType nt)
-{
-    Impl &impl = *impl_;
-    TapEditItem &item = *impl.items_[tapNumber];
-
-    item.setTapPan(pan, nt);
-}
-
-void TapEditScreen::setTapLevel(int tapNumber, float level, juce::NotificationType nt)
-{
-    Impl &impl = *impl_;
-    TapEditItem &item = *impl.items_[tapNumber];
-
-    item.setTapLevel(level, nt);
+    switch (decomposedId) {
+    case GDP_TAP_A_ENABLE:
+        item.setTapEnabled((bool)value, nt);
+        break;
+    case GDP_TAP_A_DELAY:
+        item.setTapDelay(value, nt);
+        break;
+    case GDP_TAP_A_LPF_CUTOFF:
+        item.setTapLPFCutoff(value, nt);
+        break;
+    case GDP_TAP_A_HPF_CUTOFF:
+        item.setTapHPFCutoff(value, nt);
+        break;
+    case GDP_TAP_A_RESONANCE:
+        item.setTapResonance(value, nt);
+        break;
+    case GDP_TAP_A_TUNE:
+        item.setTapTune(value, nt);
+        break;
+    case GDP_TAP_A_PAN:
+        item.setTapPan(value, nt);
+        break;
+    case GDP_TAP_A_LEVEL:
+        item.setTapLevel(value, nt);
+        break;
+    }
 }
 
 void TapEditScreen::beginTap()
@@ -181,8 +148,8 @@ void TapEditScreen::beginTap()
         int nextTapNumber = impl.findUnusedTap();
         if (nextTapNumber != -1) {
             float delay = impl.currentTapTime();
-            setTapEnabled(nextTapNumber, true);
-            setTapDelay(nextTapNumber, delay);
+            setTapValue(GdRecomposeParameter(GDP_TAP_A_ENABLE, nextTapNumber), true);
+            setTapValue(GdRecomposeParameter(GDP_TAP_A_DELAY, nextTapNumber), delay);
         }
     }
 }
@@ -197,8 +164,8 @@ void TapEditScreen::endTap()
     int nextTapNumber = impl.findUnusedTap();
     if (nextTapNumber != -1) {
         float delay = impl.currentTapTime();
-        setTapEnabled(nextTapNumber, true);
-        setTapDelay(nextTapNumber, delay);
+        setTapValue(GdRecomposeParameter(GDP_TAP_A_ENABLE, nextTapNumber), true);
+        setTapValue(GdRecomposeParameter(GDP_TAP_A_DELAY, nextTapNumber), delay);
     }
 
     impl.tapRedisplayTimer_->stopTimer();
@@ -473,6 +440,11 @@ void TapEditItem::setTapEnabled(bool enabled, juce::NotificationType nt)
         impl.listeners_.call([this, enabled](Listener &l) { l.tapValueChanged(this, GdRecomposeParameter(GDP_TAP_A_ENABLE, impl_->itemNumber_), enabled); });
 
     setVisible(enabled);
+
+    TapEditScreen &screen = *impl.screen_;
+    setEditMode(enabled ? screen.getEditMode() : kTapEditOff);
+    if (enabled)
+        screen.updateItemSizeAndPosition(impl.itemNumber_);
 }
 
 void TapEditItem::setTapDelay(float delay, juce::NotificationType nt)
@@ -486,7 +458,9 @@ void TapEditItem::setTapDelay(float delay, juce::NotificationType nt)
     if (nt != juce::dontSendNotification)
         impl.listeners_.call([this, delay](Listener &l) { l.tapValueChanged(this, GdRecomposeParameter(GDP_TAP_A_DELAY, impl_->itemNumber_), delay); });
 
-    impl.screen_->updateItemSizeAndPosition(impl.itemNumber_);
+    TapEditScreen &screen = *impl.screen_;
+    if (impl.data_.enabled)
+        screen.updateItemSizeAndPosition(impl.itemNumber_);
 }
 
 void TapEditItem::setTapLPFCutoff(float cutoff, juce::NotificationType nt)

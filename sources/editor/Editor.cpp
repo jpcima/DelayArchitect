@@ -343,28 +343,28 @@ void Editor::Impl::parameterValueChanged(int parameterIndex, float newValueNorma
         mainComponent.getWetSlider()->setValue(newValue, juce::dontSendNotification);
         break;
     case GDP_TAP_A_ENABLE:
-        tapEdit->setTapEnabled(tapNumber, (bool)newValue, juce::dontSendNotification);
+        tapEdit->setTapValue((GdParameter)parameterIndex, newValue);
         break;
     case GDP_TAP_A_DELAY:
-        tapEdit->setTapDelay(tapNumber, newValue, juce::dontSendNotification);
+        tapEdit->setTapValue((GdParameter)parameterIndex, newValue);
         break;
     case GDP_TAP_A_LPF_CUTOFF:
-        tapEdit->setTapLPFCutoff(tapNumber, newValue, juce::dontSendNotification);
+        tapEdit->setTapValue((GdParameter)parameterIndex, newValue);
         break;
     case GDP_TAP_A_HPF_CUTOFF:
-        tapEdit->setTapHPFCutoff(tapNumber, newValue, juce::dontSendNotification);
+        tapEdit->setTapValue((GdParameter)parameterIndex, newValue);
         break;
     case GDP_TAP_A_RESONANCE:
-        tapEdit->setTapResonance(tapNumber, newValue, juce::dontSendNotification);
+        tapEdit->setTapValue((GdParameter)parameterIndex, newValue);
         break;
     case GDP_TAP_A_TUNE:
-        tapEdit->setTapTune(tapNumber, newValue, juce::dontSendNotification);
+        tapEdit->setTapValue((GdParameter)parameterIndex, newValue);
         break;
     case GDP_TAP_A_LEVEL:
-        tapEdit->setTapLevel(tapNumber, newValue, juce::dontSendNotification);
+        tapEdit->setTapValue((GdParameter)parameterIndex, newValue);
         break;
     case GDP_TAP_A_PAN:
-        tapEdit->setTapPan(tapNumber, newValue, juce::dontSendNotification);
+        tapEdit->setTapValue((GdParameter)parameterIndex, newValue);
         break;
     case GDP_TAP_A_WIDTH:
         // TODO
