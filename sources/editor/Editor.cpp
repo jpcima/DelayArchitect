@@ -305,8 +305,11 @@ void Editor::Impl::parameterValueChanged(int parameterIndex, float newValueNorma
     case GDP_TAP_A_DELAY:
         tapEdit->setTapDelay(tapNumber, newValue, juce::dontSendNotification);
         break;
-    case GDP_TAP_A_CUTOFF:
-        tapEdit->setTapCutoff(tapNumber, newValue, juce::dontSendNotification);
+    case GDP_TAP_A_LPF_CUTOFF:
+        tapEdit->setTapLPFCutoff(tapNumber, newValue, juce::dontSendNotification);
+        break;
+    case GDP_TAP_A_HPF_CUTOFF:
+        tapEdit->setTapHPFCutoff(tapNumber, newValue, juce::dontSendNotification);
         break;
     case GDP_TAP_A_RESONANCE:
         tapEdit->setTapResonance(tapNumber, newValue, juce::dontSendNotification);

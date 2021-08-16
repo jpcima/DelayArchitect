@@ -119,12 +119,20 @@ void TapEditScreen::setTapDelay(int tapNumber, float delay, juce::NotificationTy
     impl.updateItemSizeAndPosition(tapNumber);
 }
 
-void TapEditScreen::setTapCutoff(int tapNumber, float cutoff, juce::NotificationType nt)
+void TapEditScreen::setTapLPFCutoff(int tapNumber, float cutoff, juce::NotificationType nt)
 {
     Impl &impl = *impl_;
     TapEditItem &item = *impl.items_[tapNumber];
 
-    item.setTapCutoff(cutoff, nt);
+    item.setTapLPFCutoff(cutoff, nt);
+}
+
+void TapEditScreen::setTapHPFCutoff(int tapNumber, float cutoff, juce::NotificationType nt)
+{
+    Impl &impl = *impl_;
+    TapEditItem &item = *impl.items_[tapNumber];
+
+    item.setTapHPFCutoff(cutoff, nt);
 }
 
 void TapEditScreen::setTapResonance(int tapNumber, float resonance, juce::NotificationType nt)
@@ -364,8 +372,14 @@ TapEditItem::TapEditItem(TapEditScreen *screen, int itemNumber)
     impl.itemNumber_ = itemNumber;
     impl.screen_ = screen;
 
+    enum TapSliderKind {
+        kTapSliderNormal,
+        kTapSliderBipolar,
+        kTapSliderTwoValues,
+    };
+
     auto createSlider = [this, &impl]
-        (TapEditMode mode, Listener::ChangeId id, bool isBipolar)
+        (TapEditMode mode, Listener::ChangeId id, Listener::ChangeId id2, int kind)
     {
         TapSlider *slider = new TapSlider;
         impl.sliders_[mode] = std::unique_ptr<TapSlider>(slider);
@@ -375,18 +389,25 @@ TapEditItem::TapEditItem(TapEditScreen *screen, int itemNumber)
         slider->setRange(min, max);
         slider->setValue(def);
         slider->setDoubleClickReturnValue(true, def);
-        if (isBipolar)
+        if (kind == kTapSliderBipolar)
             slider->setBipolarAround(true, def);
+        else if (kind == kTapSliderTwoValues)
+            slider->setSliderStyle(juce::Slider::TwoValueVertical);
         slider->addListener(&impl);
-        slider->getProperties().set("X-Change-ID", (int)id);
+        if (kind != kTapSliderTwoValues)
+            slider->getProperties().set("X-Change-ID", (int)id);
+        else {
+            slider->getProperties().set("X-Change-ID-1", (int)id);
+            slider->getProperties().set("X-Change-ID-2", (int)id2);
+        }
         addChildComponent(slider);
     };
 
-    createSlider(kTapEditCutoff, Listener::ChangeId::kChangeCutoff, false);
-    createSlider(kTapEditResonance, Listener::ChangeId::kChangeResonance, false);
-    createSlider(kTapEditTune, Listener::ChangeId::kChangeTune, true);
-    createSlider(kTapEditPan, Listener::ChangeId::kChangePan, true);
-    createSlider(kTapEditLevel, Listener::ChangeId::kChangeLevel, false);
+    createSlider(kTapEditCutoff, Listener::ChangeId::kChangeHPFCutoff, Listener::ChangeId::kChangeLPFCutoff, kTapSliderTwoValues);
+    createSlider(kTapEditResonance, Listener::ChangeId::kChangeResonance, (Listener::ChangeId)-1, kTapSliderNormal);
+    createSlider(kTapEditTune, Listener::ChangeId::kChangeTune, (Listener::ChangeId)-1, kTapSliderBipolar);
+    createSlider(kTapEditPan, Listener::ChangeId::kChangePan, (Listener::ChangeId)-1, kTapSliderBipolar);
+    createSlider(kTapEditLevel, Listener::ChangeId::kChangeLevel, (Listener::ChangeId)-1, kTapSliderNormal);
 
     if (TapSlider *slider = impl.getSliderForEditMode(kTapEditCutoff))
         slider->setSkewFactor(0.25f);
@@ -467,12 +488,20 @@ void TapEditItem::setTapDelay(float delay, juce::NotificationType nt)
     impl.screen_->updateItemSizeAndPosition(impl.itemNumber_);
 }
 
-void TapEditItem::setTapCutoff(float cutoff, juce::NotificationType nt)
+void TapEditItem::setTapLPFCutoff(float cutoff, juce::NotificationType nt)
 {
     Impl &impl = *impl_;
 
     if (TapSlider *slider = impl.getSliderForEditMode(kTapEditCutoff))
-        slider->setValue(cutoff, nt);
+        slider->setMaxValue(cutoff, nt);
+}
+
+void TapEditItem::setTapHPFCutoff(float cutoff, juce::NotificationType nt)
+{
+    Impl &impl = *impl_;
+
+    if (TapSlider *slider = impl.getSliderForEditMode(kTapEditCutoff))
+        slider->setMinValue(cutoff, nt);
 }
 
 void TapEditItem::setTapResonance(float resonance, juce::NotificationType nt)
@@ -649,12 +678,25 @@ void TapEditItem::Impl::repositionSliders()
 void TapEditItem::Impl::sliderValueChanged(juce::Slider *slider)
 {
     int id = (int)slider->getProperties().getWithDefault("X-Change-ID", -1);
-    if ((int)id == -1)
-        return;
+    int id2 = -1;
+    if (id == -1) {
+        id = (int)slider->getProperties().getWithDefault("X-Change-ID-1", -1);
+        id2 = (int)slider->getProperties().getWithDefault("X-Change-ID-2", -1);
+    }
 
     TapEditItem *self = self_;
-    float value = (float)slider->getValue();
-    listeners_.call([self, id, value](Listener &l) { l.tapValueChanged(self, (Listener::ChangeId)id, value); });
+    if (id != -1 && id2 == -1) {
+        float value = (float)slider->getValue();
+        listeners_.call([self, id, value](Listener &l) { l.tapValueChanged(self, (Listener::ChangeId)id, value); });
+    }
+    else if (id != -1 && id2 != -1) {
+        float v1 = (float)slider->getMinValue();
+        float v2 = (float)slider->getMaxValue();
+        listeners_.call([self, id, id2, v1, v2](Listener &l) {
+            l.tapValueChanged(self, (Listener::ChangeId)id, v1);
+            l.tapValueChanged(self, (Listener::ChangeId)id2, v2);
+        });
+    }
 }
 
 void TapEditItem::Impl::sliderDragStarted(juce::Slider *slider)

@@ -33,7 +33,8 @@ public:
 
     void setTapEnabled(int tapNumber, bool enabled, juce::NotificationType nt = juce::sendNotificationSync);
     void setTapDelay(int tapNumber, float delay, juce::NotificationType nt = juce::sendNotificationSync);
-    void setTapCutoff(int tapNumber, float cutoff, juce::NotificationType nt = juce::sendNotificationSync);
+    void setTapLPFCutoff(int tapNumber, float cutoff, juce::NotificationType nt = juce::sendNotificationSync);
+    void setTapHPFCutoff(int tapNumber, float cutoff, juce::NotificationType nt = juce::sendNotificationSync);
     void setTapResonance(int tapNumber, float resonance, juce::NotificationType nt = juce::sendNotificationSync);
     void setTapTune(int tapNumber, float tune, juce::NotificationType nt = juce::sendNotificationSync);
     void setTapPan(int tapNumber, float pan, juce::NotificationType nt = juce::sendNotificationSync);
@@ -56,7 +57,8 @@ public:
         enum ChangeId {
             kChangeEnabled = GDP_TAP_A_ENABLE,
             kChangeDelay = GDP_TAP_A_DELAY,
-            kChangeCutoff = GDP_TAP_A_CUTOFF,
+            kChangeLPFCutoff = GDP_TAP_A_LPF_CUTOFF,
+            kChangeHPFCutoff = GDP_TAP_A_HPF_CUTOFF,
             kChangeResonance = GDP_TAP_A_RESONANCE,
             kChangeTune = GDP_TAP_A_TUNE,
             kChangePan = GDP_TAP_A_PAN,
@@ -101,7 +103,8 @@ public:
 
     void setTapEnabled(bool enabled, juce::NotificationType nt = juce::sendNotificationSync);
     void setTapDelay(float delay, juce::NotificationType nt = juce::sendNotificationSync);
-    void setTapCutoff(float cutoff, juce::NotificationType nt = juce::sendNotificationSync);
+    void setTapLPFCutoff(float cutoff, juce::NotificationType nt = juce::sendNotificationSync);
+    void setTapHPFCutoff(float cutoff, juce::NotificationType nt = juce::sendNotificationSync);
     void setTapResonance(float resonance, juce::NotificationType nt = juce::sendNotificationSync);
     void setTapTune(float tune, juce::NotificationType nt = juce::sendNotificationSync);
     void setTapPan(float pan, juce::NotificationType nt = juce::sendNotificationSync);

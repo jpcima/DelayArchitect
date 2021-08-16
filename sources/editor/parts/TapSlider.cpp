@@ -30,6 +30,13 @@ void TapSlider::setBipolarAround(bool isBipolar, float centerValue)
 
 void TapSlider::paint(juce::Graphics &g)
 {
+    int sliderStyle = getSliderStyle();
+    if (sliderStyle != LinearBarVertical) {
+        #pragma message("TODO: implement the two-value slider")
+        Slider::paint(g);
+        return;
+    }
+
     Impl &impl = *impl_;
     juce::LookAndFeel &lnf = getLookAndFeel();
     juce::Slider::SliderLayout layout = lnf.getSliderLayout(*this);

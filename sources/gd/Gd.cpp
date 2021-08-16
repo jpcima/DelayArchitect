@@ -259,10 +259,8 @@ static char const* const GdTapLabels[GdMaxLines + 1] = {
 };
 static char const* const GdFilterLabels[GdNumFilterTypes] = {
     "Off",
-    "LPF 6 dB/oct",
-    "LPF 12 dB/oct",
-    "HPF 6 dB/oct",
-    "HPF 12 dB/oct",
+    "6 dB/oct",
+    "12 dB/oct",
 };
 
 const char *const *GdParameterChoices(GdParameter p)
