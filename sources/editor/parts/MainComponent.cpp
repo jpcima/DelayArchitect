@@ -221,7 +221,7 @@ void MainComponent::paint (juce::Graphics& g)
 
     {
         float x = 144.0f, y = 64.0f, width = 712.0f, height = 456.0f;
-        juce::Colour fillColour = juce::Colour (0xff2a7ca5);
+        juce::Colour fillColour = juce::Colour (0xff849aa5);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
         g.setColour (fillColour);
@@ -364,7 +364,7 @@ BEGIN_JUCER_METADATA
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="1" initialWidth="1000" initialHeight="800">
   <BACKGROUND backgroundColour="ff323e44">
-    <ROUNDRECT pos="144 64 712 456" cornerSize="10.0" fill="solid: ff2a7ca5"
+    <ROUNDRECT pos="144 64 712 456" cornerSize="10.0" fill="solid: ff849aa5"
                hasStroke="0"/>
     <ROUNDRECT pos="16 536 968 40" cornerSize="10.0" fill="solid: ff4fc892"
                hasStroke="0"/>
