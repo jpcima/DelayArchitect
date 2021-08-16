@@ -5,7 +5,7 @@
 /* ------------------------------------------------------------
 name: "GdFilters"
 Code generated with Faust 2.33.1 (https://faust.grame.fr)
-Compilation options: -lang cpp -inpl -mapp -es 1 -single -ftz 0
+Compilation options: -lang cpp -os0 -mapp -es 1 -single -ftz 0
 ------------------------------------------------------------ */
 
 #ifndef  __mydsp_H__
@@ -30,9 +30,18 @@ Compilation options: -lang cpp -inpl -mapp -es 1 -single -ftz 0
 #define exp10 __exp10
 #endif
 
+#if defined(_WIN32)
+#define RESTRICT __restrict
+#else
+#define RESTRICT __restrict__
+#endif
+
+#define FAUST_INT_CONTROLS 0
+#define FAUST_REAL_CONTROLS 11
+
 
 //[Before:class]
-class mydsp {
+class mydsp : public one_sample_dsp {
 	//[Begin:class]
 
 
@@ -116,36 +125,37 @@ class mydsp {
 		return fSampleRate;
 	}
 
+	void control(int* RESTRICT iControl, FAUSTFLOAT* RESTRICT fControl) {
+		fControl[0] = (fConst0 * float(fHslider0));
+		fControl[1] = std::cos(fControl[0]);
+		fControl[2] = (1.0f - fControl[1]);
+		fControl[3] = (0.5f * (std::sin(fControl[0]) / float(fHslider1)));
+		fControl[4] = (fControl[3] + 1.0f);
+		fControl[5] = (fControl[2] / fControl[4]);
+		fControl[6] = (0.5f * fControl[5]);
+		fControl[7] = ((1.0f - fControl[3]) / fControl[4]);
+		fControl[8] = (1.0f / fControl[4]);
+		fControl[9] = (0.5f * fControl[2]);
+		fControl[10] = (0.0f - (2.0f * fControl[1]));
+	}
 
-	void compute(int count, FAUSTFLOAT const* const* inputs, FAUSTFLOAT* const* outputs) {
+	int getNumIntControls() { return 0; }
+	int getNumRealControls() { return 11; }
+
+	void compute(FAUSTFLOAT const* RESTRICT inputs, FAUSTFLOAT* RESTRICT outputs, int const* RESTRICT iControl, FAUSTFLOAT const* RESTRICT fControl) {
 		//[Begin:compute]
-		FAUSTFLOAT const* input0 = inputs[0];
-		FAUSTFLOAT* output0 = outputs[0];
-		float fSlow0 = (fConst0 * float(fHslider0));
-		float fSlow1 = std::cos(fSlow0);
-		float fSlow2 = (1.0f - fSlow1);
-		float fSlow3 = (0.5f * (std::sin(fSlow0) / float(fHslider1)));
-		float fSlow4 = (fSlow3 + 1.0f);
-		float fSlow5 = (fSlow2 / fSlow4);
-		float fSlow6 = (0.5f * fSlow5);
-		float fSlow7 = ((1.0f - fSlow3) / fSlow4);
-		float fSlow8 = (1.0f / fSlow4);
-		float fSlow9 = (0.5f * fSlow2);
-		float fSlow10 = (0.0f - (2.0f * fSlow1));
-		for (int i0 = 0; (i0 < count); i0 = (i0 + 1)) {
-			float fTemp0 = float(input0[i0]);
-			fVec0[0] = (fSlow6 * fTemp0);
-			fVec1[0] = (fVec0[1] - (fSlow7 * fRec0[1]));
-			fVec2[0] = (fSlow5 * fTemp0);
-			fRec1[0] = ((fVec1[1] + fVec2[1]) + (fSlow8 * ((fSlow9 * fTemp0) - (fSlow10 * fRec1[1]))));
-			fRec0[0] = fRec1[0];
-			output0[i0] = FAUSTFLOAT(fRec0[0]);
-			fVec0[1] = fVec0[0];
-			fVec1[1] = fVec1[0];
-			fVec2[1] = fVec2[0];
-			fRec1[1] = fRec1[0];
-			fRec0[1] = fRec0[0];
-		}
+		float fTemp0 = float(inputs[0]);
+		fVec0[0] = (fControl[6] * fTemp0);
+		fVec1[0] = (fVec0[1] - (fControl[7] * fRec0[1]));
+		fVec2[0] = (fControl[5] * fTemp0);
+		fRec1[0] = ((fVec1[1] + fVec2[1]) + (fControl[8] * ((fControl[9] * fTemp0) - (fControl[10] * fRec1[1]))));
+		fRec0[0] = fRec1[0];
+		outputs[0] = FAUSTFLOAT(fRec0[0]);
+		fVec0[1] = fVec0[0];
+		fVec1[1] = fVec1[0];
+		fVec2[1] = fVec2[0];
+		fRec1[1] = fRec1[0];
+		fRec0[1] = fRec0[0];
 		//[End:compute]
 	}
 
