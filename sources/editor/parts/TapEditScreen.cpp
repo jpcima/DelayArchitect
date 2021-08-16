@@ -119,6 +119,30 @@ void TapEditScreen::setTapDelay(int tapNumber, float delay, juce::NotificationTy
     impl.updateItemSizeAndPosition(tapNumber);
 }
 
+void TapEditScreen::setTapCutoff(int tapNumber, float cutoff, juce::NotificationType nt)
+{
+    Impl &impl = *impl_;
+    TapEditItem &item = *impl.items_[tapNumber];
+
+    item.setTapCutoff(cutoff, nt);
+}
+
+void TapEditScreen::setTapResonance(int tapNumber, float resonance, juce::NotificationType nt)
+{
+    Impl &impl = *impl_;
+    TapEditItem &item = *impl.items_[tapNumber];
+
+    item.setTapResonance(resonance, nt);
+}
+
+void TapEditScreen::setTapTune(int tapNumber, float tune, juce::NotificationType nt)
+{
+    Impl &impl = *impl_;
+    TapEditItem &item = *impl.items_[tapNumber];
+
+    item.setTapTune(tune, nt);
+}
+
 void TapEditScreen::setTapPan(int tapNumber, float pan, juce::NotificationType nt)
 {
     Impl &impl = *impl_;
@@ -358,12 +382,14 @@ TapEditItem::TapEditItem(TapEditScreen *screen, int itemNumber)
         addChildComponent(slider);
     };
 
-    // TODO
-    //createSlider(kTapEditCutoff, Listener::ChangeId::kChangeCutoff, false);
-    //createSlider(kTapEditResonance, Listener::ChangeId::kChangeResonance, false);
-    //createSlider(kTapEditTune, Listener::ChangeId::kChangeTune, true);
+    createSlider(kTapEditCutoff, Listener::ChangeId::kChangeCutoff, false);
+    createSlider(kTapEditResonance, Listener::ChangeId::kChangeResonance, false);
+    createSlider(kTapEditTune, Listener::ChangeId::kChangeTune, true);
     createSlider(kTapEditPan, Listener::ChangeId::kChangePan, true);
     createSlider(kTapEditLevel, Listener::ChangeId::kChangeLevel, false);
+
+    if (TapSlider *slider = impl.getSliderForEditMode(kTapEditCutoff))
+        slider->setSkewFactor(0.25f);
 }
 
 TapEditItem::~TapEditItem()
@@ -439,6 +465,30 @@ void TapEditItem::setTapDelay(float delay, juce::NotificationType nt)
         impl.listeners_.call([this, delay](Listener &l) { l.tapValueChanged(this, Listener::ChangeId::kChangeDelay, delay); });
 
     impl.screen_->updateItemSizeAndPosition(impl.itemNumber_);
+}
+
+void TapEditItem::setTapCutoff(float cutoff, juce::NotificationType nt)
+{
+    Impl &impl = *impl_;
+
+    if (TapSlider *slider = impl.getSliderForEditMode(kTapEditCutoff))
+        slider->setValue(cutoff, nt);
+}
+
+void TapEditItem::setTapResonance(float resonance, juce::NotificationType nt)
+{
+    Impl &impl = *impl_;
+
+    if (TapSlider *slider = impl.getSliderForEditMode(kTapEditResonance))
+        slider->setValue(resonance, nt);
+}
+
+void TapEditItem::setTapTune(float tune, juce::NotificationType nt)
+{
+    Impl &impl = *impl_;
+
+    if (TapSlider *slider = impl.getSliderForEditMode(kTapEditTune))
+        slider->setValue(tune, nt);
 }
 
 void TapEditItem::setTapPan(float pan, juce::NotificationType nt)

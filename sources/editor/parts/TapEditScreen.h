@@ -33,6 +33,9 @@ public:
 
     void setTapEnabled(int tapNumber, bool enabled, juce::NotificationType nt = juce::sendNotificationSync);
     void setTapDelay(int tapNumber, float delay, juce::NotificationType nt = juce::sendNotificationSync);
+    void setTapCutoff(int tapNumber, float cutoff, juce::NotificationType nt = juce::sendNotificationSync);
+    void setTapResonance(int tapNumber, float resonance, juce::NotificationType nt = juce::sendNotificationSync);
+    void setTapTune(int tapNumber, float tune, juce::NotificationType nt = juce::sendNotificationSync);
     void setTapPan(int tapNumber, float pan, juce::NotificationType nt = juce::sendNotificationSync);
     void setTapLevel(int tapNumber, float level, juce::NotificationType nt = juce::sendNotificationSync);
 
@@ -53,6 +56,9 @@ public:
         enum ChangeId {
             kChangeEnabled = GDP_TAP_A_ENABLE,
             kChangeDelay = GDP_TAP_A_DELAY,
+            kChangeCutoff = GDP_TAP_A_CUTOFF,
+            kChangeResonance = GDP_TAP_A_RESONANCE,
+            kChangeTune = GDP_TAP_A_TUNE,
             kChangePan = GDP_TAP_A_PAN,
             kChangeLevel = GDP_TAP_A_LEVEL,
         };
@@ -95,6 +101,9 @@ public:
 
     void setTapEnabled(bool enabled, juce::NotificationType nt = juce::sendNotificationSync);
     void setTapDelay(float delay, juce::NotificationType nt = juce::sendNotificationSync);
+    void setTapCutoff(float cutoff, juce::NotificationType nt = juce::sendNotificationSync);
+    void setTapResonance(float resonance, juce::NotificationType nt = juce::sendNotificationSync);
+    void setTapTune(float tune, juce::NotificationType nt = juce::sendNotificationSync);
     void setTapPan(float pan, juce::NotificationType nt = juce::sendNotificationSync);
     void setTapLevel(float level, juce::NotificationType nt = juce::sendNotificationSync);
 

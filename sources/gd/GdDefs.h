@@ -63,6 +63,9 @@ Ignorable static constexpr float GdMinGainDB = -80.0f;
     _(TAP_##X##_ENABLE, false, true, false, GDP_BOOLEAN, "Tap " #X " Enable", I) \
     _(TAP_##X##_DELAY, 0, GdMaxDelay, 0, GDP_FLOAT, "Tap " #X " Delay", I)     \
     _(TAP_##X##_LEVEL, GdMinGainDB, 10, 0, GDP_FLOAT, "Tap " #X " Level", I)   \
+    _(TAP_##X##_CUTOFF, 0, 22000, 0, GDP_FLOAT, "Tap " #X " Cutoff", I)        \
+    _(TAP_##X##_RESONANCE, 0, 12, 0, GDP_FLOAT, "Tap " #X " Resonance", I)     \
+    _(TAP_##X##_TUNE, -1200, 1200, 0, GDP_FLOAT, "Tap " #X " Tune", I)         \
     _(TAP_##X##_PAN, -1, 1, 0, GDP_FLOAT, "Tap " #X " Pan", I)                 \
     _(TAP_##X##_WIDTH, 0, 10, 1, GDP_FLOAT, "Tap " #X " Width", I)             \
     /* End */
