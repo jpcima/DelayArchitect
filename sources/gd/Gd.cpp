@@ -249,18 +249,23 @@ const char *GdParameterLabel(GdParameter p)
     }
 }
 
+#if 0
 static char const* const GdTapNames[GdMaxLines + 1] = {
     "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
     "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+    nullptr
 };
+#endif
 static char const* const GdTapLabels[GdMaxLines + 1] = {
     "Tap A", "Tap B", "Tap C", "Tap D", "Tap E", "Tap F", "Tap G", "Tap H", "Tap I", "Tap J", "Tap K", "Tap L", "Tap M",
     "Tap N", "Tap O", "Tap P", "Tap Q", "Tap R", "Tap S", "Tap T", "Tap U", "Tap V", "Tap W", "Tap X", "Tap Y", "Tap Z",
+    nullptr
 };
-static char const* const GdFilterLabels[GdNumFilterTypes] = {
+static char const* const GdFilterLabels[GdNumFilterTypes + 1] = {
     "Off",
     "6 dB/oct",
     "12 dB/oct",
+    nullptr
 };
 
 const char *const *GdParameterChoices(GdParameter p)
@@ -270,7 +275,7 @@ const char *const *GdParameterChoices(GdParameter p)
 
     switch (p) {
     case GDP_FEEDBACK_TAP:
-        return GdTapNames;
+        return GdTapLabels;
     case GDP_TAP_A_FILTER:
         return GdFilterLabels;
     default:
@@ -294,7 +299,7 @@ GD_API const char *GdGroupName(GdParameter p)
     int group = GdParameterGroup(p);
 
     if (group >= 0 && group < GdMaxLines)
-        return GdTapNames[group];
+        return GdTapLabels[group];
 
     return nullptr;
 }

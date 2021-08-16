@@ -10,6 +10,7 @@
 struct Editor::Impl : public TapEditScreen::Listener,
                       public juce::Slider::Listener,
                       public juce::Button::Listener,
+                      public juce::ComboBox::Listener,
                       public juce::AudioProcessorParameter::Listener {
     Editor *self_ = nullptr;
     std::unique_ptr<MainComponent> mainComponent_;
@@ -20,8 +21,10 @@ struct Editor::Impl : public TapEditScreen::Listener,
     void syncActiveTapParametersToControls();
     void syncActiveTapParameterToControls(int switchableIndex);
     void setSliderRangeFromParameter(juce::Slider *slider, int parameterIndex);
+    void setComboBoxChoicesFromParameter(juce::ComboBox *comboBox, int parameterIndex);
     int getParameterForSlider(juce::Slider *slider);
     int getParameterForButton(juce::Button *button);
+    int getParameterForComboBox(juce::ComboBox *comboBox);
 
     static void breakDownParameterIndex(int parameterIndex, int &switchableIndex, int &tapNumber);
     static int recomposeParameterIndex(int switchableIndex, int tapNumber);
@@ -36,6 +39,8 @@ struct Editor::Impl : public TapEditScreen::Listener,
 
     void buttonClicked(juce::Button *button) override;
     void buttonStateChanged(juce::Button *button) override;
+
+    void comboBoxChanged(juce::ComboBox *comboBox) override;
 
     void parameterValueChanged(int parameterIndex, float newValue) override;
     void parameterGestureChanged(int parameterIndex, bool gestureIsStarting) override;
@@ -61,8 +66,9 @@ Editor::Editor(Processor &p)
     setSize(mainComponent->getWidth(), mainComponent->getHeight());
     addAndMakeVisible(mainComponent);
 
-    TapEditScreen *tapEdit = mainComponent->getTapEditScreen();
-    tapEdit->addListener(&impl);
+    impl.setSliderRangeFromParameter(mainComponent->getTapDelaySlider(), GDP_TAP_A_DELAY);
+    impl.setComboBoxChoicesFromParameter(mainComponent->getFeedbackTapChoice(), GDP_FEEDBACK_TAP);
+    impl.setSliderRangeFromParameter(mainComponent->getFeedbackTapGainSlider(), GDP_FEEDBACK_GAIN);
 
     for (int i = 0, n = impl.parameters_.size(); i < n; ++i) {
         juce::AudioProcessorParameter *parameter = impl.parameters_[i];
@@ -70,9 +76,13 @@ Editor::Editor(Processor &p)
         impl.parameterValueChanged(i, parameter->getValue());
     }
 
-    impl.setSliderRangeFromParameter(mainComponent->getTapDelaySlider(), GDP_TAP_A_DELAY);
+    TapEditScreen *tapEdit = mainComponent->getTapEditScreen();
+    tapEdit->addListener(&impl);
+
     mainComponent->getTapEnabledButton()->addListener(&impl);
     mainComponent->getTapDelaySlider()->addListener(&impl);
+    mainComponent->getFeedbackTapChoice()->addListener(&impl);
+    mainComponent->getFeedbackTapGainSlider()->addListener(&impl);
 
     impl.syncActiveTapParametersToControls();
 }
@@ -84,6 +94,7 @@ Editor::~Editor()
 
     mainComponent.getTapEnabledButton()->removeListener(&impl);
     mainComponent.getTapDelaySlider()->removeListener(&impl);
+    mainComponent.getFeedbackTapChoice()->removeListener(&impl);
 
     for (int i = 0, n = impl.parameters_.size(); i < n; ++i) {
         juce::AudioProcessorParameter *parameter = impl.parameters_[i];
@@ -140,6 +151,17 @@ void Editor::Impl::setSliderRangeFromParameter(juce::Slider *slider, int paramet
     slider->setRange(parameter->getNormalisableRange().start, parameter->getNormalisableRange().end);
 }
 
+void Editor::Impl::setComboBoxChoicesFromParameter(juce::ComboBox *comboBox, int parameterIndex)
+{
+    juce::AudioParameterChoice *parameter = static_cast<juce::AudioParameterChoice *>(parameters_[parameterIndex]);
+
+    int numChoices = parameter->choices.size();
+    for (int i = 0; i < numChoices; ++i) {
+        const juce::String &choice = parameter->choices[i];
+        comboBox->addItem(choice, i + 1);
+    }
+}
+
 int Editor::Impl::getParameterForSlider(juce::Slider *slider)
 {
     MainComponent &mainComponent = *mainComponent_;
@@ -148,6 +170,8 @@ int Editor::Impl::getParameterForSlider(juce::Slider *slider)
 
     if (slider == mainComponent.getTapDelaySlider())
         switchableIndex = GDP_TAP_A_DELAY;
+    else if (slider == mainComponent.getFeedbackTapGainSlider())
+        switchableIndex = GDP_FEEDBACK_GAIN;
 
     if (switchableIndex == -1)
         return -1;
@@ -163,6 +187,21 @@ int Editor::Impl::getParameterForButton(juce::Button *button)
 
     if (button == mainComponent.getTapEnabledButton())
         switchableIndex = GDP_TAP_A_ENABLE;
+
+    if (switchableIndex == -1)
+        return -1;
+    else
+        return recomposeParameterIndex(switchableIndex, tapNumber);
+}
+
+int Editor::Impl::getParameterForComboBox(juce::ComboBox *comboBox)
+{
+    MainComponent &mainComponent = *mainComponent_;
+    int tapNumber = activeTapNumber_;
+    int switchableIndex = -1;
+
+    if (comboBox == mainComponent.getFeedbackTapChoice())
+        switchableIndex = GDP_FEEDBACK_TAP;
 
     if (switchableIndex == -1)
         return -1;
@@ -274,6 +313,17 @@ void Editor::Impl::buttonStateChanged(juce::Button *button)
     }
 }
 
+void Editor::Impl::comboBoxChanged(juce::ComboBox *comboBox)
+{
+    int parameterIndex = getParameterForComboBox(comboBox);
+
+    if (parameterIndex != -1) {
+        juce::RangedAudioParameter *parameter = static_cast<juce::RangedAudioParameter *>(parameters_[parameterIndex]);
+        float value = parameter->convertTo0to1((float)comboBox->getSelectedItemIndex());
+        parameter->setValueNotifyingHost(value);
+    }
+}
+
 void Editor::Impl::parameterValueChanged(int parameterIndex, float newValueNormalized)
 {
     MainComponent &mainComponent = *mainComponent_;
@@ -288,10 +338,10 @@ void Editor::Impl::parameterValueChanged(int parameterIndex, float newValueNorma
 
     switch (switchableIndex) {
     case GDP_FEEDBACK_TAP:
-        // TODO
+        mainComponent.getFeedbackTapChoice()->setSelectedItemIndex((int)newValue, juce::dontSendNotification);
         break;
     case GDP_FEEDBACK_GAIN:
-        // TODO
+        mainComponent.getFeedbackTapGainSlider()->setValue(newValue, juce::dontSendNotification);
         break;
     case GDP_MIX_DRY:
         // TODO

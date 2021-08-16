@@ -36,7 +36,8 @@ class TapEditScreen;
 */
 class MainComponent  : public juce::Component,
                        public juce::Button::Listener,
-                       public juce::Slider::Listener
+                       public juce::Slider::Listener,
+                       public juce::ComboBox::Listener
 {
 public:
     //==============================================================================
@@ -48,6 +49,8 @@ public:
     TapEditScreen *getTapEditScreen() const { return tapEditScreen_.get(); }
     juce::Slider *getTapDelaySlider() const { return tapDelaySlider_.get(); }
     juce::Button *getTapEnabledButton() const { return tapEnabledButton_.get(); }
+    juce::ComboBox *getFeedbackTapChoice() const { return feedbackTapChoice_.get(); }
+    juce::Slider *getFeedbackTapGainSlider() const { return feedbackTapGainSlider_.get(); }
     void setActiveTapLabelText(const juce::String &newText);
     //[/UserMethods]
 
@@ -55,6 +58,7 @@ public:
     void resized() override;
     void buttonClicked (juce::Button* buttonThatWasClicked) override;
     void sliderValueChanged (juce::Slider* sliderThatWasMoved) override;
+    void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
 
 
 
@@ -80,6 +84,9 @@ private:
     std::unique_ptr<juce::Slider> tapDelaySlider_;
     std::unique_ptr<juce::Label> unknown;
     std::unique_ptr<juce::TextButton> tapEnabledButton_;
+    std::unique_ptr<juce::ComboBox> feedbackTapChoice_;
+    std::unique_ptr<juce::Label> unknown2;
+    std::unique_ptr<juce::Slider> feedbackTapGainSlider_;
 
 
     //==============================================================================

@@ -19,7 +19,9 @@
 
 //[Headers] You can add your own extra header files here...
 #include "TapEditScreen.h"
+#include "GdDefs.h"
 #include <array>
+#include <cstdio>
 //[/Headers]
 
 #include "MainComponent.h"
@@ -168,6 +170,36 @@ MainComponent::MainComponent ()
 
     tapEnabledButton_->setBounds (424, 648, 150, 24);
 
+    feedbackTapChoice_.reset (new juce::ComboBox (juce::String()));
+    addAndMakeVisible (feedbackTapChoice_.get());
+    feedbackTapChoice_->setEditableText (false);
+    feedbackTapChoice_->setJustificationType (juce::Justification::centredLeft);
+    feedbackTapChoice_->setTextWhenNothingSelected (juce::String());
+    feedbackTapChoice_->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    feedbackTapChoice_->addListener (this);
+
+    feedbackTapChoice_->setBounds (872, 112, 112, 24);
+
+    unknown2.reset (new juce::Label (juce::String(),
+                                     TRANS("Feedback")));
+    addAndMakeVisible (unknown2.get());
+    unknown2->setFont (juce::Font (20.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    unknown2->setJustificationType (juce::Justification::centred);
+    unknown2->setEditable (false, false, false);
+    unknown2->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    unknown2->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    unknown2->setBounds (872, 72, 110, 24);
+
+    feedbackTapGainSlider_.reset (new juce::Slider (juce::String()));
+    addAndMakeVisible (feedbackTapGainSlider_.get());
+    feedbackTapGainSlider_->setRange (0, 10, 0);
+    feedbackTapGainSlider_->setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
+    feedbackTapGainSlider_->setTextBoxStyle (juce::Slider::TextBoxBelow, false, 80, 20);
+    feedbackTapGainSlider_->addListener (this);
+
+    feedbackTapGainSlider_->setBounds (872, 144, 112, 96);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -205,6 +237,9 @@ MainComponent::~MainComponent()
     tapDelaySlider_ = nullptr;
     unknown = nullptr;
     tapEnabledButton_ = nullptr;
+    feedbackTapChoice_ = nullptr;
+    unknown2 = nullptr;
+    feedbackTapGainSlider_ = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -240,6 +275,15 @@ void MainComponent::paint (juce::Graphics& g)
     {
         float x = 16.0f, y = 592.0f, width = 968.0f, height = 192.0f;
         juce::Colour fillColour = juce::Colour (0xffc86d4f);
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+    }
+
+    {
+        float x = 864.0f, y = 64.0f, width = 128.0f, height = 192.0f;
+        juce::Colour fillColour = juce::Colour (0xfffff080);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
         g.setColour (fillColour);
@@ -339,9 +383,29 @@ void MainComponent::sliderValueChanged (juce::Slider* sliderThatWasMoved)
         //[UserSliderCode_tapDelaySlider_] -- add your slider handling code here..
         //[/UserSliderCode_tapDelaySlider_]
     }
+    else if (sliderThatWasMoved == feedbackTapGainSlider_.get())
+    {
+        //[UserSliderCode_feedbackTapGainSlider_] -- add your slider handling code here..
+        //[/UserSliderCode_feedbackTapGainSlider_]
+    }
 
     //[UsersliderValueChanged_Post]
     //[/UsersliderValueChanged_Post]
+}
+
+void MainComponent::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
+{
+    //[UsercomboBoxChanged_Pre]
+    //[/UsercomboBoxChanged_Pre]
+
+    if (comboBoxThatHasChanged == feedbackTapChoice_.get())
+    {
+        //[UserComboBoxCode_feedbackTapChoice_] -- add your combo box handling code here..
+        //[/UserComboBoxCode_feedbackTapChoice_]
+    }
+
+    //[UsercomboBoxChanged_Post]
+    //[/UsercomboBoxChanged_Post]
 }
 
 
@@ -369,6 +433,8 @@ BEGIN_JUCER_METADATA
     <ROUNDRECT pos="16 536 968 40" cornerSize="10.0" fill="solid: ff4fc892"
                hasStroke="0"/>
     <ROUNDRECT pos="16 592 968 192" cornerSize="10.0" fill="solid: ffc86d4f"
+               hasStroke="0"/>
+    <ROUNDRECT pos="864 64 128 192" cornerSize="10.0" fill="solid: fffff080"
                hasStroke="0"/>
   </BACKGROUND>
   <GENERICCOMPONENT name="" id="c36eda615afd52ad" memberName="tapEditScreen_" virtualName=""
@@ -423,6 +489,19 @@ BEGIN_JUCER_METADATA
   <TEXTBUTTON name="" id="7240b06205c10e61" memberName="tapEnabledButton_"
               virtualName="" explicitFocusOrder="0" pos="424 648 150 24" buttonText="Enabled"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+  <COMBOBOX name="" id="4376ef98cd0f798e" memberName="feedbackTapChoice_"
+            virtualName="" explicitFocusOrder="0" pos="872 112 112 24" editable="0"
+            layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+  <LABEL name="" id="db4d1c75cd692557" memberName="unknown2" virtualName=""
+         explicitFocusOrder="0" pos="872 72 110 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Feedback" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="20.0"
+         kerning="0.0" bold="0" italic="0" justification="36"/>
+  <SLIDER name="" id="62fe1bfedd2c32eb" memberName="feedbackTapGainSlider_"
+          virtualName="" explicitFocusOrder="0" pos="872 144 112 96" min="0.0"
+          max="10.0" int="0.0" style="RotaryHorizontalVerticalDrag" textBoxPos="TextBoxBelow"
+          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+          needsCallback="1"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
