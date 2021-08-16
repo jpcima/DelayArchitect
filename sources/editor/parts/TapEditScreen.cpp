@@ -320,22 +320,22 @@ void TapEditScreen::Impl::updateItemSizeAndPosition(int itemNumber)
     item.setTopLeftPosition((int)(delayToX(data.delay) - 0.5f * (float)width), 0);
 }
 
-void TapEditScreen::Impl::tapEditStarted(TapEditItem *item, GdParameter id)
+void TapEditScreen::Impl::tapEditStarted(TapEditItem *, GdParameter id)
 {
     TapEditScreen *self = self_;
-    listeners_.call([self, item, id](Listener &listener) { listener.tapEditStarted(self, item->getItemNumber(), id); });
+    listeners_.call([self, id](Listener &listener) { listener.tapEditStarted(self, id); });
 }
 
-void TapEditScreen::Impl::tapEditEnded(TapEditItem *item, GdParameter id)
+void TapEditScreen::Impl::tapEditEnded(TapEditItem *, GdParameter id)
 {
     TapEditScreen *self = self_;
-    listeners_.call([self, item, id](Listener &listener) { listener.tapEditEnded(self, item->getItemNumber(), id); });
+    listeners_.call([self, id](Listener &listener) { listener.tapEditEnded(self, id); });
 }
 
-void TapEditScreen::Impl::tapValueChanged(TapEditItem *item, GdParameter id, float value)
+void TapEditScreen::Impl::tapValueChanged(TapEditItem *, GdParameter id, float value)
 {
     TapEditScreen *self = self_;
-    listeners_.call([self, item, id, value](Listener &listener) { listener.tapValueChanged(self, item->getItemNumber(), id, value); });
+    listeners_.call([self, id, value](Listener &listener) { listener.tapValueChanged(self, id, value); });
 }
 
 //------------------------------------------------------------------------------
@@ -404,11 +404,11 @@ TapEditItem::TapEditItem(TapEditScreen *screen, int itemNumber)
         addChildComponent(slider);
     };
 
-    createSlider(kTapEditCutoff, GDP_TAP_A_HPF_CUTOFF, GDP_TAP_A_LPF_CUTOFF, kTapSliderTwoValues);
-    createSlider(kTapEditResonance, GDP_TAP_A_RESONANCE, GDP_NONE, kTapSliderNormal);
-    createSlider(kTapEditTune, GDP_TAP_A_TUNE, GDP_NONE, kTapSliderBipolar);
-    createSlider(kTapEditPan, GDP_TAP_A_PAN, GDP_NONE, kTapSliderBipolar);
-    createSlider(kTapEditLevel, GDP_TAP_A_LEVEL, GDP_NONE, kTapSliderNormal);
+    createSlider(kTapEditCutoff, GdRecomposeParameter(GDP_TAP_A_HPF_CUTOFF, itemNumber), GdRecomposeParameter(GDP_TAP_A_LPF_CUTOFF, itemNumber), kTapSliderTwoValues);
+    createSlider(kTapEditResonance, GdRecomposeParameter(GDP_TAP_A_RESONANCE, itemNumber), GDP_NONE, kTapSliderNormal);
+    createSlider(kTapEditTune, GdRecomposeParameter(GDP_TAP_A_TUNE, itemNumber), GDP_NONE, kTapSliderBipolar);
+    createSlider(kTapEditPan, GdRecomposeParameter(GDP_TAP_A_PAN, itemNumber), GDP_NONE, kTapSliderBipolar);
+    createSlider(kTapEditLevel, GdRecomposeParameter(GDP_TAP_A_LEVEL, itemNumber), GDP_NONE, kTapSliderNormal);
 
     if (TapSlider *slider = impl.getSliderForEditMode(kTapEditCutoff))
         slider->setSkewFactor(0.25f);
@@ -470,7 +470,7 @@ void TapEditItem::setTapEnabled(bool enabled, juce::NotificationType nt)
     impl.data_.enabled = enabled;
 
     if (nt != juce::dontSendNotification)
-        impl.listeners_.call([this, enabled](Listener &l) { l.tapValueChanged(this, GDP_TAP_A_ENABLE, enabled); });
+        impl.listeners_.call([this, enabled](Listener &l) { l.tapValueChanged(this, GdRecomposeParameter(GDP_TAP_A_ENABLE, impl_->itemNumber_), enabled); });
 
     setVisible(enabled);
 }
@@ -484,7 +484,7 @@ void TapEditItem::setTapDelay(float delay, juce::NotificationType nt)
     impl.data_.delay = delay;
 
     if (nt != juce::dontSendNotification)
-        impl.listeners_.call([this, delay](Listener &l) { l.tapValueChanged(this, GDP_TAP_A_DELAY, delay); });
+        impl.listeners_.call([this, delay](Listener &l) { l.tapValueChanged(this, GdRecomposeParameter(GDP_TAP_A_DELAY, impl_->itemNumber_), delay); });
 
     impl.screen_->updateItemSizeAndPosition(impl.itemNumber_);
 }
@@ -575,7 +575,7 @@ void TapEditItem::mouseDown(const juce::MouseEvent &e)
     juce::Rectangle<int> bounds = getLocalBounds();
 
     if (impl.dragChangeId_ == GDP_NONE && e.y >= bounds.getBottom() - impl.labelHeight_) {
-        impl.dragChangeId_ = GDP_TAP_A_DELAY;
+        impl.dragChangeId_ = GdRecomposeParameter(GDP_TAP_A_DELAY, impl.itemNumber_);
         impl.dragger_.startDraggingComponent(this, e);
         impl.listeners_.call([this](Listener &l) { l.tapEditStarted(this, impl_->dragChangeId_); });
         return;

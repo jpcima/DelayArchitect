@@ -54,9 +54,9 @@ public:
         virtual void tappingHasStarted(TapEditScreen *) {}
         virtual void tappingHasEnded(TapEditScreen *) {}
 
-        virtual void tapEditStarted(TapEditScreen *, int tapNumber, GdParameter id) { (void)tapNumber; (void)id; }
-        virtual void tapEditEnded(TapEditScreen *, int tapNumber, GdParameter id) { (void)tapNumber; (void)id; }
-        virtual void tapValueChanged(TapEditScreen *, int tapNumber, GdParameter id, float value) { (void)tapNumber; (void)id; (void)value; }
+        virtual void tapEditStarted(TapEditScreen *, GdParameter id) { (void)id; }
+        virtual void tapEditEnded(TapEditScreen *, GdParameter id) { (void)id; }
+        virtual void tapValueChanged(TapEditScreen *, GdParameter id, float value) { (void)id; (void)value; }
     };
 
     void addListener(Listener *listener);

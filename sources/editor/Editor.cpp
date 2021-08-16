@@ -26,9 +26,9 @@ struct Editor::Impl : public TapEditScreen::Listener,
     int getParameterForButton(juce::Button *button);
     int getParameterForComboBox(juce::ComboBox *comboBox);
 
-    void tapEditStarted(TapEditScreen *, int tapNumber, GdParameter id) override;
-    void tapEditEnded(TapEditScreen *, int tapNumber, GdParameter id) override;
-    void tapValueChanged(TapEditScreen *, int tapNumber, GdParameter id, float value) override;
+    void tapEditStarted(TapEditScreen *, GdParameter id) override;
+    void tapEditEnded(TapEditScreen *, GdParameter id) override;
+    void tapValueChanged(TapEditScreen *, GdParameter id, float value) override;
 
     void sliderDragStarted(juce::Slider *slider) override;
     void sliderDragEnded(juce::Slider *slider) override;
@@ -222,39 +222,42 @@ int Editor::Impl::getParameterForComboBox(juce::ComboBox *comboBox)
         return GdRecomposeParameter(decomposedIndex, tapNumber);
 }
 
-void Editor::Impl::tapEditStarted(TapEditScreen *, int tapNumber, GdParameter id)
+void Editor::Impl::tapEditStarted(TapEditScreen *, GdParameter id)
 {
-    int parameterIndex = GdRecomposeParameter(id, tapNumber);
-    juce::RangedAudioParameter *parameter = static_cast<juce::RangedAudioParameter *>(parameters_[parameterIndex]);
+    juce::RangedAudioParameter *parameter = static_cast<juce::RangedAudioParameter *>(parameters_[(int)id]);
 
     parameter->beginChangeGesture();
 
+    int tapNumber;
+    GdDecomposeParameter(id, &tapNumber);
     setActiveTap(tapNumber);
 }
 
-void Editor::Impl::tapEditEnded(TapEditScreen *, int tapNumber, GdParameter id)
+void Editor::Impl::tapEditEnded(TapEditScreen *, GdParameter id)
 {
-    int parameterIndex = GdRecomposeParameter(id, tapNumber);
-    juce::RangedAudioParameter *parameter = static_cast<juce::RangedAudioParameter *>(parameters_[parameterIndex]);
+    juce::RangedAudioParameter *parameter = static_cast<juce::RangedAudioParameter *>(parameters_[(int)id]);
 
     parameter->endChangeGesture();
 
+    int tapNumber;
+    GdDecomposeParameter(id, &tapNumber);
     setActiveTap(tapNumber);
 }
 
-void Editor::Impl::tapValueChanged(TapEditScreen *, int tapNumber, GdParameter id, float value)
+void Editor::Impl::tapValueChanged(TapEditScreen *, GdParameter id, float value)
 {
-    int parameterIndex = GdRecomposeParameter(id, tapNumber);
-    juce::RangedAudioParameter *parameter = static_cast<juce::RangedAudioParameter *>(parameters_[parameterIndex]);
+    juce::RangedAudioParameter *parameter = static_cast<juce::RangedAudioParameter *>(parameters_[(int)id]);
 
     float valueNormalized = parameter->convertTo0to1(value);
 
     parameter->setValueNotifyingHost(valueNormalized);
 
+    int tapNumber;
+    GdParameter decomposedId = GdDecomposeParameter(id, &tapNumber);
     if (activeTapNumber_ != tapNumber)
         setActiveTap(tapNumber);
     else
-        syncActiveTapParameterToControls(id);
+        syncActiveTapParameterToControls(decomposedId);
 }
 
 void Editor::Impl::sliderDragStarted(juce::Slider *slider)
