@@ -200,6 +200,35 @@ MainComponent::MainComponent ()
 
     feedbackTapGainSlider_->setBounds (872, 144, 112, 96);
 
+    unknown3.reset (new juce::Label (juce::String(),
+                                     TRANS("Mix")));
+    addAndMakeVisible (unknown3.get());
+    unknown3->setFont (juce::Font (20.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    unknown3->setJustificationType (juce::Justification::centred);
+    unknown3->setEditable (false, false, false);
+    unknown3->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    unknown3->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    unknown3->setBounds (872, 272, 110, 24);
+
+    drySlider_.reset (new juce::Slider (juce::String()));
+    addAndMakeVisible (drySlider_.get());
+    drySlider_->setRange (0, 10, 0);
+    drySlider_->setSliderStyle (juce::Slider::LinearVertical);
+    drySlider_->setTextBoxStyle (juce::Slider::TextBoxBelow, false, 80, 20);
+    drySlider_->addListener (this);
+
+    drySlider_->setBounds (872, 312, 48, 192);
+
+    wetSlider_.reset (new juce::Slider (juce::String()));
+    addAndMakeVisible (wetSlider_.get());
+    wetSlider_->setRange (0, 10, 0);
+    wetSlider_->setSliderStyle (juce::Slider::LinearVertical);
+    wetSlider_->setTextBoxStyle (juce::Slider::TextBoxBelow, false, 80, 20);
+    wetSlider_->addListener (this);
+
+    wetSlider_->setBounds (936, 312, 48, 192);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -240,6 +269,9 @@ MainComponent::~MainComponent()
     feedbackTapChoice_ = nullptr;
     unknown2 = nullptr;
     feedbackTapGainSlider_ = nullptr;
+    unknown3 = nullptr;
+    drySlider_ = nullptr;
+    wetSlider_ = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -283,6 +315,15 @@ void MainComponent::paint (juce::Graphics& g)
 
     {
         float x = 864.0f, y = 64.0f, width = 128.0f, height = 192.0f;
+        juce::Colour fillColour = juce::Colour (0xfffff080);
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+    }
+
+    {
+        float x = 864.0f, y = 264.0f, width = 128.0f, height = 256.0f;
         juce::Colour fillColour = juce::Colour (0xfffff080);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
@@ -388,6 +429,16 @@ void MainComponent::sliderValueChanged (juce::Slider* sliderThatWasMoved)
         //[UserSliderCode_feedbackTapGainSlider_] -- add your slider handling code here..
         //[/UserSliderCode_feedbackTapGainSlider_]
     }
+    else if (sliderThatWasMoved == drySlider_.get())
+    {
+        //[UserSliderCode_drySlider_] -- add your slider handling code here..
+        //[/UserSliderCode_drySlider_]
+    }
+    else if (sliderThatWasMoved == wetSlider_.get())
+    {
+        //[UserSliderCode_wetSlider_] -- add your slider handling code here..
+        //[/UserSliderCode_wetSlider_]
+    }
 
     //[UsersliderValueChanged_Post]
     //[/UsersliderValueChanged_Post]
@@ -435,6 +486,8 @@ BEGIN_JUCER_METADATA
     <ROUNDRECT pos="16 592 968 192" cornerSize="10.0" fill="solid: ffc86d4f"
                hasStroke="0"/>
     <ROUNDRECT pos="864 64 128 192" cornerSize="10.0" fill="solid: fffff080"
+               hasStroke="0"/>
+    <ROUNDRECT pos="864 264 128 256" cornerSize="10.0" fill="solid: fffff080"
                hasStroke="0"/>
   </BACKGROUND>
   <GENERICCOMPONENT name="" id="c36eda615afd52ad" memberName="tapEditScreen_" virtualName=""
@@ -502,6 +555,19 @@ BEGIN_JUCER_METADATA
           max="10.0" int="0.0" style="RotaryHorizontalVerticalDrag" textBoxPos="TextBoxBelow"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
           needsCallback="1"/>
+  <LABEL name="" id="9d4616ada30ba75d" memberName="unknown3" virtualName=""
+         explicitFocusOrder="0" pos="872 272 110 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Mix" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="20.0"
+         kerning="0.0" bold="0" italic="0" justification="36"/>
+  <SLIDER name="" id="b2206b062a09ac07" memberName="drySlider_" virtualName=""
+          explicitFocusOrder="0" pos="872 312 48 192" min="0.0" max="10.0"
+          int="0.0" style="LinearVertical" textBoxPos="TextBoxBelow" textBoxEditable="1"
+          textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
+  <SLIDER name="" id="ee65e871ce784fe1" memberName="wetSlider_" virtualName=""
+          explicitFocusOrder="0" pos="936 312 48 192" min="0.0" max="10.0"
+          int="0.0" style="LinearVertical" textBoxPos="TextBoxBelow" textBoxEditable="1"
+          textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

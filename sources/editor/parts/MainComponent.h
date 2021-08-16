@@ -51,6 +51,8 @@ public:
     juce::Button *getTapEnabledButton() const { return tapEnabledButton_.get(); }
     juce::ComboBox *getFeedbackTapChoice() const { return feedbackTapChoice_.get(); }
     juce::Slider *getFeedbackTapGainSlider() const { return feedbackTapGainSlider_.get(); }
+    juce::Slider *getWetSlider() const { return wetSlider_.get(); }
+    juce::Slider *getDrySlider() const { return drySlider_.get(); }
     void setActiveTapLabelText(const juce::String &newText);
     //[/UserMethods]
 
@@ -87,6 +89,9 @@ private:
     std::unique_ptr<juce::ComboBox> feedbackTapChoice_;
     std::unique_ptr<juce::Label> unknown2;
     std::unique_ptr<juce::Slider> feedbackTapGainSlider_;
+    std::unique_ptr<juce::Label> unknown3;
+    std::unique_ptr<juce::Slider> drySlider_;
+    std::unique_ptr<juce::Slider> wetSlider_;
 
 
     //==============================================================================

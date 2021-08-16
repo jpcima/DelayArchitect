@@ -69,6 +69,8 @@ Editor::Editor(Processor &p)
     impl.setSliderRangeFromParameter(mainComponent->getTapDelaySlider(), GDP_TAP_A_DELAY);
     impl.setComboBoxChoicesFromParameter(mainComponent->getFeedbackTapChoice(), GDP_FEEDBACK_TAP);
     impl.setSliderRangeFromParameter(mainComponent->getFeedbackTapGainSlider(), GDP_FEEDBACK_GAIN);
+    impl.setSliderRangeFromParameter(mainComponent->getWetSlider(), GDP_MIX_WET);
+    impl.setSliderRangeFromParameter(mainComponent->getDrySlider(), GDP_MIX_DRY);
 
     for (int i = 0, n = impl.parameters_.size(); i < n; ++i) {
         juce::AudioProcessorParameter *parameter = impl.parameters_[i];
@@ -83,6 +85,8 @@ Editor::Editor(Processor &p)
     mainComponent->getTapDelaySlider()->addListener(&impl);
     mainComponent->getFeedbackTapChoice()->addListener(&impl);
     mainComponent->getFeedbackTapGainSlider()->addListener(&impl);
+    mainComponent->getWetSlider()->addListener(&impl);
+    mainComponent->getDrySlider()->addListener(&impl);
 
     impl.syncActiveTapParametersToControls();
 }
@@ -172,6 +176,10 @@ int Editor::Impl::getParameterForSlider(juce::Slider *slider)
         switchableIndex = GDP_TAP_A_DELAY;
     else if (slider == mainComponent.getFeedbackTapGainSlider())
         switchableIndex = GDP_FEEDBACK_GAIN;
+    else if (slider == mainComponent.getWetSlider())
+        switchableIndex = GDP_MIX_WET;
+    else if (slider == mainComponent.getDrySlider())
+        switchableIndex = GDP_MIX_DRY;
 
     if (switchableIndex == -1)
         return -1;
@@ -344,10 +352,10 @@ void Editor::Impl::parameterValueChanged(int parameterIndex, float newValueNorma
         mainComponent.getFeedbackTapGainSlider()->setValue(newValue, juce::dontSendNotification);
         break;
     case GDP_MIX_DRY:
-        // TODO
+        mainComponent.getDrySlider()->setValue(newValue, juce::dontSendNotification);
         break;
     case GDP_MIX_WET:
-        // TODO
+        mainComponent.getWetSlider()->setValue(newValue, juce::dontSendNotification);
         break;
     case GDP_TAP_A_ENABLE:
         tapEdit->setTapEnabled(tapNumber, (bool)newValue, juce::dontSendNotification);
