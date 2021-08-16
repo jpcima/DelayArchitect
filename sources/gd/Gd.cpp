@@ -257,12 +257,24 @@ static char const* const GdTapLabels[GdMaxLines + 1] = {
     "Tap A", "Tap B", "Tap C", "Tap D", "Tap E", "Tap F", "Tap G", "Tap H", "Tap I", "Tap J", "Tap K", "Tap L", "Tap M",
     "Tap N", "Tap O", "Tap P", "Tap Q", "Tap R", "Tap S", "Tap T", "Tap U", "Tap V", "Tap W", "Tap X", "Tap Y", "Tap Z",
 };
+static char const* const GdFilterLabels[GdNumFilterTypes] = {
+    "Off",
+    "LPF 6 dB/oct",
+    "LPF 12 dB/oct",
+    "HPF 6 dB/oct",
+    "HPF 12 dB/oct",
+};
 
 const char *const *GdParameterChoices(GdParameter p)
 {
+    if ((int)p >= GDP_TAP_A_ENABLE)
+        p = (GdParameter)(((int)p - GDP_TAP_A_ENABLE) % (GDP_TAP_B_ENABLE - GDP_TAP_A_ENABLE) + GDP_TAP_A_ENABLE);
+
     switch (p) {
     case GDP_FEEDBACK_TAP:
         return GdTapNames;
+    case GDP_TAP_A_FILTER:
+        return GdFilterLabels;
     default:
         return nullptr;
     }
