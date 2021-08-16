@@ -72,6 +72,10 @@ Editor::Editor(Processor &p)
     impl.setSliderRangeFromParameter(mainComponent->getWetSlider(), GDP_MIX_WET);
     impl.setSliderRangeFromParameter(mainComponent->getDrySlider(), GDP_MIX_DRY);
 
+    mainComponent->getFeedbackTapGainSlider()->setNumDecimalPlacesToDisplay(2);
+    mainComponent->getWetSlider()->setNumDecimalPlacesToDisplay(2);
+    mainComponent->getDrySlider()->setNumDecimalPlacesToDisplay(2);
+
     for (int i = 0, n = impl.parameters_.size(); i < n; ++i) {
         juce::AudioProcessorParameter *parameter = impl.parameters_[i];
         parameter->addListener(&impl);
