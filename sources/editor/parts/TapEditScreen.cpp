@@ -394,11 +394,12 @@ TapEditItem::TapEditItem(TapEditScreen *screen, int itemNumber)
         else if (kind == kTapSliderTwoValues)
             slider->setSliderStyle(juce::Slider::TwoValueVertical);
         slider->addListener(&impl);
+        juce::NamedValueSet &properties = slider->getProperties();
         if (kind != kTapSliderTwoValues)
-            slider->getProperties().set("X-Change-ID", (int)id);
+            properties.set("X-Change-ID", (int)id);
         else {
-            slider->getProperties().set("X-Change-ID-1", (int)id);
-            slider->getProperties().set("X-Change-ID-2", (int)id2);
+            properties.set("X-Change-ID-1", (int)id);
+            properties.set("X-Change-ID-2", (int)id2);
         }
         addChildComponent(slider);
     };

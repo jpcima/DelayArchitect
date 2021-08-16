@@ -11,6 +11,8 @@ public:
 
     juce::Typeface::Ptr getTypefaceForFont(const juce::Font &font) override;
 
+    juce::Slider::SliderLayout getSliderLayout(juce::Slider &slider) override;
+
 private:
     struct Impl;
     std::unique_ptr<Impl> impl_;

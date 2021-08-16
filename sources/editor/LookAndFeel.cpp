@@ -1,5 +1,6 @@
 #include "editor/LookAndFeel.h"
 #include "editor/parts/TapEditScreen.h"
+#include "editor/parts/TapSlider.h"
 #include "BinaryData.h"
 
 static const juce::StringRef kSansSerifTypefaceName = "Liberation Sans";
@@ -39,4 +40,19 @@ juce::Typeface::Ptr LookAndFeel::getTypefaceForFont(const juce::Font &font)
         tf = BaseLookAndFeel::getTypefaceForFont(font);
 
     return tf;
+}
+
+juce::Slider::SliderLayout LookAndFeel::getSliderLayout(juce::Slider &slider)
+{
+    const juce::NamedValueSet &properties = slider.getProperties();
+
+    if (const juce::var *xSliderClass = properties.getVarPointer("X-Slider-Class")) {
+        if (*xSliderClass == "TapSlider") {
+            juce::Slider::SliderLayout layout;
+            layout.sliderBounds = slider.getLocalBounds().reduced(1, 1);
+            return layout;
+        }
+    }
+
+    return BaseLookAndFeel::getSliderLayout(slider);
 }
