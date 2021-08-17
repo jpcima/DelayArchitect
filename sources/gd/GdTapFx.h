@@ -6,9 +6,12 @@ class GdTapFx {
 public:
     struct Control;
 
+    enum { kControlUpdateInterval = 32 };
+
     void clear();
     void setSampleRate(float sampleRate);
     void setBufferSize(unsigned bufferSize);
+    void performKRateUpdates(Control control, unsigned index);
     void process(const float *input, float *output, Control control, unsigned count);
     float processOne(float input, Control control, unsigned index);
 
@@ -36,6 +39,13 @@ inline void GdTapFx::setBufferSize(unsigned bufferSize)
 {
     // TODO
     (void)bufferSize;
+}
+
+inline void GdTapFx::performKRateUpdates(Control control, unsigned index)
+{
+    // TODO
+    (void)control;
+    (void)index;
 }
 
 inline void GdTapFx::process(const float *input, float *output, Control control, unsigned count)

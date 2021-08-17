@@ -211,15 +211,30 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
                 float *inputAndFeedbackSum = inputAndFeedbackSums[chanIndex];
                 float *feedbackTapOutput = feedbackTapOutputs[chanIndex];
 
-                for (unsigned i = 0; i < count; ++i) {
-                    float in = input[i] + feedback * feedbackGain[i];
-                    inputAndFeedbackSum[i] = in;
+                unsigned i = 0;
+                GdTapFx &fx = tap.fx_;
 
-                    float out = tap.line_.processOne(in, delays[i]);
-                    out = tap.fx_.processOne(out, fxControl, i);
-
-                    feedbackTapOutput[i] = out;
-                    feedback = out;
+                while (i + GdTapFx::kControlUpdateInterval < count) {
+                    fx.performKRateUpdates(fxControl, i);
+                    for (unsigned j = i + GdTapFx::kControlUpdateInterval; i < j; ++i) {
+                        float in = input[i] + feedback * feedbackGain[i];
+                        inputAndFeedbackSum[i] = in;
+                        float out = tap.line_.processOne(in, delays[i]);
+                        out = fx.processOne(out, fxControl, i);
+                        feedbackTapOutput[i] = out;
+                        feedback = out;
+                    }
+                }
+                if (i < count) {
+                    fx.performKRateUpdates(fxControl, i);
+                    for (; i < count; ++i) {
+                        float in = input[i] + feedback * feedbackGain[i];
+                        inputAndFeedbackSum[i] = in;
+                        float out = tap.line_.processOne(in, delays[i]);
+                        out = fx.processOne(out, fxControl, i);
+                        feedbackTapOutput[i] = out;
+                        feedback = out;
+                    }
                 }
 
                 // use this as input to the rest of taps
@@ -280,7 +295,17 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
                 float *ordinaryTapOutput = ordinaryTapOutputs[chanIndex];
 
                 tap.line_.process(tapInput, delays, ordinaryTapOutput, count);
-                tap.fx_.process(ordinaryTapOutput, ordinaryTapOutput, fxControl, count);
+
+                unsigned i = 0;
+                GdTapFx &fx = tap.fx_;
+                for (; i + GdTapFx::kControlUpdateInterval < count; i += GdTapFx::kControlUpdateInterval) {
+                    fx.performKRateUpdates(fxControl, i);
+                    fx.process(ordinaryTapOutput + i, ordinaryTapOutput + i, fxControl, count - i);
+                }
+                if (i < count) {
+                    fx.performKRateUpdates(fxControl, i);
+                    fx.process(ordinaryTapOutput + i, ordinaryTapOutput + i, fxControl, count - i);
+                }
             }
 
             // add to stereo mix
