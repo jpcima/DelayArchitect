@@ -11,14 +11,29 @@ inline void GdFilter::setSampleRate(float sampleRate)
     sampleRate_ = sampleRate;
 }
 
+inline int GdFilter::getFilterType() const
+{
+    return filter_;
+}
+
 inline void GdFilter::setFilterType(int filter)
 {
     filter_ = filter;
 }
 
+inline float GdFilter::getCutoff() const
+{
+    return cutoff_;
+}
+
 inline void GdFilter::setCutoff(float cutoff)
 {
     cutoff_ = cutoff;
+}
+
+inline float GdFilter::getResonance() const
+{
+    return resonance_;
 }
 
 inline void GdFilter::setResonance(float resonance)
@@ -34,7 +49,7 @@ inline float GdFilter::processOne(float input)
     {
         const Coeff1 c = coeff1_;
         Mem1 m = mem1_;
-        output = c.u0 * input + c.u1 * m.x1 + c.v1 * m.y1;
+        output = c.u0 * input + c.u1 * m.x1 - c.v1 * m.y1;
         m.x1 = input;
         m.y1 = output;
         mem1_ = m;
