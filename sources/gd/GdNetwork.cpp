@@ -300,7 +300,7 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
                 GdTapFx &fx = tap.fx_;
                 for (; i + GdTapFx::kControlUpdateInterval < count; i += GdTapFx::kControlUpdateInterval) {
                     fx.performKRateUpdates(fxControl, i);
-                    fx.process(ordinaryTapOutput + i, ordinaryTapOutput + i, fxControl, count - i);
+                    fx.process(ordinaryTapOutput + i, ordinaryTapOutput + i, fxControl, GdTapFx::kControlUpdateInterval);
                 }
                 if (i < count) {
                     fx.performKRateUpdates(fxControl, i);

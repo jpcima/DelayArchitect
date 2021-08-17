@@ -6,7 +6,7 @@ inline void GdFilter::clear()
     mem2_ = Mem2{};
 }
 
-inline void GdFilter::setSampleRate(float sampleRate)
+inline void GdFilter::setSampleRate(Real sampleRate)
 {
     sampleRate_ = sampleRate;
 }
@@ -21,29 +21,29 @@ inline void GdFilter::setFilterType(int filter)
     filter_ = filter;
 }
 
-inline float GdFilter::getCutoff() const
+inline GdFilter::Real GdFilter::getCutoff() const
 {
     return cutoff_;
 }
 
-inline void GdFilter::setCutoff(float cutoff)
+inline void GdFilter::setCutoff(Real cutoff)
 {
     cutoff_ = cutoff;
 }
 
-inline float GdFilter::getResonance() const
+inline GdFilter::Real GdFilter::getResonance() const
 {
     return resonance_;
 }
 
-inline void GdFilter::setResonance(float resonance)
+inline void GdFilter::setResonance(Real resonance)
 {
     resonance_ = resonance;
 }
 
-inline float GdFilter::processOne(float input)
+inline GdFilter::Real GdFilter::processOne(Real input)
 {
-    float output;
+    Real output;
 
     // First order part
     {

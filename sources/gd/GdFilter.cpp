@@ -1,35 +1,36 @@
 #include "GdFilter.h"
 #include <cmath>
+#include <cstdio>
 
 void GdFilter::updateCoeffs()
 {
     Coeff1 c1;
     Coeff2 c2;
 
-    float fs = sampleRate_;
-    float fc = cutoff_;
-    float q = resonance_;
-    float pi = (float)M_PI;
+    Real fs = sampleRate_;
+    Real fc = cutoff_;
+    Real q = resonance_;
+    Real pi = (Real)M_PI;
 
     switch (filter_) {
     case kFilterOff:
         // Pass through
-        c1.u0 = 1.0f;
-        c1.u1 = 0.0f;
-        c1.v1 = 0.0f;
+        c1.u0 = 1;
+        c1.u1 = 0;
+        c1.v1 = 0;
 
         // Pass through
-        c2.b0 = 1.0f;
-        c2.b1 = 0.0f;
-        c2.b2 = 0.0f;
-        c2.a1 = 0.0f;
-        c2.a2 = 0.0f;
+        c2.b0 = 1;
+        c2.b1 = 0;
+        c2.b2 = 0;
+        c2.a1 = 0;
+        c2.a2 = 0;
         break;
     case kFilterLPF6:
     {
         // LPF 6dB/oct
         {
-            float c = 1/std::tan(fc*pi/fs);
+            Real c = 1/std::tan(fc*pi/fs);
             c1.u0 = 1/(1+c);
             c1.u1 = c1.u0;
             c1.v1 = (1-c)/(1+c);
@@ -38,16 +39,16 @@ void GdFilter::updateCoeffs()
         // Peak
         {
         peak:
-            float w = 2*(fc*pi/fs);
-            float A = std::sqrt(q);
-            float S = std::sin(w);
-            float C = std::cos(w);
-            float b0 = 1+S*A;
-            float b1 = -2*C;
-            float b2 = 1-S*A;
-            float a0 = 1+S/A;
-            float a1 = -2*C;
-            float a2 = 1-S/A;
+            Real w = 2*(fc*pi/fs);
+            Real A = std::sqrt(q);
+            Real S = std::sin(w);
+            Real C = std::cos(w);
+            Real b0 = 1+S*A;
+            Real b1 = -2*C;
+            Real b2 = 1-S*A;
+            Real a0 = 1+S/A;
+            Real a1 = -2*C;
+            Real a2 = 1-S/A;
             c2.b0 = b0/a0;
             c2.b1 = b1/a0;
             c2.b2 = b2/a0;
@@ -60,7 +61,7 @@ void GdFilter::updateCoeffs()
     {
         // HPF 6dB/oct
         {
-            float c = 1/std::tan(fc*pi/fs);
+            Real c = 1/std::tan(fc*pi/fs);
             c1.u0 = c/(1+c);
             c1.u1 = -c1.u0;
             c1.v1 = (1-c)/(1+c);
@@ -72,20 +73,20 @@ void GdFilter::updateCoeffs()
     case kFilterLPF12:
     {
         // Pass through
-        c1.u0 = 1.0f;
-        c1.u1 = 0.0f;
-        c1.v1 = 0.0f;
+        c1.u0 = 1;
+        c1.u1 = 0;
+        c1.v1 = 0;
 
         // LPF 12dB/oct
         {
-            float w = 2*(fc*pi/fs);
-            float a = std::sin(w)/(2*q);
-            float b0 = 0.5f*(1-std::cos(w));
-            float b1 = 1-std::cos(w);
-            float b2 = 0.5f*(1-std::cos(w));
-            float a0 = 1+a;
-            float a1 = -2*std::cos(w);
-            float a2 = 1-a;
+            Real w = 2*(fc*pi/fs);
+            Real a = std::sin(w)/(2*q);
+            Real b0 = (1-std::cos(w))/2;
+            Real b1 = 1-std::cos(w);
+            Real b2 = (1-std::cos(w))/2;
+            Real a0 = 1+a;
+            Real a1 = -2*std::cos(w);
+            Real a2 = 1-a;
             c2.b0 = b0/a0;
             c2.b1 = b1/a0;
             c2.b2 = b2/a0;
@@ -97,20 +98,20 @@ void GdFilter::updateCoeffs()
     case kFilterHPF12:
     {
         // Pass through
-        c1.u0 = 1.0f;
-        c1.u1 = 0.0f;
-        c1.v1 = 0.0f;
+        c1.u0 = 1;
+        c1.u1 = 0;
+        c1.v1 = 0;
 
         // HPF 12dB/oct
         {
-            float w = 2*(fc*pi/fs);
-            float a = std::sin(w)/(2*q);
-            float b0 = 0.5f*(1+std::cos(w));
-            float b1 = -1-std::cos(w);
-            float b2 = 0.5f*(1+std::cos(w));
-            float a0 = 1+a;
-            float a1 = -2*std::cos(w);
-            float a2 = 1-a;
+            Real w = 2*(fc*pi/fs);
+            Real a = std::sin(w)/(2*q);
+            Real b0 = (1+std::cos(w))/2;
+            Real b1 = -1-std::cos(w);
+            Real b2 = (1+std::cos(w))/2;
+            Real a0 = 1+a;
+            Real a1 = -2*std::cos(w);
+            Real a2 = 1-a;
             c2.b0 = b0/a0;
             c2.b1 = b1/a0;
             c2.b2 = b2/a0;
