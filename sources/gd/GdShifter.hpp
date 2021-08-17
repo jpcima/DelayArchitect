@@ -35,7 +35,7 @@ inline float GdShifter::processOne(float input, float shiftLinear)
         return y1 + f * (y2 - y1);
     };
 
-    float c = d / (cr * w);
+    float c = std::fmin(1.0f, d / (cr * w));
     output = fdelay(d) * c + fdelay(d + w) * (1.0f - c);
 
     // in case of no shifting, return input directly (no latency)

@@ -10,7 +10,7 @@ public:
 private:
     // fixed characteristics
     static constexpr float getWindowTime() { return 60e-3f; }
-    static constexpr float getCrossfadeRatio() { return 1.0f; }
+    static constexpr float getCrossfadeRatio() { return 0.05f; }
 
 private:
     float d_ = 0;
