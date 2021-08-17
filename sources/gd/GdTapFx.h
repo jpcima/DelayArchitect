@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #pragma once
 #include "GdFilter.h"
+#include "GdShifter.h"
 #include "GdDefs.h"
 #include <cstdio>
 
@@ -22,37 +23,37 @@ public:
         float *lpfCutoff = nullptr;
         float *hpfCutoff = nullptr;
         float *resonance = nullptr;
+        float *shift = nullptr;
     };
 
     GdFilter lpf_;
     GdFilter hpf_;
+    GdShifter shifter_;
 };
 
 //==============================================================================
 inline void GdTapFx::clear()
 {
-    // TODO
     lpf_.clear();
     hpf_.clear();
+    shifter_.clear();
 }
 
 inline void GdTapFx::setSampleRate(float sampleRate)
 {
-    // TODO
     lpf_.setSampleRate(sampleRate);
     hpf_.setSampleRate(sampleRate);
+    shifter_.setSampleRate(sampleRate);
     clear();
 }
 
 inline void GdTapFx::setBufferSize(unsigned bufferSize)
 {
-    // TODO
     (void)bufferSize;
 }
 
 inline void GdTapFx::performKRateUpdates(Control control, unsigned index)
 {
-    // TODO
     {
         int filter[2];
         float cutoff[2];
@@ -101,7 +102,6 @@ inline void GdTapFx::performKRateUpdates(Control control, unsigned index)
 
 inline void GdTapFx::process(const float *input, float *output, Control control, unsigned count)
 {
-    // TODO
     {
         GdFilter &lpf = lpf_;
         for (unsigned i = 0; i < count; ++i)
@@ -115,11 +115,18 @@ inline void GdTapFx::process(const float *input, float *output, Control control,
         for (unsigned i = 0; i < count; ++i)
             output[i] = hpf.processOne(input[i]);
     }
+
+    input = output;
+
+    {
+        GdShifter &shifter = shifter_;
+        for (unsigned i = 0; i < count; ++i)
+            output[i] = shifter.processOne(input[i], control.shift[i]);
+    }
 }
 
 inline float GdTapFx::processOne(float input, Control control, unsigned index)
 {
-    // TODO
     float output;
 
     {
@@ -132,6 +139,13 @@ inline float GdTapFx::processOne(float input, Control control, unsigned index)
     {
         GdFilter &hpf = hpf_;
         output = hpf.processOne(input);
+    }
+
+    input = output;
+
+    {
+        GdShifter &shifter = shifter_;
+        output = shifter.processOne(input, control.shift[index]);
     }
 
     return output;

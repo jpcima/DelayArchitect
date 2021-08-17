@@ -105,6 +105,9 @@ void GdNetwork::setParameter(unsigned parameter, float value)
         case GDP_TAP_A_RESONANCE:
             tapControl.resonanceDB_ = value;
             break;
+        case GDP_TAP_A_TUNE:
+            tapControl.shift_ = value;
+            break;
         case GDP_TAP_A_PAN:
             tapControl.pan_ = value;
             break;
@@ -146,6 +149,7 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
     fxControl.lpfCutoff = allocateTemp();
     fxControl.hpfCutoff = allocateTemp();
     fxControl.resonance = allocateTemp();
+    fxControl.shift = allocateTemp();
 
     const float *tapInputs[2] = { leftInput, rightInput };
 
@@ -196,6 +200,8 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
             tapControl.smoothHpfCutoff_.process(fxControl.hpfCutoff, fxControl.hpfCutoff, count, true);
             std::fill_n(fxControl.resonance, count, db2linear(tapControl.resonanceDB_));
             tapControl.smoothResonanceLinear_.process(fxControl.resonance, fxControl.resonance, count, true);
+            std::fill_n(fxControl.shift, count, std::exp2(tapControl.shift_ * (1.0f / 1200)));
+            tapControl.smoothShiftLinear_.process(fxControl.shift, fxControl.shift, count, true);
 
             // compute the feedback gain
             std::fill_n(feedbackGain, count, db2linear(fbTapGainDB_));
@@ -285,6 +291,8 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
             tapControl.smoothHpfCutoff_.process(fxControl.hpfCutoff, fxControl.hpfCutoff, count, true);
             std::fill_n(fxControl.resonance, count, db2linear(tapControl.resonanceDB_));
             tapControl.smoothResonanceLinear_.process(fxControl.resonance, fxControl.resonance, count, true);
+            std::fill_n(fxControl.shift, count, std::exp2(tapControl.shift_ * (1.0f / 1200)));
+            tapControl.smoothShiftLinear_.process(fxControl.shift, fxControl.shift, count, true);
 
             for (unsigned chanIndex = 0; chanIndex < numInputs; ++chanIndex) {
                 ChannelDsp &chan = channels_[chanIndex];
@@ -448,6 +456,7 @@ auto GdNetwork::TapControl::getSmoothers() -> std::array<LinearSmoother *, kNumS
         &smoothLpfCutoff_,
         &smoothHpfCutoff_,
         &smoothResonanceLinear_,
+        &smoothShiftLinear_,
         &smoothPan_,
         &smoothWidth_,
     }};
@@ -461,6 +470,7 @@ auto GdNetwork::TapControl::getSmootherTargets() -> std::array<float, kNumSmooth
         lpfCutoff_,
         hpfCutoff_,
         db2linear(resonanceDB_),
+        std::exp2(shift_ * (1.0f / 1200)),
         pan_,
         width_,
     }};

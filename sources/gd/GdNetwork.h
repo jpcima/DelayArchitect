@@ -74,6 +74,7 @@ private:
         float lpfCutoff_ = 0;
         float hpfCutoff_ = 0;
         float resonanceDB_ = 0;
+        float shift_ = 0;
         float pan_ = 0;
         float width_ = 0;
         // smoothers
@@ -82,9 +83,10 @@ private:
         LinearSmoother smoothLpfCutoff_;
         LinearSmoother smoothHpfCutoff_;
         LinearSmoother smoothResonanceLinear_;
+        LinearSmoother smoothShiftLinear_;
         LinearSmoother smoothPan_;
         LinearSmoother smoothWidth_;
-        enum { kNumSmoothers = 7 };
+        enum { kNumSmoothers = 8 };
         std::array<LinearSmoother *, kNumSmoothers> getSmoothers();
         std::array<float, kNumSmoothers> getSmootherTargets();
     };
@@ -92,6 +94,6 @@ private:
     TapControl tapControls_[GdMaxLines];
 
     // internal
-    enum { kNumTempBuffers = 14 };
+    enum { kNumTempBuffers = 15 };
     std::array<std::vector<float>, kNumTempBuffers> temp_;
 };
