@@ -157,7 +157,7 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
     }
 
     // skip processing the feedback if disabled
-    if (fbTapGainDB_ <= GdMinGainDB && smoothFbGainLinear_.current() <= GdMinGainLinear) {
+    if (fbTapGainDB_ <= GdMinFeedbackGainDB && smoothFbGainLinear_.current() <= GdMinFeedbackGainLinear) {
         fbTapIndex = ~0u;
     }
 

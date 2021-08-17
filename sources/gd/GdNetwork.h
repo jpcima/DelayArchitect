@@ -58,7 +58,7 @@ private:
 
     // parameters + smoothers
     unsigned fbTapIndex_ = 0;
-    float fbTapGainDB_ = GdMinGainDB;
+    float fbTapGainDB_ = GdMinFeedbackGainDB;
     LinearSmoother smoothFbGainLinear_;
 
     struct TapControl {

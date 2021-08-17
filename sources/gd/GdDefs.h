@@ -28,15 +28,15 @@ enum GdFilterType {
 Ignorable static constexpr float GdParamSmoothTime = 50e-3f;
 
 // smallest gain setting
-Ignorable static constexpr float GdMinGainLinear = 1e-4f;
-Ignorable static constexpr float GdMinGainDB = -80.0f;
+Ignorable static constexpr float GdMinFeedbackGainLinear = 1e-3f;
+Ignorable static constexpr float GdMinFeedbackGainDB = -60.0f;
 
 #define GD_EACH_PARAMETER(_)                                                   \
     /* Name, Min, Max, Def, Flags, Label, Group */                             \
     _(FEEDBACK_TAP, 0, GdMaxLines - 1, 0, GDP_CHOICE, "Feedback tap", -1)      \
-    _(FEEDBACK_GAIN, GdMinGainDB, 0, GdMinGainDB, GDP_FLOAT, "Feedback gain", -1) \
-    _(MIX_DRY, GdMinGainDB, 10, -6, GDP_FLOAT, "Dry mix", -1)                  \
-    _(MIX_WET, GdMinGainDB, 10, -6, GDP_FLOAT, "Wet mix", -1)                  \
+    _(FEEDBACK_GAIN, GdMinFeedbackGainDB, 0, GdMinFeedbackGainDB, GDP_FLOAT, "Feedback gain", -1) \
+    _(MIX_DRY, -60, 10, -6, GDP_FLOAT, "Dry mix", -1)                          \
+    _(MIX_WET, -60, 10, -6, GDP_FLOAT, "Wet mix", -1)                          \
     GD_EACH_LINE_PARAMETER(_, A, 0)                                            \
     GD_EACH_LINE_PARAMETER(_, B, 1)                                            \
     GD_EACH_LINE_PARAMETER(_, C, 2)                                            \
@@ -70,7 +70,7 @@ Ignorable static constexpr float GdMinGainDB = -80.0f;
     /* NOTE: Tap Enable must always appear first */                            \
     _(TAP_##X##_ENABLE, false, true, false, GDP_BOOLEAN, "Tap " #X " Enable", I) \
     _(TAP_##X##_DELAY, 0, GdMaxDelay, 0, GDP_FLOAT, "Tap " #X " Delay", I)     \
-    _(TAP_##X##_LEVEL, GdMinGainDB, 10, 0, GDP_FLOAT, "Tap " #X " Level", I)   \
+    _(TAP_##X##_LEVEL, -20, 10, 0, GDP_FLOAT, "Tap " #X " Level", I)           \
     _(TAP_##X##_FILTER, 0, (GdNumFilterTypes - 1), 0, GDP_CHOICE, "Tap " #X " Filter", I) \
     _(TAP_##X##_LPF_CUTOFF, 10, 22000, 22000, GDP_FLOAT, "Tap " #X " LPF Cutoff", I) \
     _(TAP_##X##_HPF_CUTOFF, 10, 22000, 0, GDP_FLOAT, "Tap " #X " HPF Cutoff", I) \
