@@ -394,7 +394,6 @@ void GdNetwork::TapDsp::setSampleRate(float sampleRate)
 
 void GdNetwork::TapDsp::setBufferSize(unsigned bufferSize)
 {
-    line_.setBufferSize(bufferSize);
     fx_.setBufferSize(bufferSize);
 }
 

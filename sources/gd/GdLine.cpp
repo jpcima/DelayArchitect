@@ -25,7 +25,7 @@ void GdLine::process(const float *input, const float *delay, float *output, unsi
 {
     float *lineData = lineData_.data();
     unsigned lineIndex = lineIndex_;
-    unsigned lineCapacity = (unsigned)lineData_.capacity();
+    unsigned lineCapacity = (unsigned)lineData_.size();
     float sampleRate = sampleRate_;
 
     for (unsigned i = 0; i < count; ++i) {

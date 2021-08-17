@@ -6,7 +6,6 @@ class GdLine {
 public:
     void clear();
     void setSampleRate(float sampleRate);
-    void setBufferSize(unsigned bufferSize);
     void process(const float *input, const float *delay, float *output, unsigned count);
     float processOne(float input, float delay);
 
@@ -18,11 +17,6 @@ private:
 
 //==============================================================================
 #include "GdDefs.h"
-
-inline void GdLine::setBufferSize(unsigned bufferSize)
-{
-    (void)bufferSize;
-}
 
 inline float GdLine::processOne(float input, float delay)
 {
