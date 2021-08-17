@@ -98,6 +98,13 @@ inline void GdTapFx::performKRateUpdates(Control control, unsigned index)
                 f.updateCoeffs();
         }
     }
+
+#if GD_USE_SOUNDTOUCH_SHIFTER
+    {
+        GdShifter &shifter = shifter_;
+        shifter.setShift(control.shift[index]);
+    }
+#endif
 }
 
 inline void GdTapFx::process(const float *input, float *output, Control control, unsigned count)
@@ -120,7 +127,11 @@ inline void GdTapFx::process(const float *input, float *output, Control control,
 
     {
         GdShifter &shifter = shifter_;
+#if GD_USE_SOUNDTOUCH_SHIFTER
+        shifter.process(input, output, count);
+#else
         shifter.process(input, output, control.shift, count);
+#endif
     }
 }
 
@@ -144,7 +155,11 @@ inline float GdTapFx::processOne(float input, Control control, unsigned index)
 
     {
         GdShifter &shifter = shifter_;
+#if GD_USE_SOUNDTOUCH_SHIFTER
+        output = shifter.processOne(input);
+#else
         output = shifter.processOne(input, control.shift[index]);
+#endif
     }
 
     return output;

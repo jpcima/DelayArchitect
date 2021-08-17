@@ -158,7 +158,7 @@ add_library(SoundTouch STATIC EXCLUDE_FROM_ALL
   "thirdparty/SoundTouch/source/SoundTouch/sse_optimized.cpp"
   "thirdparty/SoundTouch/source/SoundTouch/TDStretch.cpp")
 target_compile_definitions(SoundTouch
-  PRIVATE
+  PUBLIC
   "CMAKE"
   "SOUNDTOUCH_FLOAT_SAMPLES=1"
   "SOUNDTOUCH_USE_NEON=1")
@@ -167,6 +167,9 @@ target_include_directories(SoundTouch
   "thirdparty/SoundTouch/include")
 
 ###
+target_compile_definitions(Gd
+  PRIVATE
+  "GD_USE_SOUNDTOUCH_SHIFTER=1")
 target_link_libraries(Gd
   PRIVATE
   SoundTouch)

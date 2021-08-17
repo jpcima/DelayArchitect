@@ -1,6 +1,10 @@
 #include "GdShifter.h"
 #include <cmath>
 
+#if GD_USE_SOUNDTOUCH_SHIFTER
+
+#else
+
 inline void GdShifter::clear()
 {
     std::fill(l_.begin(), l_.end(), 0.0f);
@@ -45,3 +49,5 @@ inline float GdShifter::processOne(float input, float shiftLinear)
     li_ = (li + ln - 1) & (ln - 1);
     return output;
 }
+
+#endif
