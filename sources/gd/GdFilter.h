@@ -36,8 +36,8 @@ private:
     Mem1 mem1_{};
     Coeff1 coeff1_{};
 
-    // the second order filter
-    struct Mem2 { float x1, x2, y1, y2; };
+    // the second order filter (transposed form II)
+    struct Mem2 { float s1, s2; };
     Mem2 mem2_{};
     Coeff2 coeff2_{};
 

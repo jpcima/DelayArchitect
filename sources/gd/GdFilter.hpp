@@ -46,11 +46,9 @@ inline float GdFilter::processOne(float input)
     {
         const Coeff2 c = coeff2_;
         Mem2 m = mem2_;
-        output = c.b0 * input + c.b1 * m.x1 + c.b2 * m.x2 + c.a1 * m.y1 + c.a2 * m.y2;
-        m.x2 = m.x1;
-        m.x1 = input;
-        m.y2 = m.y1;
-        m.y1 = output;
+        output = m.s1 + c.b0 * input;
+        m.s1 = m.s2 + c.b1 * input - c.a1 * output;
+        m.s2 = c.b2 * input - c.a2 * output;
         mem2_ = m;
     }
 
