@@ -378,6 +378,7 @@ void GdNetwork::mixStereoToStereo(unsigned tapIndex, const float *const inputs[]
 //==============================================================================
 GdNetwork::TapDsp::TapDsp()
 {
+    line_.setMaxDelay(GdMaxDelay);
 }
 
 void GdNetwork::TapDsp::clear()

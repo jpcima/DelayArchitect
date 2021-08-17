@@ -16,9 +16,16 @@ void GdLine::setSampleRate(float sampleRate)
         return;
 
     sampleRate_ = sampleRate;
+    allocateLineBuffer((unsigned)std::ceil(sampleRate * maxDelay_));
+}
 
-    lineData_.clear();
-    lineData_.resize((unsigned)std::ceil(sampleRate * GdMaxDelay));
+void GdLine::setMaxDelay(float maxDelay)
+{
+    if (maxDelay_ == maxDelay)
+        return;
+
+    maxDelay_ = maxDelay;
+    allocateLineBuffer((unsigned)std::ceil(sampleRate_ * maxDelay_));
 }
 
 void GdLine::process(const float *input, const float *delay, float *output, unsigned count)
@@ -26,6 +33,7 @@ void GdLine::process(const float *input, const float *delay, float *output, unsi
     float *lineData = lineData_.data();
     unsigned lineIndex = lineIndex_;
     unsigned lineCapacity = (unsigned)lineData_.size();
+    float maxDelay = maxDelay_;
     float sampleRate = sampleRate_;
 
     for (unsigned i = 0; i < count; ++i) {
@@ -34,7 +42,7 @@ void GdLine::process(const float *input, const float *delay, float *output, unsi
         ///
         float limitedDelay = delay[i];
         limitedDelay = (limitedDelay < 0.0f) ? 0.0f : limitedDelay;
-        limitedDelay = (limitedDelay > GdMaxDelay) ? GdMaxDelay : limitedDelay;
+        limitedDelay = (limitedDelay > maxDelay) ? maxDelay : limitedDelay;
         float sampleDelay = sampleRate * limitedDelay;
 
         ///
@@ -54,4 +62,10 @@ void GdLine::process(const float *input, const float *delay, float *output, unsi
 
     ///
     lineIndex_ = lineIndex;
+}
+
+void GdLine::allocateLineBuffer(unsigned capacity)
+{
+    lineData_.clear();
+    lineData_.resize(capacity);
 }

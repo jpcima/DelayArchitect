@@ -6,23 +6,25 @@ class GdLine {
 public:
     void clear();
     void setSampleRate(float sampleRate);
+    void setMaxDelay(float maxDelay);
     void process(const float *input, const float *delay, float *output, unsigned count);
     float processOne(float input, float delay);
 
 private:
     std::vector<float> lineData_;
     unsigned lineIndex_ = 0;
+    float maxDelay_ = 0;
     float sampleRate_ = 0;
+    void allocateLineBuffer(unsigned capacity);
 };
 
 //==============================================================================
-#include "GdDefs.h"
-
 inline float GdLine::processOne(float input, float delay)
 {
     float *lineData = lineData_.data();
     unsigned lineIndex = lineIndex_;
-    unsigned lineCapacity = (unsigned)lineData_.capacity();
+    unsigned lineCapacity = (unsigned)lineData_.size();
+    float maxDelay = maxDelay_;
     float sampleRate = sampleRate_;
 
     ///
@@ -31,7 +33,7 @@ inline float GdLine::processOne(float input, float delay)
     ///
     float limitedDelay = delay;
     limitedDelay = (limitedDelay < 0.0f) ? 0.0f : limitedDelay;
-    limitedDelay = (limitedDelay > GdMaxDelay) ? GdMaxDelay : limitedDelay;
+    limitedDelay = (limitedDelay > maxDelay) ? maxDelay : limitedDelay;
     float sampleDelay = sampleRate * limitedDelay;
 
     ///
