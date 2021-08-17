@@ -92,8 +92,9 @@ private:
     };
 
     TapControl tapControls_[GdMaxLines];
+    LinearSmoother smoothTapLatency_[GdMaxLines];
 
     // internal
-    enum { kNumTempBuffers = 15 };
+    enum { kNumTempBuffers = 16 };
     std::array<std::vector<float>, kNumTempBuffers> temp_;
 };

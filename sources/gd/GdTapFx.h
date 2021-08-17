@@ -17,6 +17,7 @@ public:
     void performKRateUpdates(Control control, unsigned index);
     void process(const float *input, float *output, Control control, unsigned count);
     float processOne(float input, Control control, unsigned index);
+    float getLatency() const;
 
     struct Control {
         int filter = GdFilterOff;
@@ -163,4 +164,10 @@ inline float GdTapFx::processOne(float input, Control control, unsigned index)
     }
 
     return output;
+}
+
+inline float GdTapFx::getLatency() const
+{
+    const GdShifter &shifter = shifter_;
+    return shifter.getLatency();
 }

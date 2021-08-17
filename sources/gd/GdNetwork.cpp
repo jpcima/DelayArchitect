@@ -21,6 +21,9 @@ GdNetwork::GdNetwork(ChannelMode channelMode)
     }
 
     smoothFbGainLinear_.setSmoothTime(GdParamSmoothTime);
+
+    for (unsigned tapIndex = 0; tapIndex < GdMaxLines; ++tapIndex)
+        smoothTapLatency_[tapIndex].setSmoothTime(GdParamSmoothTime);
 }
 
 GdNetwork::~GdNetwork()
@@ -30,6 +33,9 @@ GdNetwork::~GdNetwork()
 void GdNetwork::clear()
 {
     smoothFbGainLinear_.clear(db2linear(fbTapGainDB_));
+
+    for (unsigned tapIndex = 0; tapIndex < GdMaxLines; ++tapIndex)
+        smoothTapLatency_[tapIndex].clear(channels_[0].taps_[tapIndex].fx_.getLatency());
 
     for (ChannelDsp &chan : channels_)
         chan.clear();
@@ -151,6 +157,8 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
     fxControl.resonance = allocateTemp();
     fxControl.shift = allocateTemp();
 
+    float *latency = allocateTemp();
+
     const float *tapInputs[2] = { leftInput, rightInput };
 
     // fill outputs with dry signal
@@ -177,6 +185,14 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
             // compute the line delays
             std::fill_n(delays, count, tapControl.delay_);
             tapControl.smoothDelay_.process(delays, delays, count, true);
+
+            // compute tap latency
+            std::fill_n(latency, count, channels_[0].taps_[fbTapIndex].fx_.getLatency());
+            smoothTapLatency_[fbTapIndex].process(latency, latency, count);
+
+            // compensate delays according to latency
+            for (unsigned i = 0; i < count; ++i)
+                delays[i] = std::max(0.0f, delays[i] - latency[i]);
 
             // calculate level
             std::fill_n(level, count, db2linear(tapControl.levelDB_));
@@ -268,6 +284,14 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
             // compute the line delays
             std::fill_n(delays, count, tapControl.delay_);
             tapControl.smoothDelay_.process(delays, delays, count, true);
+
+            // compute tap latency
+            std::fill_n(latency, count, channels_[0].taps_[tapIndex].fx_.getLatency());
+            smoothTapLatency_[tapIndex].process(latency, latency, count);
+
+            // compensate delays according to latency
+            for (unsigned i = 0; i < count; ++i)
+                delays[i] = std::max(0.0f, delays[i] - latency[i]);
 
             // calculate level
             std::fill_n(level, count, db2linear(tapControl.levelDB_));
