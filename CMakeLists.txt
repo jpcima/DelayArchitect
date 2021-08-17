@@ -140,3 +140,33 @@ endif()
 target_link_libraries(Gd
   PRIVATE
   openmp)
+
+###
+add_library(SoundTouch STATIC EXCLUDE_FROM_ALL
+  "thirdparty/SoundTouch/source/SoundTouch/AAFilter.cpp"
+  "thirdparty/SoundTouch/source/SoundTouch/BPMDetect.cpp"
+  "thirdparty/SoundTouch/source/SoundTouch/cpu_detect_x86.cpp"
+  "thirdparty/SoundTouch/source/SoundTouch/FIFOSampleBuffer.cpp"
+  "thirdparty/SoundTouch/source/SoundTouch/FIRFilter.cpp"
+  "thirdparty/SoundTouch/source/SoundTouch/InterpolateCubic.cpp"
+  "thirdparty/SoundTouch/source/SoundTouch/InterpolateLinear.cpp"
+  "thirdparty/SoundTouch/source/SoundTouch/InterpolateShannon.cpp"
+  "thirdparty/SoundTouch/source/SoundTouch/mmx_optimized.cpp"
+  "thirdparty/SoundTouch/source/SoundTouch/PeakFinder.cpp"
+  "thirdparty/SoundTouch/source/SoundTouch/RateTransposer.cpp"
+  "thirdparty/SoundTouch/source/SoundTouch/SoundTouch.cpp"
+  "thirdparty/SoundTouch/source/SoundTouch/sse_optimized.cpp"
+  "thirdparty/SoundTouch/source/SoundTouch/TDStretch.cpp")
+target_compile_definitions(SoundTouch
+  PRIVATE
+  "CMAKE"
+  "SOUNDTOUCH_FLOAT_SAMPLES=1"
+  "SOUNDTOUCH_USE_NEON=1")
+target_include_directories(SoundTouch
+  PUBLIC
+  "thirdparty/SoundTouch/include")
+
+###
+target_link_libraries(Gd
+  PRIVATE
+  SoundTouch)
