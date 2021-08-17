@@ -14,10 +14,12 @@ public:
     void setShift(float shiftLinear);
     float processOne(float input);
     void process(const float *input, float *output, unsigned count);
+    float getLatency() const;
 
 private:
     soundtouch::SoundTouch st_;
     float shift_ = 1.0f;
+    float sampleRate_ = 0.0f;
 };
 
 #else
@@ -28,6 +30,7 @@ public:
     void setSampleRate(float sampleRate);
     float processOne(float input, float shiftLinear);
     void process(const float *input, float *output, const float *shiftLinear, unsigned count);
+    float getLatency() const { return 0; } // not implemented
 
 private:
     // fixed characteristics

@@ -25,6 +25,10 @@ void GdShifter::clear()
 
 void GdShifter::setSampleRate(float sampleRate)
 {
+    if (sampleRate_ == sampleRate)
+        return;
+
+    sampleRate_ = sampleRate;
     soundtouch::SoundTouch &st = st_;
     st.setSampleRate(sampleRate);
     clear();
@@ -85,6 +89,16 @@ void GdShifter::process(const float *input, float *output, unsigned count)
             index += blockSize;
         }
     }
+}
+
+float GdShifter::getLatency() const
+{
+    const soundtouch::SoundTouch &st = st_;
+    int initialLatency = st.getSetting(SETTING_INITIAL_LATENCY);
+    int outputSequence = st.getSetting(SETTING_NOMINAL_OUTPUT_SEQUENCE);
+
+    int latencySamples = initialLatency - outputSequence / 2;
+    return latencySamples / sampleRate_;
 }
 
 #else
