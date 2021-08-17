@@ -17,3 +17,9 @@ void GdShifter::setSampleRate(float fs)
 
     clear();
 }
+
+void GdShifter::process(const float *input, float *output, const float *shiftLinear, unsigned count)
+{
+    for (unsigned i = 0; i < count; ++i)
+        output[i] = processOne(input[i], shiftLinear[i]);
+}

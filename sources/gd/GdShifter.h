@@ -6,6 +6,7 @@ public:
     void clear();
     void setSampleRate(float sampleRate);
     float processOne(float input, float shiftLinear);
+    void process(const float *input, float *output, const float *shiftLinear, unsigned count);
 
 private:
     // fixed characteristics

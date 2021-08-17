@@ -120,8 +120,7 @@ inline void GdTapFx::process(const float *input, float *output, Control control,
 
     {
         GdShifter &shifter = shifter_;
-        for (unsigned i = 0; i < count; ++i)
-            output[i] = shifter.processOne(input[i], control.shift[i]);
+        shifter.process(input, output, control.shift, count);
     }
 }
 
