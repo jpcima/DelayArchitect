@@ -17,26 +17,29 @@ public:
     void setCutoff(float cutoff);
     void setResonance(float resonance);
     void updateCoeffs();
+    float processOne(float input);
 
-    struct Coeff {
+    struct Coeff1 {
         // the first order component
         float u0, u1;
         float v1;
+    };
+    struct Coeff2 {
         // the second order component
         float b0, b1, b2;
         float a1, a2;
     };
 
 private:
-    // the first order memories
-    float t1_ = 0;
+    // the first order filter
+    struct Mem1 { float x1, y1; };
+    Mem1 mem1_{};
+    Coeff1 coeff1_{};
 
-    // the second order memories
-    float s1_ = 0;
-    float s2_ = 0;
-
-    // coefficients
-    Coeff coeff_ {};
+    // the second order filter
+    struct Mem2 { float x1, x2, y1, y2; };
+    Mem2 mem2_{};
+    Coeff2 coeff2_{};
 
     // controls
     int filter_ = GdFilterOff;
