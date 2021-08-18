@@ -4,6 +4,8 @@
 #   include "shifters/GdShifterSoundTouch.h"
 #elif GD_USE_SIMPLE_PITCH_SHIFTER
 #   include "shifters/GdShifterSimple.h"
+#elif GD_USE_SUPERCOLLIDER_PITCH_SHIFTER
+#   include "shifters/GdShifterSuperCollider.h"
 #else
 #   error No pitch shifter selected
 #endif

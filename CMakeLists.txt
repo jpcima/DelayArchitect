@@ -12,8 +12,8 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 add_subdirectory("thirdparty/JUCE" EXCLUDE_FROM_ALL)
 
-set(GD_PITCH_SHIFTER_TYPE "SoundTouch" CACHE STRING "Pitch shifter implementation to use")
-set_property(CACHE GD_PITCH_SHIFTER_TYPE PROPERTY STRINGS "SoundTouch" "Simple")
+set(GD_PITCH_SHIFTER_TYPE "SuperCollider" CACHE STRING "Pitch shifter implementation to use")
+set_property(CACHE GD_PITCH_SHIFTER_TYPE PROPERTY STRINGS "SuperCollider" "SoundTouch" "Simple")
 
 juce_add_plugin(GroovyDelay
   PLUGIN_CODE Gdly
@@ -99,13 +99,17 @@ add_library(Gd STATIC
   "sources/gd/shifters/GdShifterSimple.hpp"
   "sources/gd/shifters/GdShifterSoundTouch.cpp"
   "sources/gd/shifters/GdShifterSoundTouch.h"
+  "sources/gd/shifters/GdShifterSuperCollider.cpp"
+  "sources/gd/shifters/GdShifterSuperCollider.h"
   "sources/gd/utility/LinearSmoother.cpp"
   "sources/gd/utility/LinearSmoother.h"
+  "sources/gd/utility/Clamp.h"
   "sources/gd/utility/NextPowerOfTwo.h"
   "sources/gd/utility/Volume.h")
 set_source_files_properties(
   "sources/gd/shifters/GdShifterSimple.cpp"
   "sources/gd/shifters/GdShifterSoundTouch.cpp"
+  "sources/gd/shifters/GdShifterSuperCollider.cpp"
   PROPERTIES
   HEADER_FILE_ONLY ON)
 target_include_directories(Gd
@@ -186,6 +190,10 @@ if(GD_PITCH_SHIFTER_TYPE STREQUAL "SoundTouch")
   target_link_libraries(Gd
     PRIVATE
     SoundTouch)
+elseif(GD_PITCH_SHIFTER_TYPE STREQUAL "SuperCollider")
+  target_compile_definitions(Gd
+    PRIVATE
+    "GD_USE_SUPERCOLLIDER_PITCH_SHIFTER=1")
 elseif(GD_PITCH_SHIFTER_TYPE STREQUAL "Simple")
   target_compile_definitions(Gd
     PRIVATE

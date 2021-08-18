@@ -11,6 +11,7 @@ public:
 
     void clear();
     void setSampleRate(float sampleRate);
+    void setBufferSize(unsigned bufferSize) { (void)bufferSize; }
     void setShift(float shiftLinear);
     float processOne(float input);
     void process(const float *input, float *output, unsigned count);

@@ -8,6 +8,7 @@ class GdShifter {
 public:
     void clear();
     void setSampleRate(float sampleRate);
+    void setBufferSize(unsigned bufferSize) { (void)bufferSize; }
     float processOne(float input, float shiftLinear);
     void process(const float *input, float *output, const float *shiftLinear, unsigned count);
 

@@ -50,7 +50,7 @@ inline void GdTapFx::setSampleRate(float sampleRate)
 
 inline void GdTapFx::setBufferSize(unsigned bufferSize)
 {
-    (void)bufferSize;
+    shifter_.setBufferSize(bufferSize);
 }
 
 inline void GdTapFx::performKRateUpdates(Control control, unsigned index)
