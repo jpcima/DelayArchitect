@@ -1,13 +1,15 @@
 #pragma once
 #include <vector>
 
+#define GD_SHIFTER_UPDATES_AT_K_RATE 0
+#define GD_SHIFTER_CAN_REPORT_LATENCY 0
+
 class GdShifter {
 public:
     void clear();
     void setSampleRate(float sampleRate);
     float processOne(float input, float shiftLinear);
     void process(const float *input, float *output, const float *shiftLinear, unsigned count);
-    float getLatency() const { return 0; } // not implemented
 
 private:
     // fixed characteristics

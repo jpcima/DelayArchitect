@@ -12,6 +12,9 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 add_subdirectory("thirdparty/JUCE" EXCLUDE_FROM_ALL)
 
+set(GD_PITCH_SHIFTER_TYPE "SoundTouch" CACHE STRING "Pitch shifter implementation to use")
+set_property(CACHE GD_PITCH_SHIFTER_TYPE PROPERTY STRINGS "SoundTouch" "Simple")
+
 juce_add_plugin(GroovyDelay
   PLUGIN_CODE Gdly
   PLUGIN_MANUFACTURER_CODE Jpci
@@ -176,9 +179,17 @@ target_include_directories(SoundTouch
   "thirdparty/SoundTouch/include")
 
 ###
-target_compile_definitions(Gd
-  PRIVATE
-  "GD_USE_SOUNDTOUCH_SHIFTER=1")
-target_link_libraries(Gd
-  PRIVATE
-  SoundTouch)
+if(GD_PITCH_SHIFTER_TYPE STREQUAL "SoundTouch")
+  target_compile_definitions(Gd
+    PRIVATE
+    "GD_USE_SOUNDTOUCH_PITCH_SHIFTER=1")
+  target_link_libraries(Gd
+    PRIVATE
+    SoundTouch)
+elseif(GD_PITCH_SHIFTER_TYPE STREQUAL "Simple")
+  target_compile_definitions(Gd
+    PRIVATE
+    "GD_USE_SIMPLE_PITCH_SHIFTER=1")
+else()
+  message(FATAL_ERROR "Invalid value for pitch shifter")
+endif()

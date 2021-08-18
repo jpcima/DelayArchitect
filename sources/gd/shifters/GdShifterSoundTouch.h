@@ -1,6 +1,9 @@
 #pragma once
 #include <SoundTouch.h>
 
+#define GD_SHIFTER_UPDATES_AT_K_RATE 1
+#define GD_SHIFTER_CAN_REPORT_LATENCY 1
+
 class GdShifter {
 public:
     GdShifter();

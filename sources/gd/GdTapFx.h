@@ -100,7 +100,7 @@ inline void GdTapFx::performKRateUpdates(Control control, unsigned index)
         }
     }
 
-#if GD_USE_SOUNDTOUCH_SHIFTER
+#if GD_SHIFTER_UPDATES_AT_K_RATE
     {
         GdShifter &shifter = shifter_;
         shifter.setShift(control.shift[index]);
@@ -128,7 +128,7 @@ inline void GdTapFx::process(const float *input, float *output, Control control,
 
     {
         GdShifter &shifter = shifter_;
-#if GD_USE_SOUNDTOUCH_SHIFTER
+#if GD_SHIFTER_UPDATES_AT_K_RATE
         shifter.process(input, output, count);
 #else
         shifter.process(input, output, control.shift, count);
@@ -156,7 +156,7 @@ inline float GdTapFx::processOne(float input, Control control, unsigned index)
 
     {
         GdShifter &shifter = shifter_;
-#if GD_USE_SOUNDTOUCH_SHIFTER
+#if GD_SHIFTER_UPDATES_AT_K_RATE
         output = shifter.processOne(input);
 #else
         output = shifter.processOne(input, control.shift[index]);
@@ -168,6 +168,12 @@ inline float GdTapFx::processOne(float input, Control control, unsigned index)
 
 inline float GdTapFx::getLatency() const
 {
+    float latency;
+#if GD_SHIFTER_CAN_REPORT_LATENCY
     const GdShifter &shifter = shifter_;
-    return shifter.getLatency();
+    latency = shifter.getLatency();
+#else
+    latency = 0.0f;
+#endif
+    return latency;
 }
