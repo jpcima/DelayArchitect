@@ -91,11 +91,20 @@ add_library(Gd STATIC
   "sources/gd/GdFilter.hpp"
   "sources/gd/GdShifter.cpp"
   "sources/gd/GdShifter.h"
-  "sources/gd/GdShifter.hpp"
+  "sources/gd/shifters/GdShifterSimple.cpp"
+  "sources/gd/shifters/GdShifterSimple.h"
+  "sources/gd/shifters/GdShifterSimple.hpp"
+  "sources/gd/shifters/GdShifterSoundTouch.cpp"
+  "sources/gd/shifters/GdShifterSoundTouch.h"
   "sources/gd/utility/LinearSmoother.cpp"
   "sources/gd/utility/LinearSmoother.h"
   "sources/gd/utility/NextPowerOfTwo.h"
   "sources/gd/utility/Volume.h")
+set_source_files_properties(
+  "sources/gd/shifters/GdShifterSimple.cpp"
+  "sources/gd/shifters/GdShifterSoundTouch.cpp"
+  PROPERTIES
+  HEADER_FILE_ONLY ON)
 target_include_directories(Gd
   PUBLIC
   "sources/gd")
