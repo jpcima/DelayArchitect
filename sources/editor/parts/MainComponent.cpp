@@ -19,7 +19,6 @@
 
 //[Headers] You can add your own extra header files here...
 #include "TapEditScreen.h"
-#include "Gd.h"
 #include <array>
 #include <cstdio>
 //[/Headers]
