@@ -250,8 +250,12 @@ void Processor::Impl::setupParameters()
         switch (type) {
         default:
         case GDP_FLOAT:
-            parameter = new juce::AudioParameterFloat(name, label, {min, max}, def);
+        {
+            auto stringFromValue = [](float value, int) -> juce::String { return juce::String(value, 2); };
+            juce::AudioParameterFloat *parameterFloat = new juce::AudioParameterFloat(name, label, {min, max}, def, juce::String(), juce::AudioProcessorParameter::genericParameter, stringFromValue);
+            parameter = parameterFloat;
             break;
+        }
         case GDP_BOOLEAN:
             parameter = new juce::AudioParameterBool(name, label, (bool)def);
             break;
