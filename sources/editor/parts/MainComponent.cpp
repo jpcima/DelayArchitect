@@ -43,7 +43,6 @@ struct MainComponent::Impl : public TapEditScreen::Listener {
     void tappingHasEnded(TapEditScreen *) override;
 
     //
-    static void setSliderRangeFromParameter(juce::Slider &slider, GdParameter id);
     static void setComboBoxChoicesFromParameter(juce::ComboBox &comboBox, GdParameter id);
 };
 //[/MiscUserDefs]
@@ -248,11 +247,7 @@ MainComponent::MainComponent ()
 
     tapEnabledButton_->setClickingTogglesState(true);
 
-    impl.setSliderRangeFromParameter(*tapDelaySlider_, GDP_TAP_A_DELAY);
     impl.setComboBoxChoicesFromParameter(*feedbackTapChoice_, GDP_FEEDBACK_TAP);
-    impl.setSliderRangeFromParameter(*feedbackTapGainSlider_, GDP_FEEDBACK_GAIN);
-    impl.setSliderRangeFromParameter(*wetSlider_, GDP_MIX_WET);
-    impl.setSliderRangeFromParameter(*drySlider_, GDP_MIX_DRY);
 
     feedbackTapGainSlider_->setNumDecimalPlacesToDisplay(2);
     wetSlider_->setNumDecimalPlacesToDisplay(2);
@@ -593,15 +588,6 @@ END_JUCER_METADATA
 void MainComponent::setActiveTapLabelText(const juce::String &newText)
 {
     activeTapLabel_->setText(newText, juce::dontSendNotification);
-}
-
-void MainComponent::Impl::setSliderRangeFromParameter(juce::Slider &slider, GdParameter id)
-{
-    float def = GdParameterDefault(id);
-    float min = GdParameterMin(id);
-    float max = GdParameterMax(id);
-    slider.setRange(min, max);
-    slider.setDoubleClickReturnValue(true, def);
 }
 
 void MainComponent::Impl::setComboBoxChoicesFromParameter(juce::ComboBox &comboBox, GdParameter id)
