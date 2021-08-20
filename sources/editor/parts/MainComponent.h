@@ -47,13 +47,6 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-    TapEditScreen *getTapEditScreen() const { return tapEditScreen_.get(); }
-    juce::Slider *getTapDelaySlider() const { return tapDelaySlider_.get(); }
-    juce::Button *getTapEnabledButton() const { return tapEnabledButton_.get(); }
-    juce::ComboBox *getFeedbackTapChoice() const { return feedbackTapChoice_.get(); }
-    juce::Slider *getFeedbackTapGainSlider() const { return feedbackTapGainSlider_.get(); }
-    juce::Slider *getWetSlider() const { return wetSlider_.get(); }
-    juce::Slider *getDrySlider() const { return drySlider_.get(); }
     void setActiveTapLabelText(const juce::String &newText);
     //[/UserMethods]
 
@@ -69,6 +62,10 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     struct Impl;
     std::unique_ptr<Impl> impl_;
+
+    public: /* forcing public visibility on member components
+               very illegal programming practice. call the police */
+
     //[/UserVariables]
 
     //==============================================================================
@@ -93,6 +90,8 @@ private:
     std::unique_ptr<juce::Label> unknown3;
     std::unique_ptr<juce::Slider> drySlider_;
     std::unique_ptr<juce::Slider> wetSlider_;
+    std::unique_ptr<juce::ComboBox> filterChoice_;
+    std::unique_ptr<juce::Label> unknown4;
 
 
     //==============================================================================

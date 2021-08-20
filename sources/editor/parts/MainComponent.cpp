@@ -167,7 +167,7 @@ MainComponent::MainComponent ()
     tapEnabledButton_->setButtonText (TRANS("Enabled"));
     tapEnabledButton_->addListener (this);
 
-    tapEnabledButton_->setBounds (424, 648, 150, 24);
+    tapEnabledButton_->setBounds (432, 648, 150, 24);
 
     feedbackTapChoice_.reset (new juce::ComboBox (juce::String()));
     addAndMakeVisible (feedbackTapChoice_.get());
@@ -228,6 +228,27 @@ MainComponent::MainComponent ()
 
     wetSlider_->setBounds (936, 312, 48, 192);
 
+    filterChoice_.reset (new juce::ComboBox (juce::String()));
+    addAndMakeVisible (filterChoice_.get());
+    filterChoice_->setEditableText (false);
+    filterChoice_->setJustificationType (juce::Justification::centredLeft);
+    filterChoice_->setTextWhenNothingSelected (juce::String());
+    filterChoice_->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    filterChoice_->addListener (this);
+
+    filterChoice_->setBounds (32, 712, 112, 24);
+
+    unknown4.reset (new juce::Label (juce::String(),
+                                     TRANS("Filter")));
+    addAndMakeVisible (unknown4.get());
+    unknown4->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    unknown4->setJustificationType (juce::Justification::centred);
+    unknown4->setEditable (false, false, false);
+    unknown4->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    unknown4->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    unknown4->setBounds (32, 688, 112, 24);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -271,6 +292,8 @@ MainComponent::~MainComponent()
     unknown3 = nullptr;
     drySlider_ = nullptr;
     wetSlider_ = nullptr;
+    filterChoice_ = nullptr;
+    unknown4 = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -453,6 +476,11 @@ void MainComponent::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
         //[UserComboBoxCode_feedbackTapChoice_] -- add your combo box handling code here..
         //[/UserComboBoxCode_feedbackTapChoice_]
     }
+    else if (comboBoxThatHasChanged == filterChoice_.get())
+    {
+        //[UserComboBoxCode_filterChoice_] -- add your combo box handling code here..
+        //[/UserComboBoxCode_filterChoice_]
+    }
 
     //[UsercomboBoxChanged_Post]
     //[/UsercomboBoxChanged_Post]
@@ -539,7 +567,7 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <TEXTBUTTON name="" id="7240b06205c10e61" memberName="tapEnabledButton_"
-              virtualName="" explicitFocusOrder="0" pos="424 648 150 24" buttonText="Enabled"
+              virtualName="" explicitFocusOrder="0" pos="432 648 150 24" buttonText="Enabled"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <COMBOBOX name="" id="4376ef98cd0f798e" memberName="feedbackTapChoice_"
             virtualName="" explicitFocusOrder="0" pos="872 112 112 24" editable="0"
@@ -567,6 +595,14 @@ BEGIN_JUCER_METADATA
           explicitFocusOrder="0" pos="936 312 48 192" min="0.0" max="10.0"
           int="0.0" style="LinearVertical" textBoxPos="TextBoxBelow" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
+  <COMBOBOX name="" id="a5bfb32dfcd0d098" memberName="filterChoice_" virtualName=""
+            explicitFocusOrder="0" pos="32 712 112 24" editable="0" layout="33"
+            items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+  <LABEL name="" id="906ee5da5ccfb0f6" memberName="unknown4" virtualName=""
+         explicitFocusOrder="0" pos="32 688 112 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Filter" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="36"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

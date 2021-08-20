@@ -23,6 +23,7 @@ struct Editor::Impl : public TapEditScreen::Listener {
     struct ActiveTapAttachments {
         std::vector<std::unique_ptr<juce::SliderParameterAttachment>> sliderAttachements_;
         std::vector<std::unique_ptr<juce::ButtonParameterAttachment>> buttonAttachements_;
+        std::vector<std::unique_ptr<AutomaticComboBoxParameterAttachment>> comboBoxAttachements_;
     };
     ActiveTapAttachments activeTapAttachments_;
 
@@ -58,8 +59,8 @@ Editor::Editor(Processor &p)
     setSize(mainComponent->getWidth(), mainComponent->getHeight());
     addAndMakeVisible(mainComponent);
 
-    TapEditScreen *tapEdit = mainComponent->getTapEditScreen();
-    tapEdit->addListener(&impl);
+    TapEditScreen &tapEdit = *mainComponent->tapEditScreen_;
+    tapEdit.addListener(&impl);
 
     for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber) {
         const GdParameter decomposedIds[] = {
@@ -74,14 +75,14 @@ Editor::Editor(Processor &p)
         };
         for (GdParameter decomposedId : decomposedIds) {
             GdParameter id = GdRecomposeParameter(decomposedId, tapNumber);
-            impl.tapAttachements_.emplace_back(new TapParameterAttachment(*impl.getRangedParameter((int)id), *tapEdit));
+            impl.tapAttachements_.emplace_back(new TapParameterAttachment(*impl.getRangedParameter((int)id), tapEdit));
         }
     }
 
-    impl.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*impl.getRangedParameter((int)GDP_FEEDBACK_GAIN), *mainComponent->getFeedbackTapGainSlider(), nullptr));
-    impl.comboBoxAttachements_.emplace_back(new AutomaticComboBoxParameterAttachment(*impl.getRangedParameter((int)GDP_FEEDBACK_TAP), *mainComponent->getFeedbackTapChoice(), nullptr));
-    impl.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*impl.getRangedParameter((int)GDP_MIX_WET), *mainComponent->getWetSlider(), nullptr));
-    impl.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*impl.getRangedParameter((int)GDP_MIX_DRY), *mainComponent->getDrySlider(), nullptr));
+    impl.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*impl.getRangedParameter((int)GDP_FEEDBACK_GAIN), *mainComponent->feedbackTapGainSlider_, nullptr));
+    impl.comboBoxAttachements_.emplace_back(new AutomaticComboBoxParameterAttachment(*impl.getRangedParameter((int)GDP_FEEDBACK_TAP), *mainComponent->feedbackTapChoice_, nullptr));
+    impl.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*impl.getRangedParameter((int)GDP_MIX_WET), *mainComponent->wetSlider_, nullptr));
+    impl.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*impl.getRangedParameter((int)GDP_MIX_DRY), *mainComponent->drySlider_, nullptr));
 
     impl.setActiveTap(0);
 }
@@ -117,8 +118,9 @@ void Editor::Impl::createActiveTapParameterAttachments()
     MainComponent *mainComponent = mainComponent_.get();
 
     ata = ActiveTapAttachments{};
-    ata.buttonAttachements_.emplace_back(new juce::ButtonParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_ENABLE, tapNumber)), *mainComponent->getTapEnabledButton(), nullptr));
-    ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_DELAY, tapNumber)), *mainComponent->getTapDelaySlider(), nullptr));
+    ata.buttonAttachements_.emplace_back(new juce::ButtonParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_ENABLE, tapNumber)), *mainComponent->tapEnabledButton_, nullptr));
+    ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_DELAY, tapNumber)), *mainComponent->tapDelaySlider_, nullptr));
+    ata.comboBoxAttachements_.emplace_back(new AutomaticComboBoxParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_FILTER, tapNumber)), *mainComponent->filterChoice_, nullptr));
 }
 
 void Editor::Impl::tapEditStarted(TapEditScreen *, GdParameter id)
