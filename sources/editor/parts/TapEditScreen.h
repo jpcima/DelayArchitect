@@ -31,6 +31,7 @@ public:
     float getTimeRange() const noexcept;
     void setTimeRange(float maxTime);
 
+    float getTapValue(GdParameter id) const;
     void setTapValue(GdParameter id, float value, juce::NotificationType nt = juce::sendNotificationSync);
 
     void beginTap();
@@ -82,14 +83,8 @@ public:
     TapEditMode getEditMode() const noexcept;
     void setEditMode(TapEditMode mode);
 
-    void setTapEnabled(bool enabled, juce::NotificationType nt = juce::sendNotificationSync);
-    void setTapDelay(float delay, juce::NotificationType nt = juce::sendNotificationSync);
-    void setTapLPFCutoff(float cutoff, juce::NotificationType nt = juce::sendNotificationSync);
-    void setTapHPFCutoff(float cutoff, juce::NotificationType nt = juce::sendNotificationSync);
-    void setTapResonance(float resonance, juce::NotificationType nt = juce::sendNotificationSync);
-    void setTapTune(float tune, juce::NotificationType nt = juce::sendNotificationSync);
-    void setTapPan(float pan, juce::NotificationType nt = juce::sendNotificationSync);
-    void setTapLevel(float level, juce::NotificationType nt = juce::sendNotificationSync);
+    float getTapValue(GdParameter id) const;
+    void setTapValue(GdParameter id, float value, juce::NotificationType nt  = juce::sendNotificationSync);
 
     class Listener {
     public:

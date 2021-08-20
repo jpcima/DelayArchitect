@@ -98,40 +98,24 @@ void TapEditScreen::setTimeRange(float maxTime)
         impl.updateItemSizeAndPosition(itemNumber);
 }
 
-void TapEditScreen::setTapValue(GdParameter id, float value, juce::NotificationType nt)
+float TapEditScreen::getTapValue(GdParameter id) const
 {
     int tapNumber;
-    GdParameter decomposedId = GdDecomposeParameter(id, &tapNumber);
+    GdDecomposeParameter(id, &tapNumber);
 
     Impl &impl = *impl_;
     TapEditItem &item = *impl.items_[tapNumber];
+    return item.getTapValue(id);
+}
 
-    switch (decomposedId) {
-    case GDP_TAP_A_ENABLE:
-        item.setTapEnabled((bool)value, nt);
-        break;
-    case GDP_TAP_A_DELAY:
-        item.setTapDelay(value, nt);
-        break;
-    case GDP_TAP_A_LPF_CUTOFF:
-        item.setTapLPFCutoff(value, nt);
-        break;
-    case GDP_TAP_A_HPF_CUTOFF:
-        item.setTapHPFCutoff(value, nt);
-        break;
-    case GDP_TAP_A_RESONANCE:
-        item.setTapResonance(value, nt);
-        break;
-    case GDP_TAP_A_TUNE:
-        item.setTapTune(value, nt);
-        break;
-    case GDP_TAP_A_PAN:
-        item.setTapPan(value, nt);
-        break;
-    case GDP_TAP_A_LEVEL:
-        item.setTapLevel(value, nt);
-        break;
-    }
+void TapEditScreen::setTapValue(GdParameter id, float value, juce::NotificationType nt)
+{
+    int tapNumber;
+    GdDecomposeParameter(id, &tapNumber);
+
+    Impl &impl = *impl_;
+    TapEditItem &item = *impl.items_[tapNumber];
+    item.setTapValue(id, value, nt);
 }
 
 void TapEditScreen::beginTap()
@@ -428,87 +412,128 @@ void TapEditItem::setEditMode(TapEditMode mode)
     repaint();
 }
 
-void TapEditItem::setTapEnabled(bool enabled, juce::NotificationType nt)
+float TapEditItem::getTapValue(GdParameter id) const
 {
     Impl &impl = *impl_;
-    if (impl.data_.enabled == enabled)
+
+    int tapNumber;
+    GdParameter decomposedId = GdDecomposeParameter(id, &tapNumber);
+
+    if (impl.itemNumber_ != tapNumber) {
+        jassertfalse;
+        return 0.0f;
+    }
+
+    switch (decomposedId) {
+    case GDP_TAP_A_ENABLE:
+        return impl.data_.enabled;
+    case GDP_TAP_A_DELAY:
+        return impl.data_.delay;
+    case GDP_TAP_A_LPF_CUTOFF:
+        if (TapSlider *slider = impl.getSliderForEditMode(kTapEditCutoff))
+            return (float)slider->getMaxValue();
+        goto notfound;
+    case GDP_TAP_A_HPF_CUTOFF:
+        if (TapSlider *slider = impl.getSliderForEditMode(kTapEditCutoff))
+            return (float)slider->getMinValue();
+        goto notfound;
+    case GDP_TAP_A_RESONANCE:
+        if (TapSlider *slider = impl.getSliderForEditMode(kTapEditResonance))
+            return (float)slider->getValue();
+        goto notfound;
+    case GDP_TAP_A_TUNE:
+        if (TapSlider *slider = impl.getSliderForEditMode(kTapEditTune))
+            return (float)slider->getValue();
+        goto notfound;
+    case GDP_TAP_A_PAN:
+        if (TapSlider *slider = impl.getSliderForEditMode(kTapEditPan))
+            return (float)slider->getValue();
+        goto notfound;
+    case GDP_TAP_A_LEVEL:
+        if (TapSlider *slider = impl.getSliderForEditMode(kTapEditLevel))
+            return (float)slider->getValue();
+        goto notfound;
+    default: notfound:
+        jassertfalse;
+        return 0.0f;
+    }
+}
+
+void TapEditItem::setTapValue(GdParameter id, float value, juce::NotificationType nt)
+{
+    Impl &impl = *impl_;
+
+    int tapNumber;
+    GdParameter decomposedId = GdDecomposeParameter(id, &tapNumber);
+
+    if (impl.itemNumber_ != tapNumber) {
+        jassertfalse;
         return;
+    }
 
-    impl.data_.enabled = enabled;
+    switch (decomposedId) {
+    case GDP_TAP_A_ENABLE:
+    {
+        bool enabled = (bool)value;
+        if (impl.data_.enabled == enabled)
+            return;
 
-    if (nt != juce::dontSendNotification)
-        impl.listeners_.call([this, enabled](Listener &l) { l.tapValueChanged(this, GdRecomposeParameter(GDP_TAP_A_ENABLE, impl_->itemNumber_), enabled); });
+        impl.data_.enabled = enabled;
 
-    setVisible(enabled);
+        if (nt != juce::dontSendNotification)
+            impl.listeners_.call([this, enabled](Listener &l) { l.tapValueChanged(this, GdRecomposeParameter(GDP_TAP_A_ENABLE, impl_->itemNumber_), enabled); });
 
-    TapEditScreen &screen = *impl.screen_;
-    setEditMode(enabled ? screen.getEditMode() : kTapEditOff);
-    if (enabled)
-        screen.updateItemSizeAndPosition(impl.itemNumber_);
-}
+        setVisible(enabled);
 
-void TapEditItem::setTapDelay(float delay, juce::NotificationType nt)
-{
-    Impl &impl = *impl_;
-    if (impl.data_.delay == delay)
-        return;
+        TapEditScreen &screen = *impl.screen_;
+        setEditMode(enabled ? screen.getEditMode() : kTapEditOff);
+        if (enabled)
+            screen.updateItemSizeAndPosition(impl.itemNumber_);
 
-    impl.data_.delay = delay;
+        break;
+    }
+    case GDP_TAP_A_DELAY:
+    {
+        float delay = value;
+        if (impl.data_.delay == delay)
+            return;
 
-    if (nt != juce::dontSendNotification)
-        impl.listeners_.call([this, delay](Listener &l) { l.tapValueChanged(this, GdRecomposeParameter(GDP_TAP_A_DELAY, impl_->itemNumber_), delay); });
+        impl.data_.delay = delay;
 
-    TapEditScreen &screen = *impl.screen_;
-    if (impl.data_.enabled)
-        screen.updateItemSizeAndPosition(impl.itemNumber_);
-}
+        if (nt != juce::dontSendNotification)
+            impl.listeners_.call([this, delay](Listener &l) { l.tapValueChanged(this, GdRecomposeParameter(GDP_TAP_A_DELAY, impl_->itemNumber_), delay); });
 
-void TapEditItem::setTapLPFCutoff(float cutoff, juce::NotificationType nt)
-{
-    Impl &impl = *impl_;
+        TapEditScreen &screen = *impl.screen_;
+        if (impl.data_.enabled)
+            screen.updateItemSizeAndPosition(impl.itemNumber_);
 
-    if (TapSlider *slider = impl.getSliderForEditMode(kTapEditCutoff))
-        slider->setMaxValue(cutoff, nt);
-}
-
-void TapEditItem::setTapHPFCutoff(float cutoff, juce::NotificationType nt)
-{
-    Impl &impl = *impl_;
-
-    if (TapSlider *slider = impl.getSliderForEditMode(kTapEditCutoff))
-        slider->setMinValue(cutoff, nt);
-}
-
-void TapEditItem::setTapResonance(float resonance, juce::NotificationType nt)
-{
-    Impl &impl = *impl_;
-
-    if (TapSlider *slider = impl.getSliderForEditMode(kTapEditResonance))
-        slider->setValue(resonance, nt);
-}
-
-void TapEditItem::setTapTune(float tune, juce::NotificationType nt)
-{
-    Impl &impl = *impl_;
-
-    if (TapSlider *slider = impl.getSliderForEditMode(kTapEditTune))
-        slider->setValue(tune, nt);
-}
-
-void TapEditItem::setTapPan(float pan, juce::NotificationType nt)
-{
-    Impl &impl = *impl_;
-
-    if (TapSlider *slider = impl.getSliderForEditMode(kTapEditPan))
-        slider->setValue(pan, nt);
-}
-
-void TapEditItem::setTapLevel(float level, juce::NotificationType nt)
-{
-    Impl &impl = *impl_;
-
-    if (TapSlider *slider = impl.getSliderForEditMode(kTapEditLevel))
-        slider->setValue(level, nt);
+        break;
+    }
+    case GDP_TAP_A_LPF_CUTOFF:
+        if (TapSlider *slider = impl.getSliderForEditMode(kTapEditCutoff))
+            slider->setMaxValue(value, nt);
+        break;
+    case GDP_TAP_A_HPF_CUTOFF:
+        if (TapSlider *slider = impl.getSliderForEditMode(kTapEditCutoff))
+            slider->setMinValue(value, nt);
+        break;
+    case GDP_TAP_A_RESONANCE:
+        if (TapSlider *slider = impl.getSliderForEditMode(kTapEditResonance))
+            slider->setValue(value, nt);
+        break;
+    case GDP_TAP_A_TUNE:
+        if (TapSlider *slider = impl.getSliderForEditMode(kTapEditTune))
+            slider->setValue(value, nt);
+        break;
+    case GDP_TAP_A_PAN:
+        if (TapSlider *slider = impl.getSliderForEditMode(kTapEditPan))
+            slider->setValue(value, nt);
+        break;
+    case GDP_TAP_A_LEVEL:
+        if (TapSlider *slider = impl.getSliderForEditMode(kTapEditLevel))
+            slider->setValue(value, nt);
+        break;
+    }
 }
 
 void TapEditItem::addListener(Listener *listener)
@@ -598,7 +623,8 @@ void TapEditItem::mouseDrag(const juce::MouseEvent &e)
         impl.dragger_.dragComponent(this, e, &constrainer);
         float newDelay = impl.screen_->getDelayForX(getBounds().toFloat().getCentreX());
         newDelay = juce::jlimit(0.0f, impl.screen_->getTimeRange(), newDelay);
-        setTapDelay(newDelay);
+        GdParameter id = GdRecomposeParameter(GDP_TAP_A_DELAY, impl.itemNumber_);
+        setTapValue(id, newDelay);
         return;
     }
 
