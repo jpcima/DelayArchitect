@@ -248,10 +248,6 @@ MainComponent::MainComponent ()
     tapEnabledButton_->setClickingTogglesState(true);
 
     impl.setComboBoxChoicesFromParameter(*feedbackTapChoice_, GDP_FEEDBACK_TAP);
-
-    feedbackTapGainSlider_->setNumDecimalPlacesToDisplay(2);
-    wetSlider_->setNumDecimalPlacesToDisplay(2);
-    drySlider_->setNumDecimalPlacesToDisplay(2);
     //[/Constructor]
 }
 
