@@ -13,6 +13,9 @@ public:
 
     juce::Slider::SliderLayout getSliderLayout(juce::Slider &slider) override;
 
+    void drawComboBox(juce::Graphics &, int width, int height, bool isButtonDown, int buttonX, int buttonY, int buttonW, int buttonH, juce::ComboBox &) override;
+    void positionComboBoxText(juce::ComboBox &box, juce::Label &label) override;
+
 private:
     struct Impl;
     std::unique_ptr<Impl> impl_;

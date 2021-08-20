@@ -167,7 +167,7 @@ MainComponent::MainComponent ()
     tapEnabledButton_->setButtonText (TRANS("Enabled"));
     tapEnabledButton_->addListener (this);
 
-    tapEnabledButton_->setBounds (432, 648, 150, 24);
+    tapEnabledButton_->setBounds (424, 648, 150, 24);
 
     feedbackTapChoice_.reset (new juce::ComboBox (juce::String()));
     addAndMakeVisible (feedbackTapChoice_.get());
@@ -236,7 +236,7 @@ MainComponent::MainComponent ()
     filterChoice_->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     filterChoice_->addListener (this);
 
-    filterChoice_->setBounds (32, 712, 112, 24);
+    filterChoice_->setBounds (32, 712, 96, 24);
 
     unknown4.reset (new juce::Label (juce::String(),
                                      TRANS("Filter")));
@@ -247,7 +247,7 @@ MainComponent::MainComponent ()
     unknown4->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     unknown4->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    unknown4->setBounds (32, 688, 112, 24);
+    unknown4->setBounds (32, 688, 96, 24);
 
 
     //[UserPreSize]
@@ -567,7 +567,7 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <TEXTBUTTON name="" id="7240b06205c10e61" memberName="tapEnabledButton_"
-              virtualName="" explicitFocusOrder="0" pos="432 648 150 24" buttonText="Enabled"
+              virtualName="" explicitFocusOrder="0" pos="424 648 150 24" buttonText="Enabled"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <COMBOBOX name="" id="4376ef98cd0f798e" memberName="feedbackTapChoice_"
             virtualName="" explicitFocusOrder="0" pos="872 112 112 24" editable="0"
@@ -596,10 +596,10 @@ BEGIN_JUCER_METADATA
           int="0.0" style="LinearVertical" textBoxPos="TextBoxBelow" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
   <COMBOBOX name="" id="a5bfb32dfcd0d098" memberName="filterChoice_" virtualName=""
-            explicitFocusOrder="0" pos="32 712 112 24" editable="0" layout="33"
+            explicitFocusOrder="0" pos="32 712 96 24" editable="0" layout="33"
             items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="" id="906ee5da5ccfb0f6" memberName="unknown4" virtualName=""
-         explicitFocusOrder="0" pos="32 688 112 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="32 688 96 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Filter" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
