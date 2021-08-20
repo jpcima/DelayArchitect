@@ -3,8 +3,10 @@
 #include "editor/LookAndFeel.h"
 #include "editor/parts/MainComponent.h"
 #include "editor/parts/TapEditScreen.h"
+#include "editor/attachments/TapParameterAttachment.h"
 #include "processor/Processor.h"
 #include "GdDefs.h"
+#include <vector>
 
 //==============================================================================
 struct Editor::Impl : public TapEditScreen::Listener,
@@ -16,6 +18,8 @@ struct Editor::Impl : public TapEditScreen::Listener,
     std::unique_ptr<MainComponent> mainComponent_;
     juce::Array<juce::AudioProcessorParameter *> parameters_;
     int activeTapNumber_ = 0;
+
+    std::vector<std::unique_ptr<TapParameterAttachment>> tapAttachements_;
 
     void setActiveTap(int tapNumber);
     void syncActiveTapParametersToControls();
@@ -69,6 +73,24 @@ Editor::Editor(Processor &p)
 
     TapEditScreen *tapEdit = mainComponent->getTapEditScreen();
     tapEdit->addListener(&impl);
+
+    for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber) {
+        const GdParameter decomposedIds[] = {
+            GDP_TAP_A_ENABLE,
+            GDP_TAP_A_DELAY,
+            GDP_TAP_A_LPF_CUTOFF,
+            GDP_TAP_A_HPF_CUTOFF,
+            GDP_TAP_A_RESONANCE,
+            GDP_TAP_A_TUNE,
+            GDP_TAP_A_PAN,
+            GDP_TAP_A_LEVEL,
+        };
+        for (GdParameter decomposedId : decomposedIds) {
+            GdParameter id = GdRecomposeParameter(decomposedId, tapNumber);
+            juce::RangedAudioParameter *parameter = static_cast<juce::RangedAudioParameter *>(impl.parameters_[(int)id]);
+            impl.tapAttachements_.emplace_back(new TapParameterAttachment(*parameter, *tapEdit));
+        }
+    }
 
     mainComponent->getTapEnabledButton()->addListener(&impl);
     mainComponent->getTapDelaySlider()->addListener(&impl);
@@ -195,10 +217,6 @@ int Editor::Impl::getParameterForComboBox(juce::ComboBox *comboBox)
 
 void Editor::Impl::tapEditStarted(TapEditScreen *, GdParameter id)
 {
-    juce::RangedAudioParameter *parameter = static_cast<juce::RangedAudioParameter *>(parameters_[(int)id]);
-
-    parameter->beginChangeGesture();
-
     int tapNumber;
     GdDecomposeParameter(id, &tapNumber);
     setActiveTap(tapNumber);
@@ -206,23 +224,13 @@ void Editor::Impl::tapEditStarted(TapEditScreen *, GdParameter id)
 
 void Editor::Impl::tapEditEnded(TapEditScreen *, GdParameter id)
 {
-    juce::RangedAudioParameter *parameter = static_cast<juce::RangedAudioParameter *>(parameters_[(int)id]);
-
-    parameter->endChangeGesture();
-
     int tapNumber;
     GdDecomposeParameter(id, &tapNumber);
     setActiveTap(tapNumber);
 }
 
-void Editor::Impl::tapValueChanged(TapEditScreen *, GdParameter id, float value)
+void Editor::Impl::tapValueChanged(TapEditScreen *, GdParameter id, float)
 {
-    juce::RangedAudioParameter *parameter = static_cast<juce::RangedAudioParameter *>(parameters_[(int)id]);
-
-    float valueNormalized = parameter->convertTo0to1(value);
-
-    parameter->setValueNotifyingHost(valueNormalized);
-
     int tapNumber;
     GdParameter decomposedId = GdDecomposeParameter(id, &tapNumber);
     if (activeTapNumber_ != tapNumber)
@@ -291,7 +299,6 @@ void Editor::Impl::comboBoxChanged(juce::ComboBox *comboBox)
 void Editor::Impl::parameterValueChanged(int parameterIndex, float newValueNormalized)
 {
     MainComponent &mainComponent = *mainComponent_;
-    TapEditScreen *tapEdit = mainComponent.getTapEditScreen();
     juce::RangedAudioParameter *parameter = static_cast<juce::RangedAudioParameter *>(parameters_[parameterIndex]);
 
     float newValue = parameter->convertFrom0to1(newValueNormalized);
@@ -314,28 +321,20 @@ void Editor::Impl::parameterValueChanged(int parameterIndex, float newValueNorma
         mainComponent.getWetSlider()->setValue(newValue, juce::dontSendNotification);
         break;
     case GDP_TAP_A_ENABLE:
-        tapEdit->setTapValue((GdParameter)parameterIndex, newValue);
         break;
     case GDP_TAP_A_DELAY:
-        tapEdit->setTapValue((GdParameter)parameterIndex, newValue);
         break;
     case GDP_TAP_A_LPF_CUTOFF:
-        tapEdit->setTapValue((GdParameter)parameterIndex, newValue);
         break;
     case GDP_TAP_A_HPF_CUTOFF:
-        tapEdit->setTapValue((GdParameter)parameterIndex, newValue);
         break;
     case GDP_TAP_A_RESONANCE:
-        tapEdit->setTapValue((GdParameter)parameterIndex, newValue);
         break;
     case GDP_TAP_A_TUNE:
-        tapEdit->setTapValue((GdParameter)parameterIndex, newValue);
         break;
     case GDP_TAP_A_LEVEL:
-        tapEdit->setTapValue((GdParameter)parameterIndex, newValue);
         break;
     case GDP_TAP_A_PAN:
-        tapEdit->setTapValue((GdParameter)parameterIndex, newValue);
         break;
     case GDP_TAP_A_WIDTH:
         // TODO
