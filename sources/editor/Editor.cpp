@@ -4,6 +4,7 @@
 #include "editor/parts/MainComponent.h"
 #include "editor/parts/TapEditScreen.h"
 #include "editor/attachments/TapParameterAttachment.h"
+#include "editor/attachments/AutomaticComboBoxParameterAttachment.h"
 #include "processor/Processor.h"
 #include "GdDefs.h"
 #include <vector>
@@ -17,7 +18,7 @@ struct Editor::Impl : public TapEditScreen::Listener {
 
     std::vector<std::unique_ptr<TapParameterAttachment>> tapAttachements_;
     std::vector<std::unique_ptr<juce::SliderParameterAttachment>> sliderAttachements_;
-    std::vector<std::unique_ptr<juce::ComboBoxParameterAttachment>> comboBoxAttachements_;
+    std::vector<std::unique_ptr<AutomaticComboBoxParameterAttachment>> comboBoxAttachements_;
 
     struct ActiveTapAttachments {
         std::vector<std::unique_ptr<juce::SliderParameterAttachment>> sliderAttachements_;
@@ -78,7 +79,7 @@ Editor::Editor(Processor &p)
     }
 
     impl.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*impl.getRangedParameter((int)GDP_FEEDBACK_GAIN), *mainComponent->getFeedbackTapGainSlider(), nullptr));
-    impl.comboBoxAttachements_.emplace_back(new juce::ComboBoxParameterAttachment(*impl.getRangedParameter((int)GDP_FEEDBACK_TAP), *mainComponent->getFeedbackTapChoice(), nullptr));
+    impl.comboBoxAttachements_.emplace_back(new AutomaticComboBoxParameterAttachment(*impl.getRangedParameter((int)GDP_FEEDBACK_TAP), *mainComponent->getFeedbackTapChoice(), nullptr));
     impl.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*impl.getRangedParameter((int)GDP_MIX_WET), *mainComponent->getWetSlider(), nullptr));
     impl.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*impl.getRangedParameter((int)GDP_MIX_DRY), *mainComponent->getDrySlider(), nullptr));
 

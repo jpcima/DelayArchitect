@@ -41,9 +41,6 @@ struct MainComponent::Impl : public TapEditScreen::Listener {
     ///
     void tappingHasStarted(TapEditScreen *) override;
     void tappingHasEnded(TapEditScreen *) override;
-
-    //
-    static void setComboBoxChoicesFromParameter(juce::ComboBox &comboBox, GdParameter id);
 };
 //[/MiscUserDefs]
 
@@ -246,8 +243,6 @@ MainComponent::MainComponent ()
     tapEditScreen_->addListener(&impl);
 
     tapEnabledButton_->setClickingTogglesState(true);
-
-    impl.setComboBoxChoicesFromParameter(*feedbackTapChoice_, GDP_FEEDBACK_TAP);
     //[/Constructor]
 }
 
@@ -584,13 +579,6 @@ END_JUCER_METADATA
 void MainComponent::setActiveTapLabelText(const juce::String &newText)
 {
     activeTapLabel_->setText(newText, juce::dontSendNotification);
-}
-
-void MainComponent::Impl::setComboBoxChoicesFromParameter(juce::ComboBox &comboBox, GdParameter id)
-{
-    const char *const *choices = GdParameterChoices(id);
-    for (int i = 0; choices[i]; ++i)
-        comboBox.addItem(choices[i], i + 1);
 }
 
 constexpr std::array<float, 8> MainComponent::Impl::presetTimeRanges;
