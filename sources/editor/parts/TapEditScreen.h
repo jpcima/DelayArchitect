@@ -67,7 +67,6 @@ private:
 struct TapEditData {
     bool enabled = false;
     float delay = 0;
-    float level = 0;
 };
 
 //------------------------------------------------------------------------------
