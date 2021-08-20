@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <cstring>
 
 /**/
 // hash function for integers
@@ -88,6 +89,7 @@ void GdShifter::clear()
     long framesize = unit->framesize;
 
     calc_ = &GdShifter::processNextZ/*SETCALC(PitchShift_next_z)*/;
+    /**/if (shift_ == 1.0f) calc_ = &GdShifter::copyNext;
 
     /**dlybuf = ZIN0(0);
     ZOUT0(0) = 0.f*/;
@@ -136,6 +138,20 @@ void GdShifter::setBufferSize(unsigned bufferSize)
     postUpdateSampleRateOrBufferSize();
 }
 
+void GdShifter::setShift(float shiftLinear)
+{
+    float oldShift = shift_;
+
+    if (oldShift == shiftLinear)
+        return;
+
+    shift_ = shiftLinear;
+    if (oldShift == 1.0f)
+        clear();
+    else if (shiftLinear == 1.0f)
+        calc_ = &GdShifter::copyNext;
+}
+
 void GdShifter::postUpdateSampleRateOrBufferSize()
 {
     PitchShift *unit = &unit_;
@@ -179,14 +195,14 @@ void GdShifter::postUpdateSampleRateOrBufferSize()
     clear();
 }
 
-float GdShifter::processOne(float input, float shiftLinear)
+float GdShifter::processOne(float input)
 {
     float output;
-    process(&input, &output, &shiftLinear, 1);
+    process(&input, &output, 1);
     return output;
 }
 
-void GdShifter::processNext(const float *input, float *output, const float *shiftLinear, unsigned count)
+void GdShifter::processNext(const float *input, float *output, unsigned count)
 {
     PitchShift *unit = &unit_;
     float SAMPLERATE = sampleRate_;
@@ -249,7 +265,7 @@ void GdShifter::processNext(const float *input, float *output, const float *shif
         if (counter <= 0) {
             counter = framesize >> 2;
             unit->stage = stage = (stage + 1) & 3;
-            disppchratio = /*pchratio*/*shiftLinear;
+            disppchratio = /*pchratio*/shift_;
             if (pchdisp != 0.f) {
                 disppchratio += (pchdisp * frand2(s1, s2, s3));
             }
@@ -297,7 +313,6 @@ void GdShifter::processNext(const float *input, float *output, const float *shif
         nsmps = std::min/*sc_min*/(remain, counter);
         remain -= nsmps;
         counter -= nsmps;
-        /**/shiftLinear += nsmps;
 
         for (long xxi = 0; xxi < nsmps; ++xxi) {/*LOOP(nsmps,*/
             iwrphase = (iwrphase + 1) & mask;
@@ -339,7 +354,7 @@ void GdShifter::processNext(const float *input, float *output, const float *shif
     rgen_.s1 = s1; rgen_.s2 = s2; rgen_.s3 = s3;/*RPUT*/
 }
 
-void GdShifter::processNextZ(const float *input, float *output, const float *shiftLinear, unsigned count)
+void GdShifter::processNextZ(const float *input, float *output, unsigned count)
 {
     PitchShift *unit = &unit_;
     float SAMPLERATE = sampleRate_;
@@ -404,7 +419,7 @@ void GdShifter::processNextZ(const float *input, float *output, const float *shi
         if (counter <= 0) {
             counter = framesize >> 2;
             unit->stage = stage = (stage + 1) & 3;
-            disppchratio = /*pchratio*/*shiftLinear;
+            disppchratio = /*pchratio*/shift_;
             if (pchdisp != 0.f) {
                 disppchratio += (pchdisp * frand2(s1, s2, s3));
             }
@@ -451,7 +466,6 @@ void GdShifter::processNextZ(const float *input, float *output, const float *shi
         nsmps = std::min/*sc_min*/(remain, counter);
         remain -= nsmps;
         counter -= nsmps;
-        /**/shiftLinear += nsmps;
 
         while (nsmps--) {
             numoutput++;
@@ -577,4 +591,10 @@ void GdShifter::processNextZ(const float *input, float *output, const float *shi
     }
 
     rgen_.s1 = s1; rgen_.s2 = s2; rgen_.s3 = s3;/*RPUT*/
+}
+
+void GdShifter::copyNext(const float *input, float *output, unsigned count)
+{
+    if (input != output)
+        std::memcpy(output, input, count * sizeof(float));
 }
