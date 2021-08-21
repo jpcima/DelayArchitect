@@ -101,35 +101,35 @@ MainComponent::MainComponent ()
     timeRangeLabel_->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     timeRangeLabel_->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    timeRangeLabel_->setBounds (832, 544, 80, 24);
+    timeRangeLabel_->setBounds (832, 536, 80, 24);
 
     timeRangePlusButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (timeRangePlusButton_.get());
     timeRangePlusButton_->setButtonText (TRANS("+"));
     timeRangePlusButton_->addListener (this);
 
-    timeRangePlusButton_->setBounds (944, 544, 22, 24);
+    timeRangePlusButton_->setBounds (944, 536, 22, 24);
 
     timeRangeMinusButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (timeRangeMinusButton_.get());
     timeRangeMinusButton_->setButtonText (TRANS("-"));
     timeRangeMinusButton_->addListener (this);
 
-    timeRangeMinusButton_->setBounds (920, 544, 22, 24);
+    timeRangeMinusButton_->setBounds (920, 536, 22, 24);
 
     firstTapButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (firstTapButton_.get());
     firstTapButton_->setButtonText (TRANS("Start tap"));
     firstTapButton_->addListener (this);
 
-    firstTapButton_->setBounds (16, 304, 112, 56);
+    firstTapButton_->setBounds (16, 368, 112, 56);
 
     lastTapButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (lastTapButton_.get());
     lastTapButton_->setButtonText (TRANS("Last tap"));
     lastTapButton_->addListener (this);
 
-    lastTapButton_->setBounds (16, 376, 112, 56);
+    lastTapButton_->setBounds (16, 440, 112, 56);
 
     activeTapLabel_.reset (new juce::Label (juce::String(),
                                             TRANS("Tap A")));
@@ -319,7 +319,7 @@ MainComponent::MainComponent ()
     pitchSlider_->setBounds (608, 712, 80, 24);
 
     unknown8.reset (new juce::Label (juce::String(),
-                                     TRANS("Pitch")));
+                                     TRANS("Tune")));
     addAndMakeVisible (unknown8.get());
     unknown8->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     unknown8->setJustificationType (juce::Justification::centred);
@@ -472,7 +472,7 @@ void MainComponent::paint (juce::Graphics& g)
     }
 
     {
-        float x = 16.0f, y = 536.0f, width = 968.0f, height = 40.0f;
+        float x = 8.0f, y = 528.0f, width = 984.0f, height = 40.0f;
         juce::Colour fillColour = juce::Colour (0xff4fc892);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
@@ -481,7 +481,7 @@ void MainComponent::paint (juce::Graphics& g)
     }
 
     {
-        float x = 16.0f, y = 592.0f, width = 968.0f, height = 192.0f;
+        float x = 8.0f, y = 576.0f, width = 984.0f, height = 216.0f;
         juce::Colour fillColour = juce::Colour (0xffc86d4f);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
@@ -500,6 +500,24 @@ void MainComponent::paint (juce::Graphics& g)
 
     {
         float x = 864.0f, y = 264.0f, width = 128.0f, height = 256.0f;
+        juce::Colour fillColour = juce::Colour (0xfffff080);
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+    }
+
+    {
+        float x = 9.0f, y = 344.0f, width = 128.0f, height = 174.0f;
+        juce::Colour fillColour = juce::Colour (0xfffff080);
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+    }
+
+    {
+        float x = 9.0f, y = 64.0f, width = 128.0f, height = 268.0f;
         juce::Colour fillColour = juce::Colour (0xfffff080);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
@@ -697,14 +715,16 @@ BEGIN_JUCER_METADATA
   <BACKGROUND backgroundColour="ff323e44">
     <ROUNDRECT pos="144 64 712 456" cornerSize="10.0" fill="solid: ff2a7ca5"
                hasStroke="0"/>
-    <ROUNDRECT pos="16 536 968 40" cornerSize="10.0" fill="solid: ff4fc892"
-               hasStroke="0"/>
-    <ROUNDRECT pos="16 592 968 192" cornerSize="10.0" fill="solid: ffc86d4f"
+    <ROUNDRECT pos="8 528 984 40" cornerSize="10.0" fill="solid: ff4fc892" hasStroke="0"/>
+    <ROUNDRECT pos="8 576 984 216" cornerSize="10.0" fill="solid: ffc86d4f"
                hasStroke="0"/>
     <ROUNDRECT pos="864 64 128 192" cornerSize="10.0" fill="solid: fffff080"
                hasStroke="0"/>
     <ROUNDRECT pos="864 264 128 256" cornerSize="10.0" fill="solid: fffff080"
                hasStroke="0"/>
+    <ROUNDRECT pos="9 344 128 174" cornerSize="10.0" fill="solid: fffff080"
+               hasStroke="0"/>
+    <ROUNDRECT pos="9 64 128 268" cornerSize="10.0" fill="solid: fffff080" hasStroke="0"/>
   </BACKGROUND>
   <GENERICCOMPONENT name="" id="c36eda615afd52ad" memberName="tapEditScreen_" virtualName=""
                     explicitFocusOrder="0" pos="144 64 712 456" class="TapEditScreen"
@@ -725,21 +745,21 @@ BEGIN_JUCER_METADATA
               explicitFocusOrder="0" pos="744 32 150 24" buttonText="Level"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <LABEL name="" id="cafcacc6447ce988" memberName="timeRangeLabel_" virtualName=""
-         explicitFocusOrder="0" pos="832 544 80 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="832 536 80 24" edTextCol="ff000000"
          edBkgCol="0" labelText="500 ms" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="34"/>
   <TEXTBUTTON name="" id="5f270ebb614cc322" memberName="timeRangePlusButton_"
-              virtualName="" explicitFocusOrder="0" pos="944 544 22 24" buttonText="+"
+              virtualName="" explicitFocusOrder="0" pos="944 536 22 24" buttonText="+"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="194ef40c396e7316" memberName="timeRangeMinusButton_"
-              virtualName="" explicitFocusOrder="0" pos="920 544 22 24" buttonText="-"
+              virtualName="" explicitFocusOrder="0" pos="920 536 22 24" buttonText="-"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="43aa27172b96c021" memberName="firstTapButton_" virtualName=""
-              explicitFocusOrder="0" pos="16 304 112 56" buttonText="Start tap"
+              explicitFocusOrder="0" pos="16 368 112 56" buttonText="Start tap"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="66ad3e0b5c14c7ae" memberName="lastTapButton_" virtualName=""
-              explicitFocusOrder="0" pos="16 376 112 56" buttonText="Last tap"
+              explicitFocusOrder="0" pos="16 440 112 56" buttonText="Last tap"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <LABEL name="" id="f36e1a9b08999a8f" memberName="activeTapLabel_" virtualName=""
          explicitFocusOrder="0" pos="424 600 150 32" edTextCol="ff000000"
@@ -825,7 +845,7 @@ BEGIN_JUCER_METADATA
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
   <LABEL name="" id="16005f9095f804c0" memberName="unknown8" virtualName=""
          explicitFocusOrder="0" pos="608 688 80 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="Pitch" editableSingleClick="0" editableDoubleClick="0"
+         edBkgCol="0" labelText="Tune" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <SLIDER name="" id="9db05a1846c0a580" memberName="panSlider_" virtualName=""
