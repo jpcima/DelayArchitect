@@ -309,6 +309,86 @@ MainComponent::MainComponent ()
 
     unknown7->setBounds (312, 688, 80, 24);
 
+    pitchSlider_.reset (new juce::Slider (juce::String()));
+    addAndMakeVisible (pitchSlider_.get());
+    pitchSlider_->setRange (0, 10, 0);
+    pitchSlider_->setSliderStyle (juce::Slider::LinearBar);
+    pitchSlider_->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
+    pitchSlider_->addListener (this);
+
+    pitchSlider_->setBounds (608, 712, 80, 24);
+
+    unknown8.reset (new juce::Label (juce::String(),
+                                     TRANS("Pitch")));
+    addAndMakeVisible (unknown8.get());
+    unknown8->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    unknown8->setJustificationType (juce::Justification::centred);
+    unknown8->setEditable (false, false, false);
+    unknown8->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    unknown8->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    unknown8->setBounds (608, 688, 80, 24);
+
+    panSlider_.reset (new juce::Slider (juce::String()));
+    addAndMakeVisible (panSlider_.get());
+    panSlider_->setRange (0, 10, 0);
+    panSlider_->setSliderStyle (juce::Slider::LinearBar);
+    panSlider_->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
+    panSlider_->addListener (this);
+
+    panSlider_->setBounds (696, 712, 80, 24);
+
+    unknown9.reset (new juce::Label (juce::String(),
+                                     TRANS("Pan")));
+    addAndMakeVisible (unknown9.get());
+    unknown9->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    unknown9->setJustificationType (juce::Justification::centred);
+    unknown9->setEditable (false, false, false);
+    unknown9->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    unknown9->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    unknown9->setBounds (696, 688, 80, 24);
+
+    widthSlider_.reset (new juce::Slider (juce::String()));
+    addAndMakeVisible (widthSlider_.get());
+    widthSlider_->setRange (0, 10, 0);
+    widthSlider_->setSliderStyle (juce::Slider::LinearBar);
+    widthSlider_->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
+    widthSlider_->addListener (this);
+
+    widthSlider_->setBounds (784, 712, 80, 24);
+
+    unknown10.reset (new juce::Label (juce::String(),
+                                      TRANS("Width")));
+    addAndMakeVisible (unknown10.get());
+    unknown10->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    unknown10->setJustificationType (juce::Justification::centred);
+    unknown10->setEditable (false, false, false);
+    unknown10->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    unknown10->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    unknown10->setBounds (784, 688, 80, 24);
+
+    levelSlider_.reset (new juce::Slider (juce::String()));
+    addAndMakeVisible (levelSlider_.get());
+    levelSlider_->setRange (0, 10, 0);
+    levelSlider_->setSliderStyle (juce::Slider::LinearBar);
+    levelSlider_->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
+    levelSlider_->addListener (this);
+
+    levelSlider_->setBounds (872, 712, 80, 24);
+
+    unknown11.reset (new juce::Label (juce::String(),
+                                      TRANS("Level")));
+    addAndMakeVisible (unknown11.get());
+    unknown11->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    unknown11->setJustificationType (juce::Justification::centred);
+    unknown11->setEditable (false, false, false);
+    unknown11->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    unknown11->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    unknown11->setBounds (872, 688, 80, 24);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -360,6 +440,14 @@ MainComponent::~MainComponent()
     unknown6 = nullptr;
     resonanceSlider_ = nullptr;
     unknown7 = nullptr;
+    pitchSlider_ = nullptr;
+    unknown8 = nullptr;
+    panSlider_ = nullptr;
+    unknown9 = nullptr;
+    widthSlider_ = nullptr;
+    unknown10 = nullptr;
+    levelSlider_ = nullptr;
+    unknown11 = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -542,6 +630,26 @@ void MainComponent::sliderValueChanged (juce::Slider* sliderThatWasMoved)
         //[UserSliderCode_resonanceSlider_] -- add your slider handling code here..
         //[/UserSliderCode_resonanceSlider_]
     }
+    else if (sliderThatWasMoved == pitchSlider_.get())
+    {
+        //[UserSliderCode_pitchSlider_] -- add your slider handling code here..
+        //[/UserSliderCode_pitchSlider_]
+    }
+    else if (sliderThatWasMoved == panSlider_.get())
+    {
+        //[UserSliderCode_panSlider_] -- add your slider handling code here..
+        //[/UserSliderCode_panSlider_]
+    }
+    else if (sliderThatWasMoved == widthSlider_.get())
+    {
+        //[UserSliderCode_widthSlider_] -- add your slider handling code here..
+        //[/UserSliderCode_widthSlider_]
+    }
+    else if (sliderThatWasMoved == levelSlider_.get())
+    {
+        //[UserSliderCode_levelSlider_] -- add your slider handling code here..
+        //[/UserSliderCode_levelSlider_]
+    }
 
     //[UsersliderValueChanged_Post]
     //[/UsersliderValueChanged_Post]
@@ -709,6 +817,42 @@ BEGIN_JUCER_METADATA
   <LABEL name="" id="59b052aceabca3e7" memberName="unknown7" virtualName=""
          explicitFocusOrder="0" pos="312 688 80 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Resonance" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="36"/>
+  <SLIDER name="" id="5affa2208e6503a" memberName="pitchSlider_" virtualName=""
+          explicitFocusOrder="0" pos="608 712 80 24" min="0.0" max="10.0"
+          int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
+          textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
+  <LABEL name="" id="16005f9095f804c0" memberName="unknown8" virtualName=""
+         explicitFocusOrder="0" pos="608 688 80 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Pitch" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="36"/>
+  <SLIDER name="" id="9db05a1846c0a580" memberName="panSlider_" virtualName=""
+          explicitFocusOrder="0" pos="696 712 80 24" min="0.0" max="10.0"
+          int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
+          textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
+  <LABEL name="" id="f049bece2c57a0b0" memberName="unknown9" virtualName=""
+         explicitFocusOrder="0" pos="696 688 80 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Pan" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="36"/>
+  <SLIDER name="" id="fa27f85db75faeb0" memberName="widthSlider_" virtualName=""
+          explicitFocusOrder="0" pos="784 712 80 24" min="0.0" max="10.0"
+          int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
+          textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
+  <LABEL name="" id="903c9f3b27211a0c" memberName="unknown10" virtualName=""
+         explicitFocusOrder="0" pos="784 688 80 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Width" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="36"/>
+  <SLIDER name="" id="5e1a25de948a2f2f" memberName="levelSlider_" virtualName=""
+          explicitFocusOrder="0" pos="872 712 80 24" min="0.0" max="10.0"
+          int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
+          textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
+  <LABEL name="" id="11492731a8f7e406" memberName="unknown11" virtualName=""
+         explicitFocusOrder="0" pos="872 688 80 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Level" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
 </JUCER_COMPONENT>

@@ -98,6 +98,14 @@ private:
     std::unique_ptr<juce::Label> unknown6;
     std::unique_ptr<juce::Slider> resonanceSlider_;
     std::unique_ptr<juce::Label> unknown7;
+    std::unique_ptr<juce::Slider> pitchSlider_;
+    std::unique_ptr<juce::Label> unknown8;
+    std::unique_ptr<juce::Slider> panSlider_;
+    std::unique_ptr<juce::Label> unknown9;
+    std::unique_ptr<juce::Slider> widthSlider_;
+    std::unique_ptr<juce::Label> unknown10;
+    std::unique_ptr<juce::Slider> levelSlider_;
+    std::unique_ptr<juce::Label> unknown11;
 
 
     //==============================================================================

@@ -124,6 +124,10 @@ void Editor::Impl::createActiveTapParameterAttachments()
     ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_HPF_CUTOFF, tapNumber)), *mainComponent->hpfCutoffSlider_, nullptr));
     ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_LPF_CUTOFF, tapNumber)), *mainComponent->lpfCutoffSlider_, nullptr));
     ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_RESONANCE, tapNumber)), *mainComponent->resonanceSlider_, nullptr));
+    ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_TUNE, tapNumber)), *mainComponent->pitchSlider_, nullptr));
+    ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_PAN, tapNumber)), *mainComponent->panSlider_, nullptr));
+    ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_WIDTH, tapNumber)), *mainComponent->widthSlider_, nullptr));
+    ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_LEVEL, tapNumber)), *mainComponent->levelSlider_, nullptr));
 }
 
 void Editor::Impl::tapEditStarted(TapEditScreen *, GdParameter id)
