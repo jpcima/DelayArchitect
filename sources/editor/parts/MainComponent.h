@@ -106,6 +106,8 @@ private:
     std::unique_ptr<juce::Label> unknown10;
     std::unique_ptr<juce::Slider> levelSlider_;
     std::unique_ptr<juce::Label> unknown11;
+    std::unique_ptr<juce::Label> unknown12;
+    std::unique_ptr<juce::Label> unknown13;
 
 
     //==============================================================================

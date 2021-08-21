@@ -391,6 +391,28 @@ MainComponent::MainComponent ()
 
     unknown11->setBounds (872, 688, 80, 24);
 
+    unknown12.reset (new juce::Label (juce::String(),
+                                      TRANS("Dry")));
+    addAndMakeVisible (unknown12.get());
+    unknown12->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    unknown12->setJustificationType (juce::Justification::centred);
+    unknown12->setEditable (false, false, false);
+    unknown12->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    unknown12->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    unknown12->setBounds (872, 296, 48, 24);
+
+    unknown13.reset (new juce::Label (juce::String(),
+                                      TRANS("Wet")));
+    addAndMakeVisible (unknown13.get());
+    unknown13->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    unknown13->setJustificationType (juce::Justification::centred);
+    unknown13->setEditable (false, false, false);
+    unknown13->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    unknown13->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    unknown13->setBounds (936, 296, 48, 24);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -450,6 +472,8 @@ MainComponent::~MainComponent()
     unknown10 = nullptr;
     levelSlider_ = nullptr;
     unknown11 = nullptr;
+    unknown12 = nullptr;
+    unknown13 = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -875,6 +899,16 @@ BEGIN_JUCER_METADATA
   <LABEL name="" id="11492731a8f7e406" memberName="unknown11" virtualName=""
          explicitFocusOrder="0" pos="872 688 80 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Level" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="36"/>
+  <LABEL name="" id="8c06205230379f25" memberName="unknown12" virtualName=""
+         explicitFocusOrder="0" pos="872 296 48 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Dry" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="36"/>
+  <LABEL name="" id="63b65948700e239e" memberName="unknown13" virtualName=""
+         explicitFocusOrder="0" pos="936 296 48 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Wet" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
 </JUCER_COMPONENT>
