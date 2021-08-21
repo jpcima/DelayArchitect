@@ -249,6 +249,66 @@ MainComponent::MainComponent ()
 
     unknown4->setBounds (32, 688, 96, 24);
 
+    hpfCutoffSlider_.reset (new juce::Slider (juce::String()));
+    addAndMakeVisible (hpfCutoffSlider_.get());
+    hpfCutoffSlider_->setRange (0, 10, 0);
+    hpfCutoffSlider_->setSliderStyle (juce::Slider::LinearBar);
+    hpfCutoffSlider_->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
+    hpfCutoffSlider_->addListener (this);
+
+    hpfCutoffSlider_->setBounds (136, 712, 80, 24);
+
+    lpfCutoffSlider_.reset (new juce::Slider (juce::String()));
+    addAndMakeVisible (lpfCutoffSlider_.get());
+    lpfCutoffSlider_->setRange (0, 10, 0);
+    lpfCutoffSlider_->setSliderStyle (juce::Slider::LinearBar);
+    lpfCutoffSlider_->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
+    lpfCutoffSlider_->addListener (this);
+
+    lpfCutoffSlider_->setBounds (224, 712, 80, 24);
+
+    unknown5.reset (new juce::Label (juce::String(),
+                                     TRANS("HPF cutoff")));
+    addAndMakeVisible (unknown5.get());
+    unknown5->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    unknown5->setJustificationType (juce::Justification::centred);
+    unknown5->setEditable (false, false, false);
+    unknown5->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    unknown5->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    unknown5->setBounds (136, 688, 80, 24);
+
+    unknown6.reset (new juce::Label (juce::String(),
+                                     TRANS("LPF cutoff")));
+    addAndMakeVisible (unknown6.get());
+    unknown6->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    unknown6->setJustificationType (juce::Justification::centred);
+    unknown6->setEditable (false, false, false);
+    unknown6->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    unknown6->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    unknown6->setBounds (224, 688, 80, 24);
+
+    resonanceSlider_.reset (new juce::Slider (juce::String()));
+    addAndMakeVisible (resonanceSlider_.get());
+    resonanceSlider_->setRange (0, 10, 0);
+    resonanceSlider_->setSliderStyle (juce::Slider::LinearBar);
+    resonanceSlider_->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
+    resonanceSlider_->addListener (this);
+
+    resonanceSlider_->setBounds (312, 712, 80, 24);
+
+    unknown7.reset (new juce::Label (juce::String(),
+                                     TRANS("Resonance")));
+    addAndMakeVisible (unknown7.get());
+    unknown7->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    unknown7->setJustificationType (juce::Justification::centred);
+    unknown7->setEditable (false, false, false);
+    unknown7->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    unknown7->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    unknown7->setBounds (312, 688, 80, 24);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -294,6 +354,12 @@ MainComponent::~MainComponent()
     wetSlider_ = nullptr;
     filterChoice_ = nullptr;
     unknown4 = nullptr;
+    hpfCutoffSlider_ = nullptr;
+    lpfCutoffSlider_ = nullptr;
+    unknown5 = nullptr;
+    unknown6 = nullptr;
+    resonanceSlider_ = nullptr;
+    unknown7 = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -461,6 +527,21 @@ void MainComponent::sliderValueChanged (juce::Slider* sliderThatWasMoved)
         //[UserSliderCode_wetSlider_] -- add your slider handling code here..
         //[/UserSliderCode_wetSlider_]
     }
+    else if (sliderThatWasMoved == hpfCutoffSlider_.get())
+    {
+        //[UserSliderCode_hpfCutoffSlider_] -- add your slider handling code here..
+        //[/UserSliderCode_hpfCutoffSlider_]
+    }
+    else if (sliderThatWasMoved == lpfCutoffSlider_.get())
+    {
+        //[UserSliderCode_lpfCutoffSlider_] -- add your slider handling code here..
+        //[/UserSliderCode_lpfCutoffSlider_]
+    }
+    else if (sliderThatWasMoved == resonanceSlider_.get())
+    {
+        //[UserSliderCode_resonanceSlider_] -- add your slider handling code here..
+        //[/UserSliderCode_resonanceSlider_]
+    }
 
     //[UsersliderValueChanged_Post]
     //[/UsersliderValueChanged_Post]
@@ -601,6 +682,33 @@ BEGIN_JUCER_METADATA
   <LABEL name="" id="906ee5da5ccfb0f6" memberName="unknown4" virtualName=""
          explicitFocusOrder="0" pos="32 688 96 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Filter" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="36"/>
+  <SLIDER name="" id="918797f645a07437" memberName="hpfCutoffSlider_" virtualName=""
+          explicitFocusOrder="0" pos="136 712 80 24" min="0.0" max="10.0"
+          int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
+          textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
+  <SLIDER name="" id="184bee36214dd11a" memberName="lpfCutoffSlider_" virtualName=""
+          explicitFocusOrder="0" pos="224 712 80 24" min="0.0" max="10.0"
+          int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
+          textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
+  <LABEL name="" id="5f3ddd07c93c41a6" memberName="unknown5" virtualName=""
+         explicitFocusOrder="0" pos="136 688 80 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="HPF cutoff" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="36"/>
+  <LABEL name="" id="8aeb3c214b9a746b" memberName="unknown6" virtualName=""
+         explicitFocusOrder="0" pos="224 688 80 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="LPF cutoff" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="36"/>
+  <SLIDER name="" id="ce01d3af838ea92c" memberName="resonanceSlider_" virtualName=""
+          explicitFocusOrder="0" pos="312 712 80 24" min="0.0" max="10.0"
+          int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
+          textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
+  <LABEL name="" id="59b052aceabca3e7" memberName="unknown7" virtualName=""
+         explicitFocusOrder="0" pos="312 688 80 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Resonance" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
 </JUCER_COMPONENT>

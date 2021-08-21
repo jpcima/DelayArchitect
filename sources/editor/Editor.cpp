@@ -121,6 +121,9 @@ void Editor::Impl::createActiveTapParameterAttachments()
     ata.buttonAttachements_.emplace_back(new juce::ButtonParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_ENABLE, tapNumber)), *mainComponent->tapEnabledButton_, nullptr));
     ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_DELAY, tapNumber)), *mainComponent->tapDelaySlider_, nullptr));
     ata.comboBoxAttachements_.emplace_back(new AutomaticComboBoxParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_FILTER, tapNumber)), *mainComponent->filterChoice_, nullptr));
+    ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_HPF_CUTOFF, tapNumber)), *mainComponent->hpfCutoffSlider_, nullptr));
+    ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_LPF_CUTOFF, tapNumber)), *mainComponent->lpfCutoffSlider_, nullptr));
+    ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_RESONANCE, tapNumber)), *mainComponent->resonanceSlider_, nullptr));
 }
 
 void Editor::Impl::tapEditStarted(TapEditScreen *, GdParameter id)

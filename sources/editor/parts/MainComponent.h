@@ -92,6 +92,12 @@ private:
     std::unique_ptr<juce::Slider> wetSlider_;
     std::unique_ptr<juce::ComboBox> filterChoice_;
     std::unique_ptr<juce::Label> unknown4;
+    std::unique_ptr<juce::Slider> hpfCutoffSlider_;
+    std::unique_ptr<juce::Slider> lpfCutoffSlider_;
+    std::unique_ptr<juce::Label> unknown5;
+    std::unique_ptr<juce::Label> unknown6;
+    std::unique_ptr<juce::Slider> resonanceSlider_;
+    std::unique_ptr<juce::Label> unknown7;
 
 
     //==============================================================================
