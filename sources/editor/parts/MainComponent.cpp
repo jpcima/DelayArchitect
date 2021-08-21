@@ -508,7 +508,7 @@ void MainComponent::paint (juce::Graphics& g)
     }
 
     {
-        float x = 9.0f, y = 344.0f, width = 128.0f, height = 174.0f;
+        float x = 8.0f, y = 344.0f, width = 128.0f, height = 176.0f;
         juce::Colour fillColour = juce::Colour (0xfffff080);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
@@ -517,7 +517,7 @@ void MainComponent::paint (juce::Graphics& g)
     }
 
     {
-        float x = 9.0f, y = 64.0f, width = 128.0f, height = 268.0f;
+        float x = 8.0f, y = 64.0f, width = 128.0f, height = 272.0f;
         juce::Colour fillColour = juce::Colour (0xfffff080);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
@@ -722,9 +722,9 @@ BEGIN_JUCER_METADATA
                hasStroke="0"/>
     <ROUNDRECT pos="864 264 128 256" cornerSize="10.0" fill="solid: fffff080"
                hasStroke="0"/>
-    <ROUNDRECT pos="9 344 128 174" cornerSize="10.0" fill="solid: fffff080"
+    <ROUNDRECT pos="8 344 128 176" cornerSize="10.0" fill="solid: fffff080"
                hasStroke="0"/>
-    <ROUNDRECT pos="9 64 128 268" cornerSize="10.0" fill="solid: fffff080" hasStroke="0"/>
+    <ROUNDRECT pos="8 64 128 272" cornerSize="10.0" fill="solid: fffff080" hasStroke="0"/>
   </BACKGROUND>
   <GENERICCOMPONENT name="" id="c36eda615afd52ad" memberName="tapEditScreen_" virtualName=""
                     explicitFocusOrder="0" pos="144 64 712 456" class="TapEditScreen"
