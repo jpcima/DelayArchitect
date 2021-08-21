@@ -31,7 +31,9 @@ struct MainComponent::Impl : public TapEditScreen::Listener {
     MainComponent *self_ = nullptr;
     TapEditMode editMode_ = kTapEditOff;
     int timeRangeIndex_ = -1;
+
     static constexpr std::array<float, 8> presetTimeRanges{{0.1f, 0.25f, 0.5f, 0.75f, 1.0f, 2.5f, 5.0f, 10.0f}};
+    static constexpr int defaultPresetTimeRangeIndex = 4;
 
     ///
     void setEditMode(TapEditMode editMode);
@@ -398,7 +400,7 @@ MainComponent::MainComponent ()
 
     //[Constructor] You can add your own custom stuff here..
     impl.setEditMode(kTapEditLevel);
-    impl.selectTimeRange((int)impl.presetTimeRanges.size() - 1);
+    impl.selectTimeRange(Impl::defaultPresetTimeRangeIndex);
 
     tapEditScreen_->addListener(&impl);
 
@@ -889,6 +891,7 @@ void MainComponent::setActiveTapLabelText(const juce::String &newText)
 }
 
 constexpr std::array<float, 8> MainComponent::Impl::presetTimeRanges;
+constexpr int MainComponent::Impl::defaultPresetTimeRangeIndex;
 
 void MainComponent::Impl::setEditMode(TapEditMode editMode)
 {
