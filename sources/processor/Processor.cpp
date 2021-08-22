@@ -8,12 +8,16 @@ struct Processor::Impl : public juce::AudioProcessorListener {
     void setupParameters();
 
     //==========================================================================
+    void updateBPM(double newBpm);
+
+    //==========================================================================
     void audioProcessorParameterChanged(AudioProcessor *processor, int parameterIndex, float newValue) override;
     void audioProcessorChanged (AudioProcessor *processor, const ChangeDetails &details) override;
 
     //==========================================================================
     Processor *self_ = nullptr;
     GdPtr gd_;
+    double lastKnownBpm_ = -1.0;
 };
 
 //==============================================================================
@@ -57,6 +61,8 @@ void Processor::prepareToPlay(double sampleRate, int samplesPerBlock)
     }
 
     GdClear(gd);
+
+    impl.lastKnownBpm_ = -1.0;
 }
 
 void Processor::releaseResources()
@@ -99,8 +105,15 @@ void Processor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer 
     (void)midiMessages;
 
     Impl &impl = *impl_;
-    Gd *gd = impl.gd_.get();
 
+    ///
+    juce::AudioPlayHead *playHead = getPlayHead();
+    juce::AudioPlayHead::CurrentPositionInfo playPosition;
+    if (playHead->getCurrentPosition(playPosition))
+        impl.updateBPM(playPosition.bpm);
+
+    ///
+    Gd *gd = impl.gd_.get();
     const float **inputs = buffer.getArrayOfReadPointers();
     float **outputs = buffer.getArrayOfWritePointers();
     GdProcess(gd, inputs, outputs, (unsigned)buffer.getNumSamples());
@@ -281,6 +294,22 @@ void Processor::Impl::setupParameters()
 
     for (int i = 0, n = (int)parameterGroups.size(); i < n; ++i) {
         self->addParameterGroup(std::move(parameterGroups[(size_t)i]));
+    }
+}
+
+//==============================================================================
+void Processor::Impl::updateBPM(double newBpm)
+{
+    double oldBpm = lastKnownBpm_;
+    if (oldBpm == newBpm)
+        return;
+    lastKnownBpm_ = newBpm;
+
+    if (oldBpm != -1.0) {
+        // TODO(jpc) scale all delays according to the ratio, notifying host
+        // TODO(jpc) only do if the parameter Sync has value `true`
+        float scaleRatio = (float)(oldBpm / newBpm);
+        //
     }
 }
 
