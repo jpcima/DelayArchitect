@@ -18,6 +18,7 @@ GD_API void GdClear(Gd *gd);
 GD_API void GdSetSampleRate(Gd *gd, float samplerate);
 GD_API void GdSetBufferSize(Gd *gd, unsigned bufsize);
 GD_API void GdProcess(Gd *gd, const float *inputs[], float *outputs[], unsigned count);
+GD_API void GdSetTempo(Gd *gd, float tempo);
 GD_API void GdSetParameter(Gd *gd, GdParameter p, float value);
 GD_API void GdSetParameterEx(Gd *gd, GdParameter p, float value, bool force);
 GD_API float GdGetParameter(Gd *gd, GdParameter p);

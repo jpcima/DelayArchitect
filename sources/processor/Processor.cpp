@@ -53,6 +53,7 @@ void Processor::prepareToPlay(double sampleRate, int samplesPerBlock)
 
     GdSetSampleRate(gd, (float)sampleRate);
     GdSetBufferSize(gd, (unsigned)samplesPerBlock);
+    GdSetTempo(gd, 120.0f);
 
     for (unsigned i = 0; i < GD_PARAMETER_COUNT; ++i) {
         const auto &parameter = static_cast<const juce::RangedAudioParameter &>(*getParameters()[(int)i]);
@@ -304,6 +305,9 @@ void Processor::Impl::updateBPM(double newBpm)
     if (oldBpm == newBpm)
         return;
     lastKnownBpm_ = newBpm;
+
+    Gd *gd = gd_.get();
+    GdSetTempo(gd, (float)newBpm);
 
     if (oldBpm != -1.0) {
         // TODO(jpc) scale all delays according to the ratio, notifying host

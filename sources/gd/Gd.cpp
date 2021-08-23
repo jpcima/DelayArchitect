@@ -22,6 +22,7 @@ struct Gd {
 
     std::vector<float> temp_[4];
 
+    float tempo_ = 120.0f;
     float parameters_[GD_PARAMETER_COUNT] {};
 };
 
@@ -123,6 +124,11 @@ void GdProcess(Gd *gd, const float *inputs[], float *outputs[], unsigned count)
         std::copy_n(inputs[i], count, intermediates[i]);
 
     gd->network_->process(intermediates, dry, wet, outputs, count);
+}
+
+void GdSetTempo(Gd *gd, float tempo)
+{
+    gd->tempo_ = tempo;
 }
 
 void GdSetParameter(Gd *gd, GdParameter p, float value)
