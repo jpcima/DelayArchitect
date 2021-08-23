@@ -68,6 +68,12 @@ void GdNetwork::setParameter(unsigned parameter, float value)
 {
     if (parameter < GDP_TAP_A_ENABLE) {
         switch (parameter) {
+        case GDP_SYNC:
+            sync_ = (bool)value;
+            break;
+        case GDP_GRID:
+            div_ = GdFindNearestDivisor(value);
+            break;
         case GDP_FEEDBACK_TAP:
             fbTapIndex_ = (unsigned)value;
             break;
@@ -133,6 +139,11 @@ void GdNetwork::setParameter(unsigned parameter, float value)
     }
 }
 
+void GdNetwork::setTempo(float tempo)
+{
+    bpm_ = tempo;
+}
+
 void GdNetwork::process(const float *const inputs[], const float *dry, const float *wet, float *const outputs[], unsigned count)
 {
     const ChannelDsp *channels = channels_.data();
@@ -192,7 +203,10 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
 
         if (tapControl.enable_) {
             // compute the line delays
-            std::fill_n(delays, count, tapControl.delay_);
+            float tapDelay = tapControl.delay_;
+            if (sync_)
+                tapDelay = GdAlignDelayToGrid(tapDelay, div_, bpm_);
+            std::fill_n(delays, count, tapDelay);
             tapControl.smoothDelay_.process(delays, delays, count, true);
 
             // compute tap latency
@@ -291,7 +305,10 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
         }
         else {
             // compute the line delays
-            std::fill_n(delays, count, tapControl.delay_);
+            float tapDelay = tapControl.delay_;
+            if (sync_)
+                tapDelay = GdAlignDelayToGrid(tapDelay, div_, bpm_);
+            std::fill_n(delays, count, tapDelay);
             tapControl.smoothDelay_.process(delays, delays, count, true);
 
             // compute tap latency

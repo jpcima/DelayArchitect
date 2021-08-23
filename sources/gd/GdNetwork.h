@@ -21,6 +21,7 @@ public:
     void setSampleRate(float sampleRate);
     void setBufferSize(unsigned bufferSize);
     void setParameter(unsigned parameter, float value);
+    void setTempo(float tempo);
     void process(const float *const inputs[], const float *dry, const float *wet, float *const outputs[], unsigned count);
 
 //==============================================================================
@@ -56,7 +57,12 @@ private:
     // channels
     std::vector<ChannelDsp> channels_;
 
+    // timing information
+    float bpm_ = 120.0f;
+
     // parameters + smoothers
+    bool sync_ = false;
+    int div_ = GdDefaultDivisor;
     unsigned fbTapIndex_ = 0;
     float fbTapGainDB_ = GdMinFeedbackGainDB;
     LinearSmoother smoothFbGainLinear_;

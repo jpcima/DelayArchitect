@@ -35,7 +35,7 @@ Ignorable static constexpr float GdMinFeedbackGainDB = -60.0f;
 #define GD_EACH_PARAMETER(_)                                                   \
     /* Name, Min, Max, Def, Flags, Label, Group */                             \
     _(SYNC, 0, 1, 1, GDP_BOOLEAN, "Synchronization", -1)                       \
-    _(GRID, GdMinDivisor, GdMaxDivisor, GdMinDivisor, GDP_INTEGER, "Grid", -1) \
+    _(GRID, GdMinDivisor, GdMaxDivisor, GdDefaultDivisor, GDP_INTEGER, "Grid", -1) \
     _(FEEDBACK_TAP, 0, GdMaxLines - 1, 0, GDP_CHOICE, "Feedback tap", -1)      \
     _(FEEDBACK_GAIN, GdMinFeedbackGainDB, 0, GdMinFeedbackGainDB, GDP_FLOAT, "Feedback gain", -1) \
     _(MIX_DRY, -60, 10, -6, GDP_FLOAT, "Dry mix", -1)                          \
@@ -142,6 +142,7 @@ inline GdParameter GdRecomposeParameter(GdParameter de_parameter, int de_tap)
 Ignorable static constexpr int GdGridDivisors[] = {4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128};
 enum {
     GdNumGridDivisors = sizeof(GdGridDivisors) / sizeof(GdGridDivisors[0]),
+    GdDefaultDivisor = 4,
     GdMinDivisor = GdGridDivisors[0],
     GdMaxDivisor = GdGridDivisors[GdNumGridDivisors - 1],
 };
@@ -162,6 +163,6 @@ inline float GdAlignDelayToGrid(float delay, int div, float bpm)
     delay = (delay > 0) ? delay : 0;
     int ndiv = (int)(delay / interval + 0.5f);
     delay = interval * (float)ndiv;
-    delay = (delay < GdMaxDelay) ? delay : GdMaxDelay;
+    delay = (delay < (float)GdMaxDelay) ? delay : (float)GdMaxDelay;
     return delay;
 }
