@@ -86,6 +86,7 @@ endif()
 add_library(Gd STATIC
   "sources/gd/Gd.cpp"
   "sources/gd/Gd.h"
+  "sources/gd/GdDefs.cpp"
   "sources/gd/GdDefs.h"
   "sources/gd/GdLine.cpp"
   "sources/gd/GdLine.h"

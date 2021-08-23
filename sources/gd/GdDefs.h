@@ -131,3 +131,10 @@ inline GdParameter GdRecomposeParameter(GdParameter de_parameter, int de_tap)
         index = de_index + de_tap * GdNumPametersPerTap;
     return (GdParameter)index;
 }
+
+// Accepted values for grid divisors
+Ignorable static const int GdGridDivisors[] = {4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128};
+enum { GdNumGridDivisors = sizeof(GdGridDivisors) / sizeof(GdGridDivisors[0]) };
+
+// Get the nearest accepted grid divisor, according to a parameter value in [0..1]
+int GdGetGridDivisor(float value);
