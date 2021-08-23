@@ -148,3 +148,20 @@ enum {
 
 // Get the nearest accepted grid divisor
 int GdFindNearestDivisor(float div);
+
+// Get the grid interval, according to the grid division and tempo
+inline float GdGetGridInterval(int div, float bpm)
+{
+    return 240.0f / ((float)div * bpm);
+}
+
+// Get the nearest delay value, aligned according to the grid division
+inline float GdAlignDelayToGrid(float delay, int div, float bpm)
+{
+    float interval = GdGetGridInterval(div, bpm);
+    delay = (delay > 0) ? delay : 0;
+    int ndiv = (int)(delay / interval + 0.5f);
+    delay = interval * (float)ndiv;
+    delay = (delay < GdMaxDelay) ? delay : GdMaxDelay;
+    return delay;
+}
