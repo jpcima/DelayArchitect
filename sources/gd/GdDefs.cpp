@@ -2,9 +2,8 @@
 #include "GdDefs.h"
 #include <algorithm>
 
-int GdGetGridDivisor(float value)
+int GdFindNearestDivisor(float div)
 {
-    float div = 1.0f / value;
     const int *begin = GdGridDivisors;
     const int *end = begin + GdNumGridDivisors;
     const int *pos = std::lower_bound(begin, end, div);

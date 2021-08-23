@@ -34,6 +34,8 @@ Ignorable static constexpr float GdMinFeedbackGainDB = -60.0f;
 
 #define GD_EACH_PARAMETER(_)                                                   \
     /* Name, Min, Max, Def, Flags, Label, Group */                             \
+    _(SYNC, 0, 1, 1, GDP_BOOLEAN, "Synchronization", -1)                       \
+    _(GRID, GdMinDivisor, GdMaxDivisor, GdMinDivisor, GDP_INTEGER, "Grid", -1) \
     _(FEEDBACK_TAP, 0, GdMaxLines - 1, 0, GDP_CHOICE, "Feedback tap", -1)      \
     _(FEEDBACK_GAIN, GdMinFeedbackGainDB, 0, GdMinFeedbackGainDB, GDP_FLOAT, "Feedback gain", -1) \
     _(MIX_DRY, -60, 10, -6, GDP_FLOAT, "Dry mix", -1)                          \
@@ -137,8 +139,12 @@ inline GdParameter GdRecomposeParameter(GdParameter de_parameter, int de_tap)
 }
 
 // Accepted values for grid divisors
-Ignorable static const int GdGridDivisors[] = {4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128};
-enum { GdNumGridDivisors = sizeof(GdGridDivisors) / sizeof(GdGridDivisors[0]) };
+Ignorable static constexpr int GdGridDivisors[] = {4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128};
+enum {
+    GdNumGridDivisors = sizeof(GdGridDivisors) / sizeof(GdGridDivisors[0]),
+    GdMinDivisor = GdGridDivisors[0],
+    GdMaxDivisor = GdGridDivisors[GdNumGridDivisors - 1],
+};
 
-// Get the nearest accepted grid divisor, according to a parameter value in [0..1]
-int GdGetGridDivisor(float value);
+// Get the nearest accepted grid divisor
+int GdFindNearestDivisor(float div);

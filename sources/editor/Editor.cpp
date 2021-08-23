@@ -4,6 +4,7 @@
 #include "editor/parts/MainComponent.h"
 #include "editor/parts/TapEditScreen.h"
 #include "editor/attachments/TapParameterAttachment.h"
+#include "editor/attachments/GridParameterAttachment.h"
 #include "editor/attachments/AutomaticComboBoxParameterAttachment.h"
 #include "processor/Processor.h"
 #include "GdDefs.h"
@@ -18,7 +19,9 @@ struct Editor::Impl : public TapEditScreen::Listener {
 
     std::vector<std::unique_ptr<TapParameterAttachment>> tapAttachements_;
     std::vector<std::unique_ptr<juce::SliderParameterAttachment>> sliderAttachements_;
+    std::vector<std::unique_ptr<juce::ButtonParameterAttachment>> buttonAttachements_;
     std::vector<std::unique_ptr<AutomaticComboBoxParameterAttachment>> comboBoxAttachements_;
+    std::unique_ptr<GridParameterAttachment> gridAttachement_;
 
     struct ActiveTapAttachments {
         std::vector<std::unique_ptr<juce::SliderParameterAttachment>> sliderAttachements_;
@@ -79,10 +82,12 @@ Editor::Editor(Processor &p)
         }
     }
 
+    impl.buttonAttachements_.emplace_back(new juce::ButtonParameterAttachment(*impl.getRangedParameter((int)GDP_SYNC), *mainComponent->syncButton_, nullptr));
     impl.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*impl.getRangedParameter((int)GDP_FEEDBACK_GAIN), *mainComponent->feedbackTapGainSlider_, nullptr));
     impl.comboBoxAttachements_.emplace_back(new AutomaticComboBoxParameterAttachment(*impl.getRangedParameter((int)GDP_FEEDBACK_TAP), *mainComponent->feedbackTapChoice_, nullptr));
     impl.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*impl.getRangedParameter((int)GDP_MIX_WET), *mainComponent->wetSlider_, nullptr));
     impl.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*impl.getRangedParameter((int)GDP_MIX_DRY), *mainComponent->drySlider_, nullptr));
+    impl.gridAttachement_.reset(new GridParameterAttachment(*impl.getRangedParameter((int)GDP_GRID), *mainComponent->gridChoice_));
 
     impl.setActiveTap(0);
 }

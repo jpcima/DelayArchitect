@@ -425,6 +425,34 @@ MainComponent::MainComponent ()
 
     tuneEnableButton_->setBounds (608, 688, 24, 24);
 
+    syncButton_.reset (new juce::TextButton (juce::String()));
+    addAndMakeVisible (syncButton_.get());
+    syncButton_->setButtonText (TRANS("Sync"));
+    syncButton_->addListener (this);
+
+    syncButton_->setBounds (16, 88, 112, 56);
+
+    gridChoice_.reset (new juce::ComboBox (juce::String()));
+    addAndMakeVisible (gridChoice_.get());
+    gridChoice_->setEditableText (false);
+    gridChoice_->setJustificationType (juce::Justification::centredLeft);
+    gridChoice_->setTextWhenNothingSelected (juce::String());
+    gridChoice_->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    gridChoice_->addListener (this);
+
+    gridChoice_->setBounds (16, 184, 112, 24);
+
+    unknown14.reset (new juce::Label (juce::String(),
+                                      TRANS("Grid")));
+    addAndMakeVisible (unknown14.get());
+    unknown14->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    unknown14->setJustificationType (juce::Justification::centred);
+    unknown14->setEditable (false, false, false);
+    unknown14->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    unknown14->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    unknown14->setBounds (16, 160, 112, 24);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -438,6 +466,7 @@ MainComponent::MainComponent ()
 
     tapEditScreen_->addListener(&impl);
 
+    syncButton_->setClickingTogglesState(true);
     tapEnabledButton_->setClickingTogglesState(true);
     //[/Constructor]
 }
@@ -488,6 +517,9 @@ MainComponent::~MainComponent()
     unknown13 = nullptr;
     filterEnableButton_ = nullptr;
     tuneEnableButton_ = nullptr;
+    syncButton_ = nullptr;
+    gridChoice_ = nullptr;
+    unknown14 = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -653,6 +685,11 @@ void MainComponent::buttonClicked (juce::Button* buttonThatWasClicked)
         //[UserButtonCode_tuneEnableButton_] -- add your button handler code here..
         //[/UserButtonCode_tuneEnableButton_]
     }
+    else if (buttonThatWasClicked == syncButton_.get())
+    {
+        //[UserButtonCode_syncButton_] -- add your button handler code here..
+        //[/UserButtonCode_syncButton_]
+    }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
@@ -737,6 +774,11 @@ void MainComponent::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
     {
         //[UserComboBoxCode_filterChoice_] -- add your combo box handling code here..
         //[/UserComboBoxCode_filterChoice_]
+    }
+    else if (comboBoxThatHasChanged == gridChoice_.get())
+    {
+        //[UserComboBoxCode_gridChoice_] -- add your combo box handling code here..
+        //[/UserComboBoxCode_gridChoice_]
     }
 
     //[UsercomboBoxChanged_Post]
@@ -941,6 +983,17 @@ BEGIN_JUCER_METADATA
   <TOGGLEBUTTON name="" id="9e9613a5f49fcead" memberName="tuneEnableButton_"
                 virtualName="" explicitFocusOrder="0" pos="608 688 24 24" buttonText=""
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
+  <TEXTBUTTON name="" id="7ac12be0bb27f229" memberName="syncButton_" virtualName=""
+              explicitFocusOrder="0" pos="16 88 112 56" buttonText="Sync" connectedEdges="0"
+              needsCallback="1" radioGroupId="0"/>
+  <COMBOBOX name="" id="16cd36a80d420093" memberName="gridChoice_" virtualName=""
+            explicitFocusOrder="0" pos="16 184 112 24" editable="0" layout="33"
+            items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+  <LABEL name="" id="ca6f4632ff8df183" memberName="unknown14" virtualName=""
+         explicitFocusOrder="0" pos="16 160 112 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Grid" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="36"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

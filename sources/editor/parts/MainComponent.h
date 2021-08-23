@@ -110,6 +110,9 @@ private:
     std::unique_ptr<juce::Label> unknown13;
     std::unique_ptr<juce::ToggleButton> filterEnableButton_;
     std::unique_ptr<juce::ToggleButton> tuneEnableButton_;
+    std::unique_ptr<juce::TextButton> syncButton_;
+    std::unique_ptr<juce::ComboBox> gridChoice_;
+    std::unique_ptr<juce::Label> unknown14;
 
 
     //==============================================================================
