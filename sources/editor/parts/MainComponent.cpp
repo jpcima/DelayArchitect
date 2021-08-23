@@ -179,7 +179,7 @@ MainComponent::MainComponent ()
     feedbackTapChoice_->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     feedbackTapChoice_->addListener (this);
 
-    feedbackTapChoice_->setBounds (872, 112, 112, 24);
+    feedbackTapChoice_->setBounds (904, 112, 80, 24);
 
     unknown2.reset (new juce::Label (juce::String(),
                                      TRANS("Feedback")));
@@ -453,6 +453,38 @@ MainComponent::MainComponent ()
 
     unknown14->setBounds (16, 160, 112, 24);
 
+    menuButton_.reset (new juce::TextButton (juce::String()));
+    addAndMakeVisible (menuButton_.get());
+    menuButton_->addListener (this);
+
+    menuButton_->setBounds (40, 32, 24, 24);
+
+    feedbackEnableButton_.reset (new juce::ToggleButton (juce::String()));
+    addAndMakeVisible (feedbackEnableButton_.get());
+    feedbackEnableButton_->addListener (this);
+
+    feedbackEnableButton_->setBounds (872, 112, 24, 24);
+
+    unknown15.reset (new juce::Label (juce::String(),
+                                      TRANS("Swing")));
+    addAndMakeVisible (unknown15.get());
+    unknown15->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    unknown15->setJustificationType (juce::Justification::centred);
+    unknown15->setEditable (false, false, false);
+    unknown15->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    unknown15->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    unknown15->setBounds (16, 224, 112, 24);
+
+    swingSlider_.reset (new juce::Slider (juce::String()));
+    addAndMakeVisible (swingSlider_.get());
+    swingSlider_->setRange (0, 10, 0);
+    swingSlider_->setSliderStyle (juce::Slider::LinearBar);
+    swingSlider_->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
+    swingSlider_->addListener (this);
+
+    swingSlider_->setBounds (16, 248, 112, 24);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -520,6 +552,10 @@ MainComponent::~MainComponent()
     syncButton_ = nullptr;
     gridChoice_ = nullptr;
     unknown14 = nullptr;
+    menuButton_ = nullptr;
+    feedbackEnableButton_ = nullptr;
+    unknown15 = nullptr;
+    swingSlider_ = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -690,6 +726,16 @@ void MainComponent::buttonClicked (juce::Button* buttonThatWasClicked)
         //[UserButtonCode_syncButton_] -- add your button handler code here..
         //[/UserButtonCode_syncButton_]
     }
+    else if (buttonThatWasClicked == menuButton_.get())
+    {
+        //[UserButtonCode_menuButton_] -- add your button handler code here..
+        //[/UserButtonCode_menuButton_]
+    }
+    else if (buttonThatWasClicked == feedbackEnableButton_.get())
+    {
+        //[UserButtonCode_feedbackEnableButton_] -- add your button handler code here..
+        //[/UserButtonCode_feedbackEnableButton_]
+    }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
@@ -754,6 +800,11 @@ void MainComponent::sliderValueChanged (juce::Slider* sliderThatWasMoved)
     {
         //[UserSliderCode_levelSlider_] -- add your slider handling code here..
         //[/UserSliderCode_levelSlider_]
+    }
+    else if (sliderThatWasMoved == swingSlider_.get())
+    {
+        //[UserSliderCode_swingSlider_] -- add your slider handling code here..
+        //[/UserSliderCode_swingSlider_]
     }
 
     //[UsersliderValueChanged_Post]
@@ -871,7 +922,7 @@ BEGIN_JUCER_METADATA
               virtualName="" explicitFocusOrder="0" pos="424 648 150 24" buttonText="Enabled"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <COMBOBOX name="" id="4376ef98cd0f798e" memberName="feedbackTapChoice_"
-            virtualName="" explicitFocusOrder="0" pos="872 112 112 24" editable="0"
+            virtualName="" explicitFocusOrder="0" pos="904 112 80 24" editable="0"
             layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="" id="db4d1c75cd692557" memberName="unknown2" virtualName=""
          explicitFocusOrder="0" pos="872 72 110 24" edTextCol="ff000000"
@@ -994,6 +1045,21 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Grid" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
+  <TEXTBUTTON name="" id="3bd4ee7bb83de442" memberName="menuButton_" virtualName=""
+              explicitFocusOrder="0" pos="40 32 24 24" buttonText="" connectedEdges="0"
+              needsCallback="1" radioGroupId="0"/>
+  <TOGGLEBUTTON name="" id="e5285fe6fc16c50c" memberName="feedbackEnableButton_"
+                virtualName="" explicitFocusOrder="0" pos="872 112 24 24" buttonText=""
+                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
+  <LABEL name="" id="be77851fc14d8ba" memberName="unknown15" virtualName=""
+         explicitFocusOrder="0" pos="16 224 112 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Swing" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="36"/>
+  <SLIDER name="" id="da0e42fa3de72498" memberName="swingSlider_" virtualName=""
+          explicitFocusOrder="0" pos="16 248 112 24" min="0.0" max="10.0"
+          int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
+          textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

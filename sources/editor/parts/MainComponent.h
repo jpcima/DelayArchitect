@@ -113,6 +113,10 @@ private:
     std::unique_ptr<juce::TextButton> syncButton_;
     std::unique_ptr<juce::ComboBox> gridChoice_;
     std::unique_ptr<juce::Label> unknown14;
+    std::unique_ptr<juce::TextButton> menuButton_;
+    std::unique_ptr<juce::ToggleButton> feedbackEnableButton_;
+    std::unique_ptr<juce::Label> unknown15;
+    std::unique_ptr<juce::Slider> swingSlider_;
 
 
     //==============================================================================

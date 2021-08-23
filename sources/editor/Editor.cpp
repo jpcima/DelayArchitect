@@ -66,25 +66,18 @@ Editor::Editor(Processor &p)
     tapEdit.addListener(&impl);
 
     for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber) {
-        const GdParameter decomposedIds[] = {
-            GDP_TAP_A_ENABLE,
-            GDP_TAP_A_DELAY,
-            GDP_TAP_A_LPF_CUTOFF,
-            GDP_TAP_A_HPF_CUTOFF,
-            GDP_TAP_A_RESONANCE,
-            GDP_TAP_A_TUNE,
-            GDP_TAP_A_PAN,
-            GDP_TAP_A_LEVEL,
-        };
-        for (GdParameter decomposedId : decomposedIds) {
+        for (int i = 0; i < GdNumPametersPerTap; ++i) {
+            GdParameter decomposedId = (GdParameter)(GdFirstParameterOfFirstTap + i);
             GdParameter id = GdRecomposeParameter(decomposedId, tapNumber);
             impl.tapAttachements_.emplace_back(new TapParameterAttachment(*impl.getRangedParameter((int)id), tapEdit));
         }
     }
 
     impl.buttonAttachements_.emplace_back(new juce::ButtonParameterAttachment(*impl.getRangedParameter((int)GDP_SYNC), *mainComponent->syncButton_, nullptr));
+    impl.buttonAttachements_.emplace_back(new juce::ButtonParameterAttachment(*impl.getRangedParameter((int)GDP_FEEDBACK_ENABLE), *mainComponent->feedbackEnableButton_, nullptr));
     impl.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*impl.getRangedParameter((int)GDP_FEEDBACK_GAIN), *mainComponent->feedbackTapGainSlider_, nullptr));
     impl.comboBoxAttachements_.emplace_back(new AutomaticComboBoxParameterAttachment(*impl.getRangedParameter((int)GDP_FEEDBACK_TAP), *mainComponent->feedbackTapChoice_, nullptr));
+    impl.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*impl.getRangedParameter((int)GDP_SWING), *mainComponent->swingSlider_, nullptr));
     impl.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*impl.getRangedParameter((int)GDP_MIX_WET), *mainComponent->wetSlider_, nullptr));
     impl.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*impl.getRangedParameter((int)GDP_MIX_DRY), *mainComponent->drySlider_, nullptr));
     impl.gridAttachement_.reset(new GridParameterAttachment(*impl.getRangedParameter((int)GDP_GRID), *mainComponent->gridChoice_));

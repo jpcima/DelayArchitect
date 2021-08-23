@@ -74,6 +74,9 @@ void GdNetwork::setParameter(unsigned parameter, float value)
         case GDP_GRID:
             div_ = GdFindNearestDivisor(value);
             break;
+        case GDP_FEEDBACK_ENABLE:
+            fbEnable_ = (bool)value;
+            break;
         case GDP_FEEDBACK_TAP:
             fbTapIndex_ = (unsigned)value;
             break;
@@ -189,7 +192,8 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
     }
 
     // skip processing the feedback if disabled
-    if (fbTapGainDB_ <= GdMinFeedbackGainDB && smoothFbGainLinear_.current() <= GdMinFeedbackGainLinear) {
+    bool maySkipFeedback = !fbEnable_ || fbTapGainDB_ <= GdMinFeedbackGainDB;
+    if (maySkipFeedback && smoothFbGainLinear_.current() <= GdMinFeedbackGainLinear) {
         fbTapIndex = ~0u;
     }
 
@@ -243,7 +247,7 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
             tapControl.smoothShiftLinear_.process(fxControl.shift, fxControl.shift, count, true);
 
             // compute the feedback gain
-            std::fill_n(feedbackGain, count, db2linear(fbTapGainDB_));
+            std::fill_n(feedbackGain, count, fbEnable_ ? db2linear(fbTapGainDB_) : 0.0f);
             smoothFbGainLinear_.process(feedbackGain, feedbackGain, count, true);
 
             for (unsigned chanIndex = 0; chanIndex < numInputs; ++chanIndex) {

@@ -36,8 +36,10 @@ Ignorable static constexpr float GdMinFeedbackGainDB = -60.0f;
     /* Name, Min, Max, Def, Flags, Label, Group */                             \
     _(SYNC, 0, 1, 1, GDP_BOOLEAN, "Synchronization", -1)                       \
     _(GRID, GdMinDivisor, GdMaxDivisor, GdDefaultDivisor, GDP_INTEGER, "Grid", -1) \
-    _(FEEDBACK_TAP, 0, GdMaxLines - 1, 0, GDP_CHOICE, "Feedback tap", -1)      \
-    _(FEEDBACK_GAIN, GdMinFeedbackGainDB, 0, GdMinFeedbackGainDB, GDP_FLOAT, "Feedback gain", -1) \
+    _(SWING, 0, 1, 0.5, GDP_FLOAT, "Swing", -1)                                \
+    _(FEEDBACK_ENABLE, false, true, false, GDP_BOOLEAN, "Feedback Enable", -1) \
+    _(FEEDBACK_TAP, 0, GdMaxLines - 1, 0, GDP_CHOICE, "Feedback Tap", -1)      \
+    _(FEEDBACK_GAIN, GdMinFeedbackGainDB, 0, GdMinFeedbackGainDB, GDP_FLOAT, "Feedback Gain", -1) \
     _(MIX_DRY, -60, 10, -6, GDP_FLOAT, "Dry mix", -1)                          \
     _(MIX_WET, -60, 10, -6, GDP_FLOAT, "Wet mix", -1)                          \
     GD_EACH_LINE_PARAMETER(_, A, 0)                                            \
