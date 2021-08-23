@@ -79,6 +79,7 @@ private:
         float shift_ = 0;
         float pan_ = 0;
         float width_ = 0;
+        bool flip_ = false;
         // smoothers
         LinearSmoother smoothDelay_;
         LinearSmoother smoothLevelLinear_;

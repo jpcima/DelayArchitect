@@ -126,6 +126,9 @@ void GdNetwork::setParameter(unsigned parameter, float value)
         case GDP_TAP_A_WIDTH:
             tapControl.width_ = value;
             break;
+        case GDP_TAP_A_FLIP:
+            tapControl.flip_ = (bool)value;
+            break;
         }
     }
 }
@@ -205,7 +208,7 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
             tapControl.smoothLevelLinear_.process(level, level, count, true);
 
             // calculate pan
-            std::fill_n(pan, count, tapControl.pan_);
+            std::fill_n(pan, count, tapControl.flip_ ? -tapControl.pan_ : tapControl.pan_);
             tapControl.smoothPan_.process(pan, pan, count, true);
 
             // calculate width (stereo only)
@@ -304,7 +307,7 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
             tapControl.smoothLevelLinear_.process(level, level, count, true);
 
             // calculate pan
-            std::fill_n(pan, count, tapControl.pan_);
+            std::fill_n(pan, count, tapControl.flip_ ? -tapControl.pan_ : tapControl.pan_);
             tapControl.smoothPan_.process(pan, pan, count, true);
 
             // calculate width (stereo only)

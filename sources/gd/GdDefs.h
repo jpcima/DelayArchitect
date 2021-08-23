@@ -81,6 +81,7 @@ Ignorable static constexpr float GdMinFeedbackGainDB = -60.0f;
     _(TAP_##X##_TUNE, -1200, 1200, 0, GDP_FLOAT, "Tap " #X " Tune", I)         \
     _(TAP_##X##_PAN, -1, 1, 0, GDP_FLOAT, "Tap " #X " Pan", I)                 \
     _(TAP_##X##_WIDTH, 0, 10, 1, GDP_FLOAT, "Tap " #X " Width", I)             \
+    _(TAP_##X##_FLIP, false, true, false, GDP_BOOLEAN, "Tap " #X " Flip", I)   \
     /* End */
 
 typedef enum GdParameter {
