@@ -193,11 +193,11 @@ void Processor::changeProgramName(int index, const juce::String &newName)
 }
 
 //==============================================================================
-static const char StateIdentifier[] = "GROOVY";
+static const char StateIdentifier_v1[] = "DelayArchitectV1";
 
 void Processor::getStateInformation(juce::MemoryBlock &destData)
 {
-    juce::ValueTree tree(StateIdentifier);
+    juce::ValueTree tree(StateIdentifier_v1);
 
     for (unsigned i = 0; i < GD_PARAMETER_COUNT; ++i) {
         const auto &parameter = static_cast<const juce::RangedAudioParameter &>(*getParameters()[(int)i]);
@@ -215,7 +215,7 @@ void Processor::getStateInformation(juce::MemoryBlock &destData)
 void Processor::setStateInformation(const void *data, int sizeInBytes)
 {
     juce::ValueTree tree = juce::ValueTree::readFromGZIPData(data, (size_t)sizeInBytes);
-    if (!tree.isValid() || tree.getType() != juce::StringRef(StateIdentifier))
+    if (!tree.isValid() || tree.getType() != juce::StringRef(StateIdentifier_v1))
         return;
 
     for (unsigned i = 0; i < GD_PARAMETER_COUNT; ++i) {

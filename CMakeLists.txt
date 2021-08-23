@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.7)
-project(GroovyDelay VERSION "0.0.1" LANGUAGES C CXX)
+project(DelayArchitect VERSION "0.0.1" LANGUAGES C CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+include(BuildType)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -15,11 +16,11 @@ add_subdirectory("thirdparty/JUCE" EXCLUDE_FROM_ALL)
 set(GD_PITCH_SHIFTER_TYPE "SuperCollider" CACHE STRING "Pitch shifter implementation to use")
 set_property(CACHE GD_PITCH_SHIFTER_TYPE PROPERTY STRINGS "SuperCollider" "SoundTouch" "Simple")
 
-juce_add_plugin(GroovyDelay
+juce_add_plugin(DelayArchitect
   PLUGIN_CODE Gdly
   PLUGIN_MANUFACTURER_CODE Jpci
-  PRODUCT_NAME "Groovy Delay"
-  COMPANY_NAME "Groovy inc."
+  PRODUCT_NAME "Delay Architect"
+  COMPANY_NAME "Jean Pierre Cimalando"
   FORMATS AU VST3
   IS_SYNTH FALSE
   NEEDS_MIDI_INPUT FALSE
@@ -32,18 +33,18 @@ juce_add_plugin(GroovyDelay
   NEEDS_CURL FALSE
   NEEDS_WEB_BROWSER FALSE)
 
-target_compile_definitions(GroovyDelay
+target_compile_definitions(DelayArchitect
   PUBLIC
   "JUCE_WEB_BROWSER=0"
   "JUCE_USE_CURL=0"
   "JUCE_VST3_CAN_REPLACE_VST2=0"
   "JUCE_DISPLAY_SPLASH_SCREEN=0")
 
-target_include_directories(GroovyDelay
+target_include_directories(DelayArchitect
   PRIVATE
   "sources")
 
-target_sources(GroovyDelay
+target_sources(DelayArchitect
   PRIVATE
   "sources/processor/Processor.h"
   "sources/processor/Processor.cpp"
@@ -65,13 +66,13 @@ target_sources(GroovyDelay
   "sources/editor/attachments/AutomaticComboBoxParameterAttachment.cpp"
   "sources/editor/utility/FunctionalTimer.h")
 
-juce_add_binary_data(GroovyDelayResources
+juce_add_binary_data(DelayArchitectResources
   SOURCES
   "resources/fonts/LiberationSans-Regular.ttf")
 
-target_link_libraries(GroovyDelay
+target_link_libraries(DelayArchitect
   PRIVATE
-  GroovyDelayResources
+  DelayArchitectResources
   juce::juce_audio_processors
   juce::juce_opengl
   juce::juce_recommended_config_flags
@@ -79,9 +80,9 @@ target_link_libraries(GroovyDelay
   juce::juce_recommended_warning_flags)
 
 if(MSVC)
-  target_compile_options(GroovyDelay PRIVATE "/fp:fast")
+  target_compile_options(DelayArchitect PRIVATE "/fp:fast")
 else()
-  target_compile_options(GroovyDelay PRIVATE "-ffast-math")
+  target_compile_options(DelayArchitect PRIVATE "-ffast-math")
 endif()
 
 ###
@@ -124,7 +125,7 @@ target_include_directories(Gd
   "sources/gd")
 
 ###
-target_link_libraries(GroovyDelay
+target_link_libraries(DelayArchitect
   PRIVATE
   Gd)
 
