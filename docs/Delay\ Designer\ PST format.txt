@@ -1,0 +1,62 @@
+Preset file
+===========
+Offset  Size  Description
+-------------------------
+$00     4     ??
+$04     4     ??
+$08     4     ??
+$0c     4     File type magic 'GAME' (or 'EMAG' for big-endian)
+$10     4     File subtype magic 'TSPP'
+$14     4     ??
+$18     4     Sync (boolean) [float32]
+$1c     4     Grid (real number 0<Div<1) [float32]
+$20     4     Swing (%) [float32]
+$24     4     Feedback (boolean) [float32]
+$28     4     Feedback tap (0-based) [float32]
+$2c     4     Feedback gain (dB) [float32]
+$30     4     Dry gain (dB) [float32]
+$34     4     Wet gain (dB) [float32]
+$38     4     ?? [float32]
+$3c     4     Currently edited tap (0-based) [float32]
+$40     4     Autozoom (boolean) [float32]
+$44     4     Display time range start + 1 (ms) [float32]
+$48     4     Related to display range length (1=full size) [float32]
+$4c     -     Sequence of blocks
+
+'Info' Block
+============
+Offset  Size  Description
+-------------------------
+$00     4     Block magic 'ofnI'
+$04     4     Block size [uint32]
+$08     4     ??
+$0c     4     ??
+$10     4     ??
+$14     4     ??
+
+'Tap' Block
+============
+Offset  Size  Description
+-------------------------
+$00     4     Block magic '?paT', where '?' is replaced with a letter A-Z
+$04     4     Block size [uint32]
+$08     4     Delay (ms) [float32]
+$0c     4     Unique ID? (1-based) [float32]
+$10     4     Level (dB) [float32]
+$14     4     Mute (boolean) [float32]
+$18     4     Pan (%) [float32]
+$1c     4     Spread (%) [float32]
+$20     4     ?? [float32]
+$24     4     ?? [float32]
+$28     4     ?? [float32]
+$2c     4     ?? [float32]
+$30     4     ?? [float32]
+$34     4     Flip (boolean) [float32]
+$38     4     ?? [float32]
+$3c     4     Highpass cutoff (Hz) [float32]
+$40     4     Lowpass cutoff (Hz) [float32]
+$44     4     Filter enabled (boolean) [float32]
+$48     4     Resonance (%) [float32]
+$4c     4     Filter slope (0=6dB/oct, 1=12dB/oct) [float32]
+$50     4     Transpose (semitones) [float32]
+$54     4     Pitch enabled (boolean) [float32]
