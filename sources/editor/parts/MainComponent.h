@@ -108,6 +108,8 @@ private:
     std::unique_ptr<juce::Label> unknown11;
     std::unique_ptr<juce::Label> unknown12;
     std::unique_ptr<juce::Label> unknown13;
+    std::unique_ptr<juce::ToggleButton> filterEnableButton_;
+    std::unique_ptr<juce::ToggleButton> tuneEnableButton_;
 
 
     //==============================================================================

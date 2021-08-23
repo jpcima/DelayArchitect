@@ -268,7 +268,6 @@ static char const* const GdTapLabels[GdMaxLines + 1] = {
     nullptr
 };
 static char const* const GdFilterLabels[GdNumFilterTypes + 1] = {
-    "Off",
     "6 dB/oct",
     "12 dB/oct",
     nullptr

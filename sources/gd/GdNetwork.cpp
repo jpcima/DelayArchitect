@@ -99,6 +99,9 @@ void GdNetwork::setParameter(unsigned parameter, float value)
         case GDP_TAP_A_LEVEL:
             tapControl.levelDB_ = value;
             break;
+        case GDP_TAP_A_FILTER_ENABLE:
+            tapControl.filterEnable_ = (bool)value;
+            break;
         case GDP_TAP_A_FILTER:
             tapControl.filter_ = (int)value;
             break;
@@ -110,6 +113,9 @@ void GdNetwork::setParameter(unsigned parameter, float value)
             break;
         case GDP_TAP_A_RESONANCE:
             tapControl.resonanceDB_ = value;
+            break;
+        case GDP_TAP_A_TUNE_ENABLE:
+            tapControl.shiftEnable_ = (bool)value;
             break;
         case GDP_TAP_A_TUNE:
             tapControl.shift_ = value;
@@ -209,14 +215,14 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
             }
 
             // compute FX parameters
-            fxControl.filter = tapControl.filter_;
+            fxControl.filter = tapControl.filterEnable_ ? tapControl.filter_ : GdFilterOff;
             std::fill_n(fxControl.lpfCutoff, count, tapControl.lpfCutoff_);
             tapControl.smoothLpfCutoff_.process(fxControl.lpfCutoff, fxControl.lpfCutoff, count, true);
             std::fill_n(fxControl.hpfCutoff, count, tapControl.hpfCutoff_);
             tapControl.smoothHpfCutoff_.process(fxControl.hpfCutoff, fxControl.hpfCutoff, count, true);
             std::fill_n(fxControl.resonance, count, db2linear(tapControl.resonanceDB_));
             tapControl.smoothResonanceLinear_.process(fxControl.resonance, fxControl.resonance, count, true);
-            std::fill_n(fxControl.shift, count, std::exp2(tapControl.shift_ * (1.0f / 1200)));
+            std::fill_n(fxControl.shift, count, tapControl.shiftEnable_ ? std::exp2((1.0f / 1200) * tapControl.shift_) : 1.0f);
             tapControl.smoothShiftLinear_.process(fxControl.shift, fxControl.shift, count, true);
 
             // compute the feedback gain
@@ -308,14 +314,14 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
             }
 
             // compute FX parameters
-            fxControl.filter = tapControl.filter_;
+            fxControl.filter = tapControl.filterEnable_ ? tapControl.filter_ : GdFilterOff;
             std::fill_n(fxControl.lpfCutoff, count, tapControl.lpfCutoff_);
             tapControl.smoothLpfCutoff_.process(fxControl.lpfCutoff, fxControl.lpfCutoff, count, true);
             std::fill_n(fxControl.hpfCutoff, count, tapControl.hpfCutoff_);
             tapControl.smoothHpfCutoff_.process(fxControl.hpfCutoff, fxControl.hpfCutoff, count, true);
             std::fill_n(fxControl.resonance, count, db2linear(tapControl.resonanceDB_));
             tapControl.smoothResonanceLinear_.process(fxControl.resonance, fxControl.resonance, count, true);
-            std::fill_n(fxControl.shift, count, std::exp2(tapControl.shift_ * (1.0f / 1200)));
+            std::fill_n(fxControl.shift, count, tapControl.shiftEnable_ ? std::exp2((1.0f / 1200) * tapControl.shift_) : 1.0f);
             tapControl.smoothShiftLinear_.process(fxControl.shift, fxControl.shift, count, true);
 
             for (unsigned chanIndex = 0; chanIndex < numInputs; ++chanIndex) {

@@ -70,10 +70,12 @@ private:
         bool enable_ = false;
         float delay_ = 0;
         float levelDB_ = 0;
+        bool filterEnable_ = false;
         int filter_ = GdFilterOff;
         float lpfCutoff_ = 0;
         float hpfCutoff_ = 0;
         float resonanceDB_ = 0;
+        bool shiftEnable_ = false;
         float shift_ = 0;
         float pan_ = 0;
         float width_ = 0;
