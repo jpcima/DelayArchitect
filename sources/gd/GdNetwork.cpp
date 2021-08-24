@@ -20,10 +20,10 @@ GdNetwork::GdNetwork(ChannelMode channelMode)
         assert(false);
     }
 
-    smoothFbGainLinear_.setSmoothTime(GdParamSmoothTime);
+    smoothFbGainLinear_.setTimeConstant(GdParamSmoothTime);
 
     for (unsigned tapIndex = 0; tapIndex < GdMaxLines; ++tapIndex)
-        smoothTapLatency_[tapIndex].setSmoothTime(GdParamSmoothTime);
+        smoothTapLatency_[tapIndex].setTimeConstant(GdParamSmoothTime);
 }
 
 GdNetwork::~GdNetwork()
@@ -32,10 +32,12 @@ GdNetwork::~GdNetwork()
 
 void GdNetwork::clear()
 {
-    smoothFbGainLinear_.clear(db2linear(fbTapGainDB_));
+    smoothFbGainLinear_.clearToTarget();
 
-    for (unsigned tapIndex = 0; tapIndex < GdMaxLines; ++tapIndex)
-        smoothTapLatency_[tapIndex].clear(channels_[0].taps_[tapIndex].fx_.getLatency());
+    for (unsigned tapIndex = 0; tapIndex < GdMaxLines; ++tapIndex) {
+        smoothTapLatency_[tapIndex].setTarget(channels_[0].taps_[tapIndex].fx_.getLatency());
+        smoothTapLatency_[tapIndex].clearToTarget();
+    }
 
     for (ChannelDsp &chan : channels_)
         chan.clear();
@@ -70,21 +72,29 @@ void GdNetwork::setParameter(unsigned parameter, float value)
         switch (parameter) {
         case GDP_SYNC:
             sync_ = (bool)value;
+        all_tap_delays:
+            for (unsigned tapIndex = 0; tapIndex < GdMaxLines; ++tapIndex) {
+                TapControl &tapControl = tapControls_[tapIndex];
+                tapControl.smoothDelay_.setTarget(!sync_ ? tapControl.delay_ :
+                    GdAlignDelayToGrid(tapControl.delay_, div_, swing_, bpm_));
+            }
             break;
         case GDP_GRID:
             div_ = GdFindNearestDivisor(value);
-            break;
+            goto all_tap_delays;
         case GDP_SWING:
             swing_ = value;
-            break;
+            goto all_tap_delays;
         case GDP_FEEDBACK_ENABLE:
             fbEnable_ = (bool)value;
-            break;
+            goto feedback_gain;
         case GDP_FEEDBACK_TAP:
             fbTapIndex_ = (unsigned)value;
             break;
         case GDP_FEEDBACK_GAIN:
             fbTapGainDB_ = value;
+        feedback_gain:
+            smoothFbGainLinear_.setTarget(fbEnable_ ? db2linear(fbTapGainDB_) : 0.0f);
             break;
         }
     }
@@ -106,14 +116,20 @@ void GdNetwork::setParameter(unsigned parameter, float value)
             }
             break;
         case GDP_TAP_A_DELAY:
-            tapControl.delay_ = value;
+            {
+                tapControl.delay_ = value;
+                tapControl.smoothDelay_.setTarget(!sync_ ? tapControl.delay_ :
+                    GdAlignDelayToGrid(tapControl.delay_, div_, swing_, bpm_));
+            }
             break;
         case GDP_TAP_A_LEVEL:
             tapControl.levelDB_ = value;
+        tap_level:
+            tapControl.smoothLevelLinear_.setTarget(tapControl.mute_ ? 0.0f : db2linear(tapControl.levelDB_));
             break;
         case GDP_TAP_A_MUTE:
             tapControl.mute_ = (bool)value;
-            break;
+            goto tap_level;
         case GDP_TAP_A_FILTER_ENABLE:
             tapControl.filterEnable_ = (bool)value;
             break;
@@ -122,28 +138,36 @@ void GdNetwork::setParameter(unsigned parameter, float value)
             break;
         case GDP_TAP_A_LPF_CUTOFF:
             tapControl.lpfCutoff_ = value;
+            tapControl.smoothLpfCutoff_.setTarget(tapControl.lpfCutoff_);
             break;
         case GDP_TAP_A_HPF_CUTOFF:
             tapControl.hpfCutoff_ = value;
+            tapControl.smoothHpfCutoff_.setTarget(tapControl.hpfCutoff_);
             break;
         case GDP_TAP_A_RESONANCE:
             tapControl.resonanceDB_ = value;
+            tapControl.smoothResonanceLinear_.setTarget(db2linear(tapControl.resonanceDB_));
             break;
         case GDP_TAP_A_TUNE_ENABLE:
             tapControl.shiftEnable_ = (bool)value;
-            break;
+            goto tap_tune;
         case GDP_TAP_A_TUNE:
             tapControl.shift_ = value;
+        tap_tune:
+            tapControl.smoothShiftLinear_.setTarget(tapControl.shiftEnable_ ? std::exp2((1.0f / 1200) * tapControl.shift_) : 1.0f);
             break;
         case GDP_TAP_A_PAN:
             tapControl.pan_ = value;
+        tap_pan:
+            tapControl.smoothPan_.setTarget(tapControl.flip_ ? -tapControl.pan_ : tapControl.pan_);
             break;
         case GDP_TAP_A_WIDTH:
             tapControl.width_ = value;
+            tapControl.smoothWidth_.setTarget(tapControl.width_);
             break;
         case GDP_TAP_A_FLIP:
             tapControl.flip_ = (bool)value;
-            break;
+            goto tap_pan;
         }
     }
 }
@@ -199,7 +223,7 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
 
     // skip processing the feedback if disabled
     bool maySkipFeedback = !fbEnable_ || fbTapGainDB_ <= GdMinFeedbackGainDB;
-    if (maySkipFeedback && smoothFbGainLinear_.current() <= GdMinFeedbackGainLinear) {
+    if (maySkipFeedback && smoothFbGainLinear_.getCurrentValue() <= GdMinFeedbackGainLinear) {
         fbTapIndex = ~0u;
     }
 
@@ -213,48 +237,35 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
 
         if (tapControl.enable_) {
             // compute the line delays
-            float tapDelay = tapControl.delay_;
-            if (sync_)
-                tapDelay = GdAlignDelayToGrid(tapDelay, div_, swing_, bpm_);
-            std::fill_n(delays, count, tapDelay);
-            tapControl.smoothDelay_.process(delays, delays, count, true);
+            tapControl.smoothDelay_.nextBlock(delays, count);
 
             // compute tap latency
-            std::fill_n(latency, count, channels_[0].taps_[fbTapIndex].fx_.getLatency());
-            smoothTapLatency_[fbTapIndex].process(latency, latency, count);
+            smoothTapLatency_[fbTapIndex].setTarget(channels_[0].taps_[fbTapIndex].fx_.getLatency());
+            smoothTapLatency_[fbTapIndex].nextBlock(latency, count);
 
             // compensate delays according to latency
             for (unsigned i = 0; i < count; ++i)
                 delays[i] = std::max(0.0f, delays[i] - latency[i]);
 
             // calculate level
-            std::fill_n(level, count, tapControl.mute_ ? 0.0f : db2linear(tapControl.levelDB_));
-            tapControl.smoothLevelLinear_.process(level, level, count, true);
+            tapControl.smoothLevelLinear_.nextBlock(level, count);
 
             // calculate pan
-            std::fill_n(pan, count, tapControl.flip_ ? -tapControl.pan_ : tapControl.pan_);
-            tapControl.smoothPan_.process(pan, pan, count, true);
+            tapControl.smoothPan_.nextBlock(pan, count);
 
             // calculate width (stereo only)
-            if (numInputs == 2) {
-                std::fill_n(width, count, tapControl.width_);
-                tapControl.smoothWidth_.process(width, width, count, true);
-            }
+            if (numInputs == 2)
+                tapControl.smoothWidth_.nextBlock(width, count);
 
             // compute FX parameters
             fxControl.filter = tapControl.filterEnable_ ? tapControl.filter_ : GdFilterOff;
-            std::fill_n(fxControl.lpfCutoff, count, tapControl.lpfCutoff_);
-            tapControl.smoothLpfCutoff_.process(fxControl.lpfCutoff, fxControl.lpfCutoff, count, true);
-            std::fill_n(fxControl.hpfCutoff, count, tapControl.hpfCutoff_);
-            tapControl.smoothHpfCutoff_.process(fxControl.hpfCutoff, fxControl.hpfCutoff, count, true);
-            std::fill_n(fxControl.resonance, count, db2linear(tapControl.resonanceDB_));
-            tapControl.smoothResonanceLinear_.process(fxControl.resonance, fxControl.resonance, count, true);
-            std::fill_n(fxControl.shift, count, tapControl.shiftEnable_ ? std::exp2((1.0f / 1200) * tapControl.shift_) : 1.0f);
-            tapControl.smoothShiftLinear_.process(fxControl.shift, fxControl.shift, count, true);
+            tapControl.smoothLpfCutoff_.nextBlock(fxControl.lpfCutoff, count);
+            tapControl.smoothHpfCutoff_.nextBlock(fxControl.hpfCutoff, count);
+            tapControl.smoothResonanceLinear_.nextBlock(fxControl.resonance, count);
+            tapControl.smoothShiftLinear_.nextBlock(fxControl.shift, count);
 
             // compute the feedback gain
-            std::fill_n(feedbackGain, count, fbEnable_ ? db2linear(fbTapGainDB_) : 0.0f);
-            smoothFbGainLinear_.process(feedbackGain, feedbackGain, count, true);
+            smoothFbGainLinear_.nextBlock(feedbackGain, count);
 
             for (unsigned chanIndex = 0; chanIndex < numInputs; ++chanIndex) {
                 ChannelDsp &chan = channels_[chanIndex];
@@ -315,44 +326,32 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
         }
         else {
             // compute the line delays
-            float tapDelay = tapControl.delay_;
-            if (sync_)
-                tapDelay = GdAlignDelayToGrid(tapDelay, div_, swing_, bpm_);
-            std::fill_n(delays, count, tapDelay);
-            tapControl.smoothDelay_.process(delays, delays, count, true);
+            tapControl.smoothDelay_.nextBlock(delays, count);
 
             // compute tap latency
-            std::fill_n(latency, count, channels_[0].taps_[tapIndex].fx_.getLatency());
-            smoothTapLatency_[tapIndex].process(latency, latency, count);
+            smoothTapLatency_[tapIndex].setTarget(channels_[0].taps_[tapIndex].fx_.getLatency());
+            smoothTapLatency_[tapIndex].nextBlock(latency, count);
 
             // compensate delays according to latency
             for (unsigned i = 0; i < count; ++i)
                 delays[i] = std::max(0.0f, delays[i] - latency[i]);
 
             // calculate level
-            std::fill_n(level, count, tapControl.mute_ ? 0.0f : db2linear(tapControl.levelDB_));
-            tapControl.smoothLevelLinear_.process(level, level, count, true);
+            tapControl.smoothLevelLinear_.nextBlock(level, count);
 
             // calculate pan
-            std::fill_n(pan, count, tapControl.flip_ ? -tapControl.pan_ : tapControl.pan_);
-            tapControl.smoothPan_.process(pan, pan, count, true);
+            tapControl.smoothPan_.nextBlock(pan, count);
 
             // calculate width (stereo only)
-            if (numInputs == 2) {
-                std::fill_n(width, count, tapControl.width_);
-                tapControl.smoothWidth_.process(width, width, count, true);
-            }
+            if (numInputs == 2)
+                tapControl.smoothWidth_.nextBlock(width, count);
 
             // compute FX parameters
             fxControl.filter = tapControl.filterEnable_ ? tapControl.filter_ : GdFilterOff;
-            std::fill_n(fxControl.lpfCutoff, count, tapControl.lpfCutoff_);
-            tapControl.smoothLpfCutoff_.process(fxControl.lpfCutoff, fxControl.lpfCutoff, count, true);
-            std::fill_n(fxControl.hpfCutoff, count, tapControl.hpfCutoff_);
-            tapControl.smoothHpfCutoff_.process(fxControl.hpfCutoff, fxControl.hpfCutoff, count, true);
-            std::fill_n(fxControl.resonance, count, db2linear(tapControl.resonanceDB_));
-            tapControl.smoothResonanceLinear_.process(fxControl.resonance, fxControl.resonance, count, true);
-            std::fill_n(fxControl.shift, count, tapControl.shiftEnable_ ? std::exp2((1.0f / 1200) * tapControl.shift_) : 1.0f);
-            tapControl.smoothShiftLinear_.process(fxControl.shift, fxControl.shift, count, true);
+            tapControl.smoothLpfCutoff_.nextBlock(fxControl.lpfCutoff, count);
+            tapControl.smoothHpfCutoff_.nextBlock(fxControl.hpfCutoff, count);
+            tapControl.smoothResonanceLinear_.nextBlock(fxControl.resonance, count);
+            tapControl.smoothShiftLinear_.nextBlock(fxControl.shift, count);
 
             for (unsigned chanIndex = 0; chanIndex < numInputs; ++chanIndex) {
                 ChannelDsp &chan = channels_[chanIndex];
@@ -491,15 +490,13 @@ void GdNetwork::ChannelDsp::setBufferSize(unsigned bufferSize)
 GdNetwork::TapControl::TapControl()
 {
     for (LinearSmoother *smoother : getSmoothers())
-        smoother->setSmoothTime(GdParamSmoothTime);
+        smoother->setTimeConstant(GdParamSmoothTime);
 }
 
 void GdNetwork::TapControl::clear()
 {
-    std::array<LinearSmoother *, kNumSmoothers> smoothers = getSmoothers();
-    std::array<float, kNumSmoothers> targets = getSmootherTargets();
-    for (unsigned i = 0; i < kNumSmoothers; ++i)
-        smoothers[i]->clear(targets[i]);
+    for (LinearSmoother *smoother : getSmoothers())
+        smoother->clearToTarget();
 }
 
 void GdNetwork::TapControl::setSampleRate(float sampleRate)
@@ -519,19 +516,5 @@ auto GdNetwork::TapControl::getSmoothers() -> std::array<LinearSmoother *, kNumS
         &smoothShiftLinear_,
         &smoothPan_,
         &smoothWidth_,
-    }};
-}
-
-auto GdNetwork::TapControl::getSmootherTargets() -> std::array<float, kNumSmoothers>
-{
-    return {{
-        delay_,
-        db2linear(levelDB_),
-        lpfCutoff_,
-        hpfCutoff_,
-        db2linear(resonanceDB_),
-        std::exp2(shift_ * (1.0f / 1200)),
-        pan_,
-        width_,
     }};
 }

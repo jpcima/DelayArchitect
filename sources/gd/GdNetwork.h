@@ -100,7 +100,6 @@ private:
         LinearSmoother smoothWidth_;
         enum { kNumSmoothers = 8 };
         std::array<LinearSmoother *, kNumSmoothers> getSmoothers();
-        std::array<float, kNumSmoothers> getSmootherTargets();
     };
 
     TapControl tapControls_[GdMaxLines];

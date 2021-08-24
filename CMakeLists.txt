@@ -11,8 +11,10 @@ set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+find_package(PkgConfig)
 add_subdirectory("thirdparty/JUCE" EXCLUDE_FROM_ALL)
 
+option(GD_BENCHMARKS "Build benchmarks" OFF)
 set(GD_PITCH_SHIFTER_TYPE "SuperCollider" CACHE STRING "Pitch shifter implementation to use")
 set_property(CACHE GD_PITCH_SHIFTER_TYPE PROPERTY STRINGS "SuperCollider" "SoundTouch" "Simple")
 
@@ -214,4 +216,11 @@ elseif(GD_PITCH_SHIFTER_TYPE STREQUAL "Simple")
     "GD_USE_SIMPLE_PITCH_SHIFTER=1")
 else()
   message(FATAL_ERROR "Invalid value for pitch shifter")
+endif()
+
+###
+if(GD_BENCHMARKS)
+  pkg_check_modules(benchmark "benchmark" REQUIRED IMPORTED_TARGET)
+  add_executable(GdBenchmarkLinearSmoother "benchmarks/LinearSmoother.cpp")
+  target_link_libraries(GdBenchmarkLinearSmoother PRIVATE Gd PkgConfig::benchmark simde)
 endif()

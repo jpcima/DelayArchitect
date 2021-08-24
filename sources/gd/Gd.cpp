@@ -40,8 +40,8 @@ Gd *GdNew(unsigned numinputs, unsigned numoutputs)
     else
         return nullptr;
 
-    gd->smoothMixDryLinear_.setSmoothTime(GdParamSmoothTime);
-    gd->smoothMixWetLinear_.setSmoothTime(GdParamSmoothTime);
+    gd->smoothMixDryLinear_.setTimeConstant(GdParamSmoothTime);
+    gd->smoothMixWetLinear_.setTimeConstant(GdParamSmoothTime);
 
     const float defaultSampleRate = 44100;
     const unsigned defaultBlockSize = 128;
@@ -71,8 +71,8 @@ void GdFree(Gd *gd)
 
 void GdClear(Gd *gd)
 {
-    gd->smoothMixDryLinear_.clear(db2linear(gd->parameters_[GDP_MIX_DRY]));
-    gd->smoothMixWetLinear_.clear(db2linear(gd->parameters_[GDP_MIX_WET]));
+    gd->smoothMixDryLinear_.clearToTarget();
+    gd->smoothMixWetLinear_.clearToTarget();
 
     gd->network_->clear();
 }
@@ -110,10 +110,8 @@ void GdProcess(Gd *gd, const float *inputs[], float *outputs[], unsigned count)
     float *dry = gd->temp_[0].data();
     float *wet = gd->temp_[1].data();
 
-    std::fill_n(dry, count, db2linear(gd->parameters_[GDP_MIX_DRY]));
-    gd->smoothMixDryLinear_.process(dry, dry, count, true);
-    std::fill_n(wet, count, db2linear(gd->parameters_[GDP_MIX_WET]));
-    gd->smoothMixWetLinear_.process(wet, wet, count, true);
+    gd->smoothMixDryLinear_.nextBlock(dry, count);
+    gd->smoothMixWetLinear_.nextBlock(wet, count);
 
     ///
     unsigned numinputs = gd->numinputs_;
@@ -145,6 +143,15 @@ void GdSetParameterEx(Gd *gd, GdParameter p, float value, bool force)
         return;
 
     parameters[p] = value;
+
+    switch ((int)p) {
+    case GDP_MIX_DRY:
+        gd->smoothMixDryLinear_.setTarget(db2linear(value));
+        break;
+    case GDP_MIX_WET:
+        gd->smoothMixWetLinear_.setTarget(db2linear(value));
+        break;
+    }
 
     gd->network_->setParameter((unsigned)p, value);
 }

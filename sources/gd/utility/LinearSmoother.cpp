@@ -1,153 +1,66 @@
-// SPDX-License-Identifier: BSD-2-Clause
-
-// This code is part of the sfizz library and is licensed under a BSD 2-clause
-// license. You should have receive a LICENSE.md file along with the code.
-// If not, contact the sfizz maintainers at https://github.com/sfztools/sfizz
+/*
+ * Linear smoother
+ * Copyright (C) 2021 Jean Pierre Cimalando <jp-dev@inbox.ru>
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any purpose with
+ * or without fee is hereby granted, provided that the above copyright notice and this
+ * permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
+ * TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
+ * NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
+ * DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
+ * IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+ * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ *
+ * SPDX-License-Identifier: ISC
+ */
 
 #include "LinearSmoother.h"
-#include <simde/simde-features.h>
-#if SIMDE_NATURAL_VECTOR_SIZE_GE(128)
-#include <simde/x86/sse.h>
-#endif
-#include <algorithm>
 
-void LinearSmoother::setSampleRate(float sampleRate)
+void LinearSmoother::setSampleRate(float newSampleRate) noexcept
 {
-    sampleRate_ = sampleRate;
-    updateParameters();
+    if (fSampleRate != newSampleRate) {
+        fSampleRate = newSampleRate;
+        updateStep();
+    }
 }
 
-void LinearSmoother::setSmoothTime(float smoothTime)
+void LinearSmoother::setTimeConstant(float newTau) noexcept
 {
-    smoothTime_ = smoothTime;
-    updateParameters();
+    if (fTau != newTau) {
+        fTau = newTau;
+        updateStep();
+    }
 }
 
-void LinearSmoother::clear(float value)
+void LinearSmoother::setTarget(float newTarget) noexcept
 {
-    current_ = value;
-    target_ = value;
-    step_ = 0.0;
+    if (fTarget != newTarget) {
+        fTarget = newTarget;
+        updateStep();
+    }
 }
 
-void LinearSmoother::clearToTarget()
+void LinearSmoother::nextBlock(float *__restrict output, uint32_t count) noexcept
 {
-    clear(target_);
-}
-
-void LinearSmoother::process(const float *input, float *output, unsigned count, bool canShortcut)
-{
-    if (count == 0)
-        return;
-
-    unsigned i = 0;
-    float current = current_;
-    float target = target_;
-    const int smoothFrames = smoothFrames_;
-
-    if (smoothFrames < 2 || (canShortcut && current == target && current == input[0])) {
-        if (input != output)
-            std::copy_n(input, count, output);
-        clear(input[count - 1]);
+    float target = fTarget;
+    if (fMem == target) {
+        for (uint32_t i = 0; i < count; ++i)
+            output[i] = target;
         return;
     }
 
-    float step = step_;
-
+    uint32_t i = 0;
 #if SIMDE_NATURAL_VECTOR_SIZE_GE(128)
-    for (; i + 15 < count; i += 16) {
-        const float nextTarget = input[i + 15];
-        if (target != nextTarget) {
-            target = nextTarget;
-            step = (target - current) / std::max(16, smoothFrames);
-        }
-        const simde__m128 targetX4 = simde_mm_set1_ps(target);
-        if (target > current) {
-            simde__m128 stepX4 = simde_mm_set1_ps(step);
-            simde__m128 tmp1X4 = simde_mm_mul_ps(stepX4, simde_mm_setr_ps(1.0f, 2.0f, 3.0f, 4.0f));
-            simde__m128 tmp2X4 = simde_mm_shuffle_ps(tmp1X4, tmp1X4, SIMDE_MM_SHUFFLE(3, 3, 3, 3));
-            simde__m128 current1X4 = simde_mm_add_ps(simde_mm_set1_ps(current), tmp1X4);
-            simde_mm_storeu_ps(&output[i], simde_mm_min_ps(current1X4, targetX4));
-            simde__m128 current2X4 = simde_mm_add_ps(current1X4, tmp2X4);
-            simde_mm_storeu_ps(&output[i + 4], simde_mm_min_ps(current2X4, targetX4));
-            simde__m128 current3X4 = simde_mm_add_ps(current2X4, tmp2X4);
-            simde_mm_storeu_ps(&output[i + 8], simde_mm_min_ps(current3X4, targetX4));
-            simde__m128 current4X4 = simde_mm_add_ps(current3X4, tmp2X4);
-            simde__m128 limited4X4 = simde_mm_min_ps(current4X4, targetX4);
-            simde_mm_storeu_ps(&output[i + 12], limited4X4);
-            current = simde_mm_cvtss_f32(simde_mm_shuffle_ps(limited4X4, limited4X4, SIMDE_MM_SHUFFLE(3, 3, 3, 3)));
-        }
-        else if (target < current) {
-            simde__m128 stepX4 = simde_mm_set1_ps(step);
-            simde__m128 tmp1X4 = simde_mm_mul_ps(stepX4, simde_mm_setr_ps(1.0f, 2.0f, 3.0f, 4.0f));
-            simde__m128 tmp2X4 = simde_mm_shuffle_ps(tmp1X4, tmp1X4, SIMDE_MM_SHUFFLE(3, 3, 3, 3));
-            simde__m128 current1X4 = simde_mm_add_ps(simde_mm_set1_ps(current), tmp1X4);
-            simde_mm_storeu_ps(&output[i], simde_mm_max_ps(current1X4, targetX4));
-            simde__m128 current2X4 = simde_mm_add_ps(current1X4, tmp2X4);
-            simde_mm_storeu_ps(&output[i + 4], simde_mm_max_ps(current2X4, targetX4));
-            simde__m128 current3X4 = simde_mm_add_ps(current2X4, tmp2X4);
-            simde_mm_storeu_ps(&output[i + 8], simde_mm_max_ps(current3X4, targetX4));
-            simde__m128 current4X4 = simde_mm_add_ps(current3X4, tmp2X4);
-            simde__m128 limited4X4 = simde_mm_max_ps(current4X4, targetX4);
-            simde_mm_storeu_ps(&output[i + 12], limited4X4);
-            current = simde_mm_cvtss_f32(simde_mm_shuffle_ps(limited4X4, limited4X4, SIMDE_MM_SHUFFLE(3, 3, 3, 3)));
-        }
-        else {
-            simde_mm_storeu_ps(&output[i], targetX4);
-            simde_mm_storeu_ps(&output[i + 4], targetX4);
-            simde_mm_storeu_ps(&output[i + 8], targetX4);
-            simde_mm_storeu_ps(&output[i + 12], targetX4);
-        }
-    }
-#else
-    for (; i + 15 < count; i += 16) {
-        const float nextTarget = input[i + 15];
-
-        if (target != nextTarget) {
-            target = nextTarget;
-            step = (target - current) / std::max(16, smoothFrames);
-        }
-        if (target > current) {
-            for (size_t j = 0; j < 16; ++j)
-                output[i + j] = current = std::min(target, current + step);
-        }
-        else if (target < current) {
-            for (size_t j = 0; j < 16; ++j)
-                output[i + j] = current = std::max(target, current + step);
-        }
-        else {
-            for (size_t j = 0; j < 16; ++j)
-                output[i + j] = target;
-        }
-    }
+    for (; i + 4 < count; i += 4)
+        _mm_storeu_ps(&output[i], nextPS());
 #endif
-
-    if (i < count) {
-        const float nextTarget = input[count - 1];
-        if (target != nextTarget) {
-            target = nextTarget;
-            step = (target - current) / std::max((int)(count - i), smoothFrames);
-        }
-        if (target > current) {
-            for (; i < count; ++i)
-                output[i] = current = std::min(target, current + step);
-        }
-        else if (target < current) {
-            for (; i < count; ++i)
-                output[i] = current = std::max(target, current + step);
-        }
-        else {
-            for (; i < count; ++i)
-                output[i] = target;
-        }
-    }
-
-    current_ = current;
-    target_ = target;
-    step_ = step;
+    for (; i < count; ++i)
+        output[i] = next();
 }
 
-void LinearSmoother::updateParameters()
+void LinearSmoother::updateStep() noexcept
 {
-    smoothFrames_ = (int)(smoothTime_ * sampleRate_);
+    fStep = (fTarget - fMem) / (fTau * fSampleRate);
 }
