@@ -53,7 +53,7 @@ bool ImporterPST::importFile(const juce::File &file, ImportData &idata)
                 globalValues[GDP_SYNC] = (bool)value;
                 break;
             case 0x1c: // Grid (real number 0<Div<1) [float32]
-                globalValues[GDP_GRID] = (int)(1.0f / value + 0.5f);
+                globalValues[GDP_GRID] = (float)(int)(1.0f / value + 0.5f);
                 break;
             case 0x20: // Swing (%) [float32]
                 globalValues[GDP_SWING] = value / 100.0f;
@@ -147,7 +147,7 @@ bool ImporterPST::importFile(const juce::File &file, ImportData &idata)
                     tapValues[GDP_TAP_A_RESONANCE] = value * (24.0f / 100.0f);
                     break;
                 case 0x4c: // Filter slope (0=6dB/oct, 1=12dB/oct) [float32]
-                    tapValues[GDP_TAP_A_FILTER] = (int)value;
+                    tapValues[GDP_TAP_A_FILTER] = (float)(int)value;
                     break;
                 case 0x50: // Transpose (semitones) [float32]
                     tapValues[GDP_TAP_A_TUNE] = value * 100.0f;

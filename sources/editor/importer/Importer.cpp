@@ -12,7 +12,7 @@ juce::String Importer::toString(const ImportData &idata)
         GdDecomposeParameter((GdParameter)p, &tapNumber);
         if (tapNumber != -1) {
             GdParameter enable = GdRecomposeParameter(GDP_TAP_A_ENABLE, tapNumber);
-            if (!idata.values[(int)enable])
+            if (!(bool)idata.values[(int)enable])
                 continue;
         }
         const char *label = GdParameterLabel((GdParameter)p);
