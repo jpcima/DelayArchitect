@@ -384,12 +384,12 @@ MainComponent::MainComponent ()
                                       TRANS("Level")));
     addAndMakeVisible (unknown11.get());
     unknown11->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    unknown11->setJustificationType (juce::Justification::centred);
+    unknown11->setJustificationType (juce::Justification::centredLeft);
     unknown11->setEditable (false, false, false);
     unknown11->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     unknown11->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    unknown11->setBounds (872, 688, 80, 24);
+    unknown11->setBounds (896, 688, 56, 24);
 
     unknown12.reset (new juce::Label (juce::String(),
                                       TRANS("Dry")));
@@ -485,6 +485,12 @@ MainComponent::MainComponent ()
 
     swingSlider_->setBounds (16, 248, 112, 24);
 
+    muteButton_.reset (new juce::ToggleButton (juce::String()));
+    addAndMakeVisible (muteButton_.get());
+    muteButton_->addListener (this);
+
+    muteButton_->setBounds (872, 688, 24, 24);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -556,6 +562,7 @@ MainComponent::~MainComponent()
     feedbackEnableButton_ = nullptr;
     unknown15 = nullptr;
     swingSlider_ = nullptr;
+    muteButton_ = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -735,6 +742,11 @@ void MainComponent::buttonClicked (juce::Button* buttonThatWasClicked)
     {
         //[UserButtonCode_feedbackEnableButton_] -- add your button handler code here..
         //[/UserButtonCode_feedbackEnableButton_]
+    }
+    else if (buttonThatWasClicked == muteButton_.get())
+    {
+        //[UserButtonCode_muteButton_] -- add your button handler code here..
+        //[/UserButtonCode_muteButton_]
     }
 
     //[UserbuttonClicked_Post]
@@ -1014,10 +1026,10 @@ BEGIN_JUCER_METADATA
           int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
   <LABEL name="" id="11492731a8f7e406" memberName="unknown11" virtualName=""
-         explicitFocusOrder="0" pos="872 688 80 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="896 688 56 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Level" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
-         kerning="0.0" bold="0" italic="0" justification="36"/>
+         kerning="0.0" bold="0" italic="0" justification="33"/>
   <LABEL name="" id="8c06205230379f25" memberName="unknown12" virtualName=""
          explicitFocusOrder="0" pos="872 296 48 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Dry" editableSingleClick="0" editableDoubleClick="0"
@@ -1060,6 +1072,9 @@ BEGIN_JUCER_METADATA
           explicitFocusOrder="0" pos="16 248 112 24" min="0.0" max="10.0"
           int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
+  <TOGGLEBUTTON name="" id="33cfa48504045e73" memberName="muteButton_" virtualName=""
+                explicitFocusOrder="0" pos="872 688 24 24" buttonText="" connectedEdges="0"
+                needsCallback="1" radioGroupId="0" state="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

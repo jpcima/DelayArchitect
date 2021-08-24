@@ -20,7 +20,7 @@
 #pragma once
 
 //[Headers]     -- You can add your own extra header files here --
-#include "GdDefs.h"
+#include <GdDefs.h>
 #include <juce_gui_basics/juce_gui_basics.h>
 class TapEditScreen;
 //[/Headers]
@@ -117,6 +117,7 @@ private:
     std::unique_ptr<juce::ToggleButton> feedbackEnableButton_;
     std::unique_ptr<juce::Label> unknown15;
     std::unique_ptr<juce::Slider> swingSlider_;
+    std::unique_ptr<juce::ToggleButton> muteButton_;
 
 
     //==============================================================================
