@@ -74,6 +74,9 @@ void GdNetwork::setParameter(unsigned parameter, float value)
         case GDP_GRID:
             div_ = GdFindNearestDivisor(value);
             break;
+        case GDP_SWING:
+            swing_ = value;
+            break;
         case GDP_FEEDBACK_ENABLE:
             fbEnable_ = (bool)value;
             break;
@@ -212,7 +215,7 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
             // compute the line delays
             float tapDelay = tapControl.delay_;
             if (sync_)
-                tapDelay = GdAlignDelayToGrid(tapDelay, div_, bpm_);
+                tapDelay = GdAlignDelayToGrid(tapDelay, div_, swing_, bpm_);
             std::fill_n(delays, count, tapDelay);
             tapControl.smoothDelay_.process(delays, delays, count, true);
 
@@ -314,7 +317,7 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
             // compute the line delays
             float tapDelay = tapControl.delay_;
             if (sync_)
-                tapDelay = GdAlignDelayToGrid(tapDelay, div_, bpm_);
+                tapDelay = GdAlignDelayToGrid(tapDelay, div_, swing_, bpm_);
             std::fill_n(delays, count, tapDelay);
             tapControl.smoothDelay_.process(delays, delays, count, true);
 

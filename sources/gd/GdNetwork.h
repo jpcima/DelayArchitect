@@ -63,6 +63,7 @@ private:
     // parameters + smoothers
     bool sync_ = false;
     int div_ = GdDefaultDivisor;
+    float swing_ = 0.5f;
     bool fbEnable_ = false;
     unsigned fbTapIndex_ = 0;
     float fbTapGainDB_ = GdMinFeedbackGainDB;

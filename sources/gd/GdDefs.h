@@ -36,7 +36,7 @@ Ignorable static constexpr float GdMinFeedbackGainDB = -64.0f;
     /* Name, Min, Max, Def, Flags, Label, Group */                             \
     _(SYNC, 0, 1, 1, GDP_BOOLEAN, "Synchronization", -1)                       \
     _(GRID, GdMinDivisor, GdMaxDivisor, GdDefaultDivisor, GDP_INTEGER, "Grid", -1) \
-    _(SWING, 0, 1, 0.5, GDP_FLOAT, "Swing", -1)                                \
+    _(SWING, 0.01, 0.99, 0.5, GDP_FLOAT, "Swing", -1)                          \
     _(FEEDBACK_ENABLE, false, true, false, GDP_BOOLEAN, "Feedback Enable", -1) \
     _(FEEDBACK_TAP, 0, GdMaxLines - 1, 0, GDP_CHOICE, "Feedback Tap", -1)      \
     _(FEEDBACK_GAIN, GdMinFeedbackGainDB, 6.0, GdMinFeedbackGainDB, GDP_FLOAT, "Feedback Gain", -1) \
@@ -160,12 +160,14 @@ inline float GdGetGridInterval(int div, float bpm)
 }
 
 // Get the nearest delay value, aligned according to the grid division
-inline float GdAlignDelayToGrid(float delay, int div, float bpm)
+inline float GdAlignDelayToGrid(float delay, int div, float swing, float bpm)
 {
     float interval = GdGetGridInterval(div, bpm);
     delay = (delay > 0) ? delay : 0;
     int ndiv = (int)(delay / interval + 0.5f);
     delay = interval * (float)ndiv;
+    float offset = interval * (swing * 2 - 1);
+    delay += (ndiv & 1) ? offset : 0.0f;
     delay = (delay < (float)GdMaxDelay) ? delay : (float)GdMaxDelay;
     return delay;
 }
