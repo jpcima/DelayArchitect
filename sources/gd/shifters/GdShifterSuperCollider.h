@@ -50,6 +50,7 @@ private:
     static constexpr float getWindowSize() { return 0.1f; }
     static constexpr float getPitchDispersion() { return 0.0f; }
     static constexpr float getTimeDispersion() { return 0.004f; }
+    static constexpr float getMixGain() { return 0.7079457843841379f; }
 
     float sampleRate_ = 0;
     unsigned bufferSize_ = 0;

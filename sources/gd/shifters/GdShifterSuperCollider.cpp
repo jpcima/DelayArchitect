@@ -356,7 +356,7 @@ void GdShifter::processNext(const float *input, float *output, unsigned count)
             irdphase = (iwrphase - idsamp) & mask; irdphaseb = (irdphase - 1) & mask; d1 = dlybuf[irdphase];
             d2 = dlybuf[irdphaseb]; value += (d1 + frac * (d2 - d1)) * ramp4; ramp4 += ramp4_slope;
 
-            dlybuf[iwrphase] = *in++/*ZXP(in)*/; *out++/*ZXP(out)*/ = value *= 0.5;
+            dlybuf[iwrphase] = *in++/*ZXP(in)*/; *out++/*ZXP(out)*/ = value *= getMixGain()/*0.5*/;
         }/*);*/
     }
 
@@ -588,7 +588,7 @@ void GdShifter::processNextZ(const float *input, float *output, unsigned count)
             ramp4 += ramp4_slope;
 
             dlybuf[iwrphase] = *in++/*ZXP(in)*/;
-            *out++/*ZXP(out)*/ = value *= 0.5;
+            *out++/*ZXP(out)*/ = value *= getMixGain()/*0.5*/;
         }
     }
 
