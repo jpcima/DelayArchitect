@@ -210,7 +210,7 @@ void TapEditScreen::paint(juce::Graphics &g)
     Impl &impl = *impl_;
     juce::Rectangle<int> bounds = getLocalBounds();
 
-    switch (impl.editMode_) {
+    switch ((int)impl.editMode_) {
     case kTapEditTune:
     case kTapEditPan:
         {
@@ -424,7 +424,7 @@ float TapEditItem::getTapValue(GdParameter id) const
         return 0.0f;
     }
 
-    switch (decomposedId) {
+    switch ((int)decomposedId) {
     case GDP_TAP_A_ENABLE:
         return impl.data_.enabled;
     case GDP_TAP_A_DELAY:
@@ -471,7 +471,7 @@ void TapEditItem::setTapValue(GdParameter id, float value, juce::NotificationTyp
         return;
     }
 
-    switch (decomposedId) {
+    switch ((int)decomposedId) {
     case GDP_TAP_A_ENABLE:
     {
         bool enabled = (bool)value;
