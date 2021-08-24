@@ -64,6 +64,8 @@ target_sources(DelayArchitect
   "sources/editor/attachments/GridParameterAttachment.cpp"
   "sources/editor/attachments/AutomaticComboBoxParameterAttachment.h"
   "sources/editor/attachments/AutomaticComboBoxParameterAttachment.cpp"
+  "sources/editor/attachments/InvertedButtonParameterAttachment.h"
+  "sources/editor/attachments/InvertedButtonParameterAttachment.cpp"
   "sources/editor/importer/Importer.cpp"
   "sources/editor/importer/Importer.h"
   "sources/editor/importer/ImporterPST.cpp"

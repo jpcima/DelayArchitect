@@ -6,6 +6,7 @@
 #include "editor/attachments/TapParameterAttachment.h"
 #include "editor/attachments/GridParameterAttachment.h"
 #include "editor/attachments/AutomaticComboBoxParameterAttachment.h"
+#include "editor/attachments/InvertedButtonParameterAttachment.h"
 #include "processor/Processor.h"
 #include "importer/ImporterPST.h"
 #include "Gd.h"
@@ -27,6 +28,7 @@ struct Editor::Impl : public TapEditScreen::Listener {
     struct ActiveTapAttachments {
         std::vector<std::unique_ptr<juce::SliderParameterAttachment>> sliderAttachements_;
         std::vector<std::unique_ptr<juce::ButtonParameterAttachment>> buttonAttachements_;
+        std::vector<std::unique_ptr<InvertedButtonParameterAttachment>> invertedButtonAttachements_;
         std::vector<std::unique_ptr<AutomaticComboBoxParameterAttachment>> comboBoxAttachements_;
     };
     ActiveTapAttachments activeTapAttachments_;
@@ -138,7 +140,7 @@ void Editor::Impl::createActiveTapParameterAttachments()
     ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_PAN, tapNumber)), *mainComponent->panSlider_, nullptr));
     ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_WIDTH, tapNumber)), *mainComponent->widthSlider_, nullptr));
     ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_LEVEL, tapNumber)), *mainComponent->levelSlider_, nullptr));
-    ata.buttonAttachements_.emplace_back(new juce::ButtonParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_MUTE, tapNumber)), *mainComponent->muteButton_, nullptr));
+    ata.invertedButtonAttachements_.emplace_back(new InvertedButtonParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_MUTE, tapNumber)), *mainComponent->muteButton_, nullptr));
 }
 
 void Editor::Impl::choosePresetFileToImport()
