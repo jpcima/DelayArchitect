@@ -35,6 +35,8 @@ struct Editor::Impl : public TapEditScreen::Listener {
 
     std::unique_ptr<juce::PopupMenu> mainMenu_;
 
+    juce::TooltipWindow tooltipWindow_;
+
     juce::RangedAudioParameter *getRangedParameter(int i) const {
         return static_cast<juce::RangedAudioParameter *>(parameters_[i]);
     }
