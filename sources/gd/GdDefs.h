@@ -29,7 +29,6 @@ enum GdFilterType {
 Ignorable static constexpr float GdParamSmoothTime = 50e-3f;
 
 // smallest gain setting
-Ignorable static constexpr float GdMinFeedbackGainLinear = 1e-3f;
 Ignorable static constexpr float GdMinFeedbackGainDB = -64.0f;
 
 #define GD_EACH_PARAMETER(_)                                                   \

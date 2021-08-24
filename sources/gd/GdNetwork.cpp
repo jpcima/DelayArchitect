@@ -94,7 +94,9 @@ void GdNetwork::setParameter(unsigned parameter, float value)
         case GDP_FEEDBACK_GAIN:
             fbTapGainDB_ = value;
         feedback_gain:
-            smoothFbGainLinear_.setTarget(fbEnable_ ? db2linear(fbTapGainDB_) : 0.0f);
+            smoothFbGainLinear_.setTarget(!fbEnable_ ? 0.0f :
+                (fbTapGainDB_ <= GdMinFeedbackGainDB) ? 0.0f :
+                db2linear(fbTapGainDB_));
             break;
         }
     }
@@ -222,8 +224,7 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
     }
 
     // skip processing the feedback if disabled
-    bool maySkipFeedback = !fbEnable_ || fbTapGainDB_ <= GdMinFeedbackGainDB;
-    if (maySkipFeedback && smoothFbGainLinear_.getCurrentValue() <= GdMinFeedbackGainLinear) {
+    if (smoothFbGainLinear_.getTarget() == 0.0f && smoothFbGainLinear_.getCurrentValue() == 0.0f) {
         fbTapIndex = ~0u;
     }
 
