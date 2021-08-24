@@ -301,6 +301,8 @@ void Processor::Impl::setupParameters()
 //==============================================================================
 void Processor::Impl::updateBPM(double newBpm)
 {
+    Processor *self = self_;
+
     double oldBpm = lastKnownBpm_;
     if (oldBpm == newBpm)
         return;
@@ -310,10 +312,15 @@ void Processor::Impl::updateBPM(double newBpm)
     GdSetTempo(gd, (float)newBpm);
 
     if (oldBpm != -1.0) {
-        // TODO(jpc) scale all delays according to the ratio, notifying host
-        // TODO(jpc) only do if the parameter Sync has value `true`
         float scaleRatio = (float)(oldBpm / newBpm);
-        //
+        juce::AudioParameterBool *sync = static_cast<juce::AudioParameterBool *>(self->getParameters()[(int)GDP_SYNC]);
+        if (*sync) {
+            for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber) {
+                GdParameter delayId = GdRecomposeParameter(GDP_TAP_A_DELAY, tapNumber);
+                juce::AudioParameterFloat *delay = static_cast<juce::AudioParameterFloat *>(self->getParameters()[(int)delayId]);
+                *delay = scaleRatio * *delay;
+            }
+        }
     }
 }
 
