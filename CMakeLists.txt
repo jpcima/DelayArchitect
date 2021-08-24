@@ -64,6 +64,10 @@ target_sources(DelayArchitect
   "sources/editor/attachments/GridParameterAttachment.cpp"
   "sources/editor/attachments/AutomaticComboBoxParameterAttachment.h"
   "sources/editor/attachments/AutomaticComboBoxParameterAttachment.cpp"
+  "sources/editor/importer/Importer.cpp"
+  "sources/editor/importer/Importer.h"
+  "sources/editor/importer/ImporterPST.cpp"
+  "sources/editor/importer/ImporterPST.h"
   "sources/editor/utility/FunctionalTimer.h")
 
 juce_add_binary_data(DelayArchitectResources

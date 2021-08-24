@@ -30,7 +30,7 @@ Ignorable static constexpr float GdParamSmoothTime = 50e-3f;
 
 // smallest gain setting
 Ignorable static constexpr float GdMinFeedbackGainLinear = 1e-3f;
-Ignorable static constexpr float GdMinFeedbackGainDB = -60.0f;
+Ignorable static constexpr float GdMinFeedbackGainDB = -64.0f;
 
 #define GD_EACH_PARAMETER(_)                                                   \
     /* Name, Min, Max, Def, Flags, Label, Group */                             \
@@ -39,9 +39,9 @@ Ignorable static constexpr float GdMinFeedbackGainDB = -60.0f;
     _(SWING, 0, 1, 0.5, GDP_FLOAT, "Swing", -1)                                \
     _(FEEDBACK_ENABLE, false, true, false, GDP_BOOLEAN, "Feedback Enable", -1) \
     _(FEEDBACK_TAP, 0, GdMaxLines - 1, 0, GDP_CHOICE, "Feedback Tap", -1)      \
-    _(FEEDBACK_GAIN, GdMinFeedbackGainDB, 0, GdMinFeedbackGainDB, GDP_FLOAT, "Feedback Gain", -1) \
-    _(MIX_DRY, -60, 10, -6, GDP_FLOAT, "Dry mix", -1)                          \
-    _(MIX_WET, -60, 10, -6, GDP_FLOAT, "Wet mix", -1)                          \
+    _(FEEDBACK_GAIN, GdMinFeedbackGainDB, 6.0, GdMinFeedbackGainDB, GDP_FLOAT, "Feedback Gain", -1) \
+    _(MIX_DRY, -64, 0, -6, GDP_FLOAT, "Dry mix", -1)                           \
+    _(MIX_WET, -64, 0, -6, GDP_FLOAT, "Wet mix", -1)                           \
     GD_EACH_LINE_PARAMETER(_, A, 0)                                            \
     GD_EACH_LINE_PARAMETER(_, B, 1)                                            \
     GD_EACH_LINE_PARAMETER(_, C, 2)                                            \
@@ -75,7 +75,8 @@ Ignorable static constexpr float GdMinFeedbackGainDB = -60.0f;
     /* NOTE: Tap Enable must always appear first */                            \
     _(TAP_##X##_ENABLE, false, true, false, GDP_BOOLEAN, "Tap " #X " Enable", I) \
     _(TAP_##X##_DELAY, 0, GdMaxDelay, 0, GDP_FLOAT, "Tap " #X " Delay", I)     \
-    _(TAP_##X##_LEVEL, -20, 10, 0, GDP_FLOAT, "Tap " #X " Level", I)           \
+    _(TAP_##X##_LEVEL, -64, 6, 0, GDP_FLOAT, "Tap " #X " Level", I)            \
+    _(TAP_##X##_MUTE, false, true, false, GDP_BOOLEAN, "Tap " #X " Mute", I)   \
     _(TAP_##X##_FILTER_ENABLE, false, true, false, GDP_BOOLEAN, "Tap " #X " Filter Enable", I) \
     _(TAP_##X##_FILTER, 0, (GdNumFilterTypes - 1), 0, GDP_CHOICE, "Tap " #X " Filter", I) \
     _(TAP_##X##_LPF_CUTOFF, 10, 22000, 22000, GDP_FLOAT, "Tap " #X " LPF Cutoff", I) \

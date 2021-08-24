@@ -7,7 +7,8 @@
 #include "editor/attachments/GridParameterAttachment.h"
 #include "editor/attachments/AutomaticComboBoxParameterAttachment.h"
 #include "processor/Processor.h"
-#include "GdDefs.h"
+#include "importer/ImporterPST.h"
+#include "Gd.h"
 #include <vector>
 
 //==============================================================================
@@ -30,12 +31,16 @@ struct Editor::Impl : public TapEditScreen::Listener {
     };
     ActiveTapAttachments activeTapAttachments_;
 
+    std::unique_ptr<juce::PopupMenu> mainMenu_;
+
     juce::RangedAudioParameter *getRangedParameter(int i) const {
         return static_cast<juce::RangedAudioParameter *>(parameters_[i]);
     }
 
     void setActiveTap(int tapNumber);
     void createActiveTapParameterAttachments();
+
+    void choosePresetFileToImport();
 
     void tapEditStarted(TapEditScreen *, GdParameter id) override;
     void tapEditEnded(TapEditScreen *, GdParameter id) override;
@@ -58,6 +63,11 @@ Editor::Editor(Processor &p)
 
     MainComponent *mainComponent = new MainComponent;
     impl.mainComponent_.reset(mainComponent);
+
+    juce::PopupMenu *mainMenu = new juce::PopupMenu;
+    impl.mainMenu_.reset(mainMenu);
+    mainMenu->addItem(TRANS("Import preset"), [&impl]() { impl.choosePresetFileToImport(); });
+    mainComponent->menuButton_->onClick = [&impl]() { impl.mainMenu_->showAt(impl.mainComponent_->menuButton_.get()); };
 
     setSize(mainComponent->getWidth(), mainComponent->getHeight());
     addAndMakeVisible(mainComponent);
@@ -128,6 +138,29 @@ void Editor::Impl::createActiveTapParameterAttachments()
     ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_PAN, tapNumber)), *mainComponent->panSlider_, nullptr));
     ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_WIDTH, tapNumber)), *mainComponent->widthSlider_, nullptr));
     ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_LEVEL, tapNumber)), *mainComponent->levelSlider_, nullptr));
+}
+
+void Editor::Impl::choosePresetFileToImport()
+{
+    Editor *self = self_;
+    juce::FileChooser chooser(TRANS("Import preset"), {}, "*.pst", true, true, self);
+
+    if (!chooser.browseForFileToOpen())
+        return;
+
+    juce::File file = chooser.getResult();
+    ImporterPST pst;
+    ImportData idata;
+    if (!pst.importFile(file, idata)) {
+        juce::AlertWindow::showMessageBox(juce::AlertWindow::WarningIcon, TRANS("Error"), TRANS("Could not import the preset file."));
+        return;
+    }
+
+    juce::AudioProcessorParameter **parameters = parameters_.data();
+    for (uint32_t p = 0; p < GD_PARAMETER_COUNT; ++p) {
+        juce::RangedAudioParameter *parameter = static_cast<juce::RangedAudioParameter *>(parameters[p]);
+        parameter->setValueNotifyingHost(parameter->convertTo0to1(idata.values[p]));
+    }
 }
 
 void Editor::Impl::tapEditStarted(TapEditScreen *, GdParameter id)

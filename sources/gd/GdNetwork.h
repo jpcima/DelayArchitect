@@ -77,6 +77,7 @@ private:
         bool enable_ = false;
         float delay_ = 0;
         float levelDB_ = 0;
+        bool mute_ = false;
         bool filterEnable_ = false;
         int filter_ = GdFilterOff;
         float lpfCutoff_ = 0;

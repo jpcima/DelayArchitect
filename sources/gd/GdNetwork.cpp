@@ -108,6 +108,9 @@ void GdNetwork::setParameter(unsigned parameter, float value)
         case GDP_TAP_A_LEVEL:
             tapControl.levelDB_ = value;
             break;
+        case GDP_TAP_A_MUTE:
+            tapControl.mute_ = (bool)value;
+            break;
         case GDP_TAP_A_FILTER_ENABLE:
             tapControl.filterEnable_ = (bool)value;
             break;
@@ -222,7 +225,7 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
                 delays[i] = std::max(0.0f, delays[i] - latency[i]);
 
             // calculate level
-            std::fill_n(level, count, db2linear(tapControl.levelDB_));
+            std::fill_n(level, count, tapControl.mute_ ? 0.0f : db2linear(tapControl.levelDB_));
             tapControl.smoothLevelLinear_.process(level, level, count, true);
 
             // calculate pan
@@ -324,7 +327,7 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
                 delays[i] = std::max(0.0f, delays[i] - latency[i]);
 
             // calculate level
-            std::fill_n(level, count, db2linear(tapControl.levelDB_));
+            std::fill_n(level, count, tapControl.mute_ ? 0.0f : db2linear(tapControl.levelDB_));
             tapControl.smoothLevelLinear_.process(level, level, count, true);
 
             // calculate pan
