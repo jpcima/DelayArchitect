@@ -72,7 +72,9 @@ target_sources(DelayArchitect
   "sources/editor/importer/Importer.h"
   "sources/editor/importer/ImporterPST.cpp"
   "sources/editor/importer/ImporterPST.h"
-  "sources/editor/utility/FunctionalTimer.h")
+  "sources/editor/utility/FunctionalTimer.h"
+  "sources/utility/AutoDeletePool.h"
+  "sources/utility/AutoDeletePool.hpp")
 
 juce_add_binary_data(DelayArchitectResources
   SOURCES

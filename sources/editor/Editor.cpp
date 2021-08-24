@@ -9,6 +9,7 @@
 #include "editor/attachments/InvertedButtonParameterAttachment.h"
 #include "processor/Processor.h"
 #include "importer/ImporterPST.h"
+#include "utility/AutoDeletePool.h"
 #include "Gd.h"
 #include <vector>
 
@@ -19,22 +20,10 @@ struct Editor::Impl : public TapEditScreen::Listener {
     juce::Array<juce::AudioProcessorParameter *> parameters_;
     int activeTapNumber_ = -1;
 
-    std::vector<std::unique_ptr<TapParameterAttachment>> tapAttachements_;
-    std::vector<std::unique_ptr<juce::SliderParameterAttachment>> sliderAttachements_;
-    std::vector<std::unique_ptr<juce::ButtonParameterAttachment>> buttonAttachements_;
-    std::vector<std::unique_ptr<AutomaticComboBoxParameterAttachment>> comboBoxAttachements_;
-    std::unique_ptr<GridParameterAttachment> gridAttachement_;
-
-    struct ActiveTapAttachments {
-        std::vector<std::unique_ptr<juce::SliderParameterAttachment>> sliderAttachements_;
-        std::vector<std::unique_ptr<juce::ButtonParameterAttachment>> buttonAttachements_;
-        std::vector<std::unique_ptr<InvertedButtonParameterAttachment>> invertedButtonAttachements_;
-        std::vector<std::unique_ptr<AutomaticComboBoxParameterAttachment>> comboBoxAttachements_;
-    };
-    ActiveTapAttachments activeTapAttachments_;
+    AutoDeletePool globalAttachments_;
+    AutoDeletePool activeTapAttachments_;
 
     std::unique_ptr<juce::PopupMenu> mainMenu_;
-
     juce::TooltipWindow tooltipWindow_;
 
     juce::RangedAudioParameter *getRangedParameter(int i) const {
@@ -79,23 +68,27 @@ Editor::Editor(Processor &p)
     TapEditScreen &tapEdit = *mainComponent->tapEditScreen_;
     tapEdit.addListener(&impl);
 
+    //
+    AutoDeletePool &att = impl.globalAttachments_;
+
     for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber) {
         for (int i = 0; i < GdNumPametersPerTap; ++i) {
             GdParameter decomposedId = (GdParameter)(GdFirstParameterOfFirstTap + i);
             GdParameter id = GdRecomposeParameter(decomposedId, tapNumber);
-            impl.tapAttachements_.emplace_back(new TapParameterAttachment(*impl.getRangedParameter((int)id), tapEdit));
+            att.makeNew<TapParameterAttachment>(*impl.getRangedParameter((int)id), tapEdit);
         }
     }
 
-    impl.buttonAttachements_.emplace_back(new juce::ButtonParameterAttachment(*impl.getRangedParameter((int)GDP_SYNC), *mainComponent->syncButton_, nullptr));
-    impl.buttonAttachements_.emplace_back(new juce::ButtonParameterAttachment(*impl.getRangedParameter((int)GDP_FEEDBACK_ENABLE), *mainComponent->feedbackEnableButton_, nullptr));
-    impl.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*impl.getRangedParameter((int)GDP_FEEDBACK_GAIN), *mainComponent->feedbackTapGainSlider_, nullptr));
-    impl.comboBoxAttachements_.emplace_back(new AutomaticComboBoxParameterAttachment(*impl.getRangedParameter((int)GDP_FEEDBACK_TAP), *mainComponent->feedbackTapChoice_, nullptr));
-    impl.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*impl.getRangedParameter((int)GDP_SWING), *mainComponent->swingSlider_, nullptr));
-    impl.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*impl.getRangedParameter((int)GDP_MIX_WET), *mainComponent->wetSlider_, nullptr));
-    impl.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*impl.getRangedParameter((int)GDP_MIX_DRY), *mainComponent->drySlider_, nullptr));
-    impl.gridAttachement_.reset(new GridParameterAttachment(*impl.getRangedParameter((int)GDP_GRID), *mainComponent->gridChoice_));
+    att.makeNew<juce::ButtonParameterAttachment>(*impl.getRangedParameter((int)GDP_SYNC), *mainComponent->syncButton_, nullptr);
+    att.makeNew<juce::ButtonParameterAttachment>(*impl.getRangedParameter((int)GDP_FEEDBACK_ENABLE), *mainComponent->feedbackEnableButton_, nullptr);
+    att.makeNew<juce::SliderParameterAttachment>(*impl.getRangedParameter((int)GDP_FEEDBACK_GAIN), *mainComponent->feedbackTapGainSlider_, nullptr);
+    att.makeNew<AutomaticComboBoxParameterAttachment>(*impl.getRangedParameter((int)GDP_FEEDBACK_TAP), *mainComponent->feedbackTapChoice_, nullptr);
+    att.makeNew<juce::SliderParameterAttachment>(*impl.getRangedParameter((int)GDP_SWING), *mainComponent->swingSlider_, nullptr);
+    att.makeNew<juce::SliderParameterAttachment>(*impl.getRangedParameter((int)GDP_MIX_WET), *mainComponent->wetSlider_, nullptr);
+    att.makeNew<juce::SliderParameterAttachment>(*impl.getRangedParameter((int)GDP_MIX_DRY), *mainComponent->drySlider_, nullptr);
+    att.makeNew<GridParameterAttachment>(*impl.getRangedParameter((int)GDP_GRID), *mainComponent->gridChoice_);
 
+    //
     impl.setActiveTap(0);
 }
 
@@ -125,24 +118,24 @@ void Editor::Impl::setActiveTap(int tapNumber)
 
 void Editor::Impl::createActiveTapParameterAttachments()
 {
-    ActiveTapAttachments &ata = activeTapAttachments_;
+    AutoDeletePool &att = activeTapAttachments_;
     int tapNumber = activeTapNumber_;
     MainComponent *mainComponent = mainComponent_.get();
 
-    ata = ActiveTapAttachments{};
-    ata.buttonAttachements_.emplace_back(new juce::ButtonParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_ENABLE, tapNumber)), *mainComponent->tapEnabledButton_, nullptr));
-    ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_DELAY, tapNumber)), *mainComponent->tapDelaySlider_, nullptr));
-    ata.buttonAttachements_.emplace_back(new juce::ButtonParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_FILTER_ENABLE, tapNumber)), *mainComponent->filterEnableButton_, nullptr));
-    ata.comboBoxAttachements_.emplace_back(new AutomaticComboBoxParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_FILTER, tapNumber)), *mainComponent->filterChoice_, nullptr));
-    ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_HPF_CUTOFF, tapNumber)), *mainComponent->hpfCutoffSlider_, nullptr));
-    ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_LPF_CUTOFF, tapNumber)), *mainComponent->lpfCutoffSlider_, nullptr));
-    ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_RESONANCE, tapNumber)), *mainComponent->resonanceSlider_, nullptr));
-    ata.buttonAttachements_.emplace_back(new juce::ButtonParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_TUNE_ENABLE, tapNumber)), *mainComponent->tuneEnableButton_, nullptr));
-    ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_TUNE, tapNumber)), *mainComponent->pitchSlider_, nullptr));
-    ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_PAN, tapNumber)), *mainComponent->panSlider_, nullptr));
-    ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_WIDTH, tapNumber)), *mainComponent->widthSlider_, nullptr));
-    ata.sliderAttachements_.emplace_back(new juce::SliderParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_LEVEL, tapNumber)), *mainComponent->levelSlider_, nullptr));
-    ata.invertedButtonAttachements_.emplace_back(new InvertedButtonParameterAttachment(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_MUTE, tapNumber)), *mainComponent->muteButton_, nullptr));
+    att.clear();
+    att.makeNew<juce::ButtonParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_ENABLE, tapNumber)), *mainComponent->tapEnabledButton_, nullptr);
+    att.makeNew<juce::SliderParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_DELAY, tapNumber)), *mainComponent->tapDelaySlider_, nullptr);
+    att.makeNew<juce::ButtonParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_FILTER_ENABLE, tapNumber)), *mainComponent->filterEnableButton_, nullptr);
+    att.makeNew<AutomaticComboBoxParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_FILTER, tapNumber)), *mainComponent->filterChoice_, nullptr);
+    att.makeNew<juce::SliderParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_HPF_CUTOFF, tapNumber)), *mainComponent->hpfCutoffSlider_, nullptr);
+    att.makeNew<juce::SliderParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_LPF_CUTOFF, tapNumber)), *mainComponent->lpfCutoffSlider_, nullptr);
+    att.makeNew<juce::SliderParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_RESONANCE, tapNumber)), *mainComponent->resonanceSlider_, nullptr);
+    att.makeNew<juce::ButtonParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_TUNE_ENABLE, tapNumber)), *mainComponent->tuneEnableButton_, nullptr);
+    att.makeNew<juce::SliderParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_TUNE, tapNumber)), *mainComponent->pitchSlider_, nullptr);
+    att.makeNew<juce::SliderParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_PAN, tapNumber)), *mainComponent->panSlider_, nullptr);
+    att.makeNew<juce::SliderParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_WIDTH, tapNumber)), *mainComponent->widthSlider_, nullptr);
+    att.makeNew<juce::SliderParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_LEVEL, tapNumber)), *mainComponent->levelSlider_, nullptr);
+    att.makeNew<InvertedButtonParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_MUTE, tapNumber)), *mainComponent->muteButton_, nullptr);
 }
 
 void Editor::Impl::choosePresetFileToImport()
