@@ -146,10 +146,12 @@ void GdSetParameterEx(Gd *gd, GdParameter p, float value, bool force)
 
     switch ((int)p) {
     case GDP_MIX_DRY:
-        gd->smoothMixDryLinear_.setTarget(db2linear(value));
+        gd->smoothMixDryLinear_.setTarget((value <= GdMinMixGainDB) ? 0.0f :
+            db2linear(value));
         break;
     case GDP_MIX_WET:
-        gd->smoothMixWetLinear_.setTarget(db2linear(value));
+        gd->smoothMixWetLinear_.setTarget((value <= GdMinMixGainDB) ? 0.0f :
+            db2linear(value));
         break;
     }
 

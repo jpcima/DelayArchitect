@@ -29,6 +29,7 @@ enum GdFilterType {
 Ignorable static constexpr float GdParamSmoothTime = 50e-3f;
 
 // smallest gain setting
+Ignorable static constexpr float GdMinMixGainDB = -64.0f;
 Ignorable static constexpr float GdMinFeedbackGainDB = -64.0f;
 
 #define GD_EACH_PARAMETER(_)                                                   \
@@ -39,8 +40,8 @@ Ignorable static constexpr float GdMinFeedbackGainDB = -64.0f;
     _(FEEDBACK_ENABLE, false, true, false, GDP_BOOLEAN, "Feedback Enable", -1) \
     _(FEEDBACK_TAP, 0, GdMaxLines - 1, 0, GDP_CHOICE, "Feedback Tap", -1)      \
     _(FEEDBACK_GAIN, GdMinFeedbackGainDB, 6.0, GdMinFeedbackGainDB, GDP_FLOAT, "Feedback Gain", -1) \
-    _(MIX_DRY, -64, 0, -6, GDP_FLOAT, "Dry mix", -1)                           \
-    _(MIX_WET, -64, 0, -6, GDP_FLOAT, "Wet mix", -1)                           \
+    _(MIX_DRY, GdMinMixGainDB, 0, -6, GDP_FLOAT, "Dry mix", -1)                \
+    _(MIX_WET, GdMinMixGainDB, 0, -6, GDP_FLOAT, "Wet mix", -1)                \
     GD_EACH_LINE_PARAMETER(_, A, 0)                                            \
     GD_EACH_LINE_PARAMETER(_, B, 1)                                            \
     GD_EACH_LINE_PARAMETER(_, C, 2)                                            \
