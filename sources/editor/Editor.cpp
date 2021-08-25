@@ -3,10 +3,12 @@
 #include "editor/LookAndFeel.h"
 #include "editor/parts/MainComponent.h"
 #include "editor/parts/TapEditScreen.h"
+#include "editor/parts/AdvancedTooltipWindow.h"
 #include "editor/attachments/TapParameterAttachment.h"
 #include "editor/attachments/GridParameterAttachment.h"
 #include "editor/attachments/AutomaticComboBoxParameterAttachment.h"
 #include "editor/attachments/InvertedButtonParameterAttachment.h"
+#include "editor/attachments/SliderParameterAttachmentWithTooltip.h"
 #include "processor/Processor.h"
 #include "importer/ImporterPST.h"
 #include "utility/AutoDeletePool.h"
@@ -16,6 +18,7 @@
 //==============================================================================
 struct Editor::Impl : public TapEditScreen::Listener {
     Editor *self_ = nullptr;
+    std::unique_ptr<AdvancedTooltipWindow> tooltipWindow_;
     std::unique_ptr<MainComponent> mainComponent_;
     juce::Array<juce::AudioProcessorParameter *> parameters_;
     int activeTapNumber_ = -1;
@@ -24,7 +27,6 @@ struct Editor::Impl : public TapEditScreen::Listener {
     AutoDeletePool activeTapAttachments_;
 
     std::unique_ptr<juce::PopupMenu> mainMenu_;
-    juce::TooltipWindow tooltipWindow_;
 
     juce::RangedAudioParameter *getRangedParameter(int i) const {
         return static_cast<juce::RangedAudioParameter *>(parameters_[i]);
@@ -53,6 +55,9 @@ Editor::Editor(Processor &p)
     static LookAndFeel lnf;
     setLookAndFeel(&lnf);
     juce::LookAndFeel::setDefaultLookAndFeel(&lnf);
+
+    AdvancedTooltipWindow *tooltipWindow = new AdvancedTooltipWindow;
+    impl.tooltipWindow_.reset(tooltipWindow);
 
     MainComponent *mainComponent = new MainComponent;
     impl.mainComponent_.reset(mainComponent);
@@ -84,8 +89,8 @@ Editor::Editor(Processor &p)
     att.makeNew<juce::SliderParameterAttachment>(*impl.getRangedParameter((int)GDP_FEEDBACK_GAIN), *mainComponent->feedbackTapGainSlider_, nullptr);
     att.makeNew<AutomaticComboBoxParameterAttachment>(*impl.getRangedParameter((int)GDP_FEEDBACK_TAP), *mainComponent->feedbackTapChoice_, nullptr);
     att.makeNew<juce::SliderParameterAttachment>(*impl.getRangedParameter((int)GDP_SWING), *mainComponent->swingSlider_, nullptr);
-    att.makeNew<juce::SliderParameterAttachment>(*impl.getRangedParameter((int)GDP_MIX_WET), *mainComponent->wetSlider_, nullptr);
-    att.makeNew<juce::SliderParameterAttachment>(*impl.getRangedParameter((int)GDP_MIX_DRY), *mainComponent->drySlider_, nullptr);
+    att.makeNew<SliderParameterAttachmentWithTooltip>(*impl.getRangedParameter((int)GDP_MIX_WET), *mainComponent->wetSlider_, *impl.tooltipWindow_, nullptr);
+    att.makeNew<SliderParameterAttachmentWithTooltip>(*impl.getRangedParameter((int)GDP_MIX_DRY), *mainComponent->drySlider_, *impl.tooltipWindow_, nullptr);
     att.makeNew<GridParameterAttachment>(*impl.getRangedParameter((int)GDP_GRID), *mainComponent->gridChoice_);
 
     //

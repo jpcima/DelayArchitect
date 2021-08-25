@@ -216,7 +216,7 @@ MainComponent::MainComponent ()
     addAndMakeVisible (drySlider_.get());
     drySlider_->setRange (0, 10, 0);
     drySlider_->setSliderStyle (juce::Slider::LinearVertical);
-    drySlider_->setTextBoxStyle (juce::Slider::TextBoxBelow, false, 80, 20);
+    drySlider_->setTextBoxStyle (juce::Slider::NoTextBox, false, 80, 20);
     drySlider_->addListener (this);
 
     drySlider_->setBounds (872, 312, 48, 192);
@@ -225,7 +225,7 @@ MainComponent::MainComponent ()
     addAndMakeVisible (wetSlider_.get());
     wetSlider_->setRange (0, 10, 0);
     wetSlider_->setSliderStyle (juce::Slider::LinearVertical);
-    wetSlider_->setTextBoxStyle (juce::Slider::TextBoxBelow, false, 80, 20);
+    wetSlider_->setTextBoxStyle (juce::Slider::NoTextBox, false, 80, 20);
     wetSlider_->addListener (this);
 
     wetSlider_->setBounds (936, 312, 48, 192);
@@ -953,11 +953,11 @@ BEGIN_JUCER_METADATA
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <SLIDER name="" id="b2206b062a09ac07" memberName="drySlider_" virtualName=""
           explicitFocusOrder="0" pos="872 312 48 192" min="0.0" max="10.0"
-          int="0.0" style="LinearVertical" textBoxPos="TextBoxBelow" textBoxEditable="1"
+          int="0.0" style="LinearVertical" textBoxPos="NoTextBox" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
   <SLIDER name="" id="ee65e871ce784fe1" memberName="wetSlider_" virtualName=""
           explicitFocusOrder="0" pos="936 312 48 192" min="0.0" max="10.0"
-          int="0.0" style="LinearVertical" textBoxPos="TextBoxBelow" textBoxEditable="1"
+          int="0.0" style="LinearVertical" textBoxPos="NoTextBox" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
   <COMBOBOX name="" id="a5bfb32dfcd0d098" memberName="filterChoice_" virtualName=""
             explicitFocusOrder="0" pos="40 712 96 24" editable="0" layout="33"
