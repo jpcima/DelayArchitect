@@ -13,7 +13,7 @@ struct TapEditScreen::Impl : public TapEditItem::Listener {
     juce::ListenerList<Listener> listeners_;
 
     std::unique_ptr<TapEditItem> items_[GdMaxLines];
-    float timeRange_ = 10;
+    juce::Range<float> timeRange_{0, GdMaxDelay};
     TapEditMode editMode_ = kTapEditOff;
 
     int xMargin_ = 25;
@@ -81,19 +81,19 @@ void TapEditScreen::setEditMode(TapEditMode mode)
     repaint();
 }
 
-float TapEditScreen::getTimeRange() const noexcept
+juce::Range<float> TapEditScreen::getTimeRange() const noexcept
 {
     Impl &impl = *impl_;
     return impl.timeRange_;
 }
 
-void TapEditScreen::setTimeRange(float maxTime)
+void TapEditScreen::setTimeRange(juce::Range<float> newTimeRange)
 {
     Impl &impl = *impl_;
-    if (impl.timeRange_ == maxTime)
+    if (impl.timeRange_ == newTimeRange)
         return;
 
-    impl.timeRange_ = maxTime;
+    impl.timeRange_ = newTimeRange;
     for (int itemNumber = 0; itemNumber < GdMaxLines; ++itemNumber)
         impl.updateItemSizeAndPosition(itemNumber);
 }
@@ -236,27 +236,24 @@ void TapEditScreen::paint(juce::Graphics &g)
 float TapEditScreen::Impl::delayToX(float t) const noexcept
 {
     TapEditScreen *self = self_;
-    float tr = timeRange_;
-    int width = self->getWidth();
-    int xm = xMargin_;
-    return (float)xm + t * (float)(width - 2 * xm) / tr;
+    juce::Rectangle<float> rc = self->getLocalBounds().reduced(xMargin_, 0.0f).toFloat();
+    juce::Range<float> tr = timeRange_;
+    return rc.getX() + rc.getWidth() * ((t - tr.getStart()) / tr.getLength());
 }
 
 float TapEditScreen::Impl::xToDelay(float x) const noexcept
 {
     TapEditScreen *self = self_;
-    float tr = timeRange_;
-    int width = self->getWidth();
-    int xm = xMargin_;
-    return (x - (float)xm) * tr / (float)(width - 2 * xm);
+    juce::Rectangle<float> rc = self->getLocalBounds().reduced(xMargin_, 0.0f).toFloat();
+    juce::Range<float> tr = timeRange_;
+    return tr.getStart() + tr.getLength() * ((x - rc.getX()) / rc.getWidth());
 }
 
 float TapEditScreen::Impl::currentTapTime(kro::steady_clock::time_point now) const noexcept
 {
     kro::steady_clock::duration dur = now - tapBeginTime_;
     float secs = kro::duration<float>(dur).count();
-    float tr = timeRange_;
-    return std::fmod(secs, tr);
+    return std::fmod(secs, GdMaxDelay);
 }
 
 void TapEditScreen::Impl::updateItemSizeAndPosition(int itemNumber)
@@ -611,8 +608,9 @@ void TapEditItem::mouseDrag(const juce::MouseEvent &e)
             {
                 TapEditScreen *screen = screen_;
                 float halfWidth = 0.5f * (float)bounds.getWidth();
-                int x1 = (int)std::floor(screen->getXForDelay(0.0f) - halfWidth);
-                int x2 = (int)std::ceil(screen->getXForDelay(screen->getTimeRange()) - halfWidth);
+                juce::Range<float> timeRange = screen->getTimeRange();
+                int x1 = (int)std::floor(screen->getXForDelay(timeRange.getStart()) - halfWidth);
+                int x2 = (int)std::ceil(screen->getXForDelay(timeRange.getEnd()) - halfWidth);
                 bounds.setX(juce::jlimit(x1, x2, bounds.getX()));
                 bounds.setY(previousBounds.getY());
             }
@@ -622,7 +620,7 @@ void TapEditItem::mouseDrag(const juce::MouseEvent &e)
         TapConstrainer constrainer(impl.screen_);
         impl.dragger_.dragComponent(this, e, &constrainer);
         float newDelay = impl.screen_->getDelayForX(getBounds().toFloat().getCentreX());
-        newDelay = juce::jlimit(0.0f, impl.screen_->getTimeRange(), newDelay);
+        newDelay = impl.screen_->getTimeRange().clipValue(newDelay);
         GdParameter id = GdRecomposeParameter(GDP_TAP_A_DELAY, impl.itemNumber_);
         setTapValue(id, newDelay);
         return;

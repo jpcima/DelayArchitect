@@ -1112,7 +1112,7 @@ void MainComponent::Impl::selectTimeRange(int index)
     float timeValue = presetTimeRanges[(size_t)index];
 
     MainComponent *self = self_;
-    self->tapEditScreen_->setTimeRange(timeValue);
+    self->tapEditScreen_->setTimeRange({0.0f, timeValue});
 
     char labelText[256];
     if (timeValue >= 1) {

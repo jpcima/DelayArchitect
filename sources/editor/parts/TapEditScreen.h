@@ -28,8 +28,8 @@ public:
     TapEditMode getEditMode() const noexcept;
     void setEditMode(TapEditMode mode);
 
-    float getTimeRange() const noexcept;
-    void setTimeRange(float maxTime);
+    juce::Range<float> getTimeRange() const noexcept;
+    void setTimeRange(juce::Range<float> newTimeRange);
 
     float getTapValue(GdParameter id) const;
     void setTapValue(GdParameter id, float value, juce::NotificationType nt = juce::sendNotificationSync);
