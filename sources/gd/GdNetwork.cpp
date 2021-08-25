@@ -159,12 +159,12 @@ void GdNetwork::setParameter(unsigned parameter, float value)
             tapControl.smoothShiftLinear_.setTarget(tapControl.shiftEnable_ ? std::exp2((1.0f / 1200) * tapControl.shift_) : 1.0f);
             break;
         case GDP_TAP_A_PAN:
-            tapControl.pan_ = value;
+            tapControl.pan_ = value / 100.0f;
         tap_pan:
             tapControl.smoothPan_.setTarget(tapControl.flip_ ? -tapControl.pan_ : tapControl.pan_);
             break;
         case GDP_TAP_A_WIDTH:
-            tapControl.width_ = value;
+            tapControl.width_ = value / 100.0f;
             tapControl.smoothWidth_.setTarget(tapControl.width_);
             break;
         case GDP_TAP_A_FLIP:

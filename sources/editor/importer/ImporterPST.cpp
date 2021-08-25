@@ -114,10 +114,10 @@ bool ImporterPST::importFile(const juce::File &file, ImportData &idata)
                     tapValues[GDP_TAP_A_MUTE] = (bool)value;
                     break;
                 case 0x18: // Pan (%) [float32]
-                    tapValues[GDP_TAP_A_PAN] = value / 100.0f;
+                    tapValues[GDP_TAP_A_PAN] = value;
                     break;
                 case 0x1c: // Spread (%) [float32]
-                    tapValues[GDP_TAP_A_WIDTH] = value / 100.0f;
+                    tapValues[GDP_TAP_A_WIDTH] = value;
                     break;
                 case 0x20: // ?? [float32]
                     break;
