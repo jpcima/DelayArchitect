@@ -4,6 +4,7 @@
 #include "utility/LinearSmoother.h"
 #include "utility/NextPowerOfTwo.h"
 #include "utility/Volume.h"
+#include "utility/Locale.h"
 #include <vector>
 #include <algorithm>
 #include <cmath>
@@ -191,7 +192,7 @@ unsigned GdParameterCount()
 const char *GdParameterName(GdParameter p)
 {
     switch (p) {
-    #define EACH(p, min, max, def, flags, label, group) case GDP_##p: return #p;
+    #define EACH(p, min, max, def, flags, label, unit, group) case GDP_##p: return #p;
     GD_EACH_PARAMETER(EACH)
     #undef EACH
     default:
@@ -211,7 +212,7 @@ GdParameter GdParameterByName(const char *name)
 float GdParameterMin(GdParameter p)
 {
     switch (p) {
-    #define EACH(p, min, max, def, flags, label, group) case GDP_##p: return min;
+    #define EACH(p, min, max, def, flags, label, unit, group) case GDP_##p: return min;
     GD_EACH_PARAMETER(EACH)
     #undef EACH
     default:
@@ -222,7 +223,7 @@ float GdParameterMin(GdParameter p)
 float GdParameterMax(GdParameter p)
 {
     switch (p) {
-    #define EACH(p, min, max, def, flags, label, group) case GDP_##p: return max;
+    #define EACH(p, min, max, def, flags, label, unit, group) case GDP_##p: return max;
     GD_EACH_PARAMETER(EACH)
     #undef EACH
     default:
@@ -233,7 +234,7 @@ float GdParameterMax(GdParameter p)
 float GdParameterDefault(GdParameter p)
 {
     switch (p) {
-    #define EACH(p, min, max, def, flags, label, group) case GDP_##p: return def;
+    #define EACH(p, min, max, def, flags, label, unit, group) case GDP_##p: return def;
     GD_EACH_PARAMETER(EACH)
     #undef EACH
     default:
@@ -244,7 +245,7 @@ float GdParameterDefault(GdParameter p)
 unsigned GdParameterFlags(GdParameter p)
 {
     switch (p) {
-    #define EACH(p, min, max, def, flags, label, group) case GDP_##p: return flags;
+    #define EACH(p, min, max, def, flags, label, unit, group) case GDP_##p: return flags;
     GD_EACH_PARAMETER(EACH)
     #undef EACH
     default:
@@ -255,7 +256,18 @@ unsigned GdParameterFlags(GdParameter p)
 const char *GdParameterLabel(GdParameter p)
 {
     switch (p) {
-    #define EACH(p, min, max, def, flags, label, group) case GDP_##p: return label;
+    #define EACH(p, min, max, def, flags, label, unit, group) case GDP_##p: return label;
+    GD_EACH_PARAMETER(EACH)
+    #undef EACH
+    default:
+        return nullptr;
+    }
+}
+
+const char *GdParameterUnit(GdParameter p)
+{
+    switch (p) {
+    #define EACH(p, min, max, def, flags, label, unit, group) case GDP_##p: return unit;
     GD_EACH_PARAMETER(EACH)
     #undef EACH
     default:
@@ -299,7 +311,7 @@ const char *const *GdParameterChoices(GdParameter p)
 int GdParameterGroup(GdParameter p)
 {
     switch (p) {
-    #define EACH(p, min, max, def, flags, label, group) case GDP_##p: return group;
+    #define EACH(p, min, max, def, flags, label, unit, group) case GDP_##p: return group;
     GD_EACH_PARAMETER(EACH)
     #undef EACH
     default:
@@ -325,4 +337,35 @@ GD_API const char *GdGroupLabel(GdParameter p)
         return GdTapLabels[group];
 
     return nullptr;
+}
+
+void GdFormatParameterValue(GdParameter p, float value, char *text, unsigned textsize)
+{
+    int flags = GdParameterFlags(p);
+    const char *unit = GdParameterUnit(p);
+
+    if (!unit)
+        return;
+
+    if (flags & GDP_CHOICE) {
+        unsigned index = 0;
+        const char *choice = nullptr;
+        const char *const *choices = GdParameterChoices(p);
+        for (index = 0; !choice && choices[index]; ++index) {
+            if (index == (unsigned)value)
+                choice = choices[index];
+        }
+        snprintf(text, textsize, "%s", choice ? choice : "");
+    }
+    else if (flags & GDP_BOOLEAN)
+        snprintf(text, textsize, "%s", value ? "On" : "Off");
+    else if (flags & GDP_INTEGER)
+        snprintf(text, textsize, "%d%s%s", (int)value, unit ? " " : "", unit);
+    else {
+        Locale loc = Locale::create(LC_NUMERIC, "C");
+        loc.snprintf(text, textsize, "%.2f%s%s", value, unit ? " " : "", unit);
+    }
+
+    if (textsize > 0)
+        text[textsize - 1] = '\0';
 }

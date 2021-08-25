@@ -261,28 +261,35 @@ void Processor::Impl::setupParameters()
         ///
         juce::AudioProcessorParameter *parameter;
 
+        auto stringFromValue = [i](float value, int) -> juce::String {
+            char text[256];
+            GdFormatParameterValue((GdParameter)i, value, text, sizeof(text));
+            return text;
+        };
+
         switch (type) {
         default:
         case GDP_FLOAT:
         {
-            auto stringFromValue = [](float value, int) -> juce::String { return juce::String(value, 2); };
-            juce::AudioParameterFloat *parameterFloat = new juce::AudioParameterFloat(name, label, {min, max}, def, juce::String(), juce::AudioProcessorParameter::genericParameter, stringFromValue);
+            juce::AudioParameterFloat *parameterFloat = new juce::AudioParameterFloat(name, label, {min, max}, def, juce::String{}, juce::AudioProcessorParameter::genericParameter, stringFromValue);
             parameter = parameterFloat;
             break;
         }
         case GDP_BOOLEAN:
-            parameter = new juce::AudioParameterBool(name, label, (bool)def);
+            parameter = new juce::AudioParameterBool(name, label, (bool)def, juce::String{}, stringFromValue);
             break;
         case GDP_INTEGER:
-            parameter = new juce::AudioParameterInt(name, label, (int)min, (int)max, (int)def);
+        {
+            parameter = new juce::AudioParameterInt(name, label, (int)min, (int)max, (int)def, juce::String{}, stringFromValue);
             break;
+        }
         case GDP_CHOICE:
             {
                 juce::StringArray choices;
                 choices.ensureStorageAllocated(32);
                 for (const char *const *p = GdParameterChoices((GdParameter)i); *p; ++p)
                     choices.add(*p);
-                parameter = new juce::AudioParameterChoice(name, label, std::move(choices), (int)def);
+                parameter = new juce::AudioParameterChoice(name, label, std::move(choices), (int)def, juce::String{}, stringFromValue);
             }
             break;
         }

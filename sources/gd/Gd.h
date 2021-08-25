@@ -31,10 +31,12 @@ GD_API float GdParameterMax(GdParameter p);
 GD_API float GdParameterDefault(GdParameter p);
 GD_API unsigned GdParameterFlags(GdParameter p);
 GD_API const char *GdParameterLabel(GdParameter p);
+GD_API const char *GdParameterUnit(GdParameter p);
 GD_API const char *const *GdParameterChoices(GdParameter p);
 GD_API int GdParameterGroup(GdParameter p);
 GD_API const char *GdGroupName(GdParameter p);
 GD_API const char *GdGroupLabel(GdParameter p);
+GD_API void GdFormatParameterValue(GdParameter p, float value, char *text, unsigned textsize);
 
 #if defined(__cplusplus)
 } // extern "C"
