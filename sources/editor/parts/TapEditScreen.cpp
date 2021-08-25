@@ -6,14 +6,16 @@
 #include <chrono>
 namespace kro = std::chrono;
 
-struct TapEditScreen::Impl : public TapEditItem::Listener {
+struct TapEditScreen::Impl : public TapEditItem::Listener,
+                             public TapMiniMap::Listener {
     using Listener = TapEditScreen::Listener;
 
     TapEditScreen *self_ = nullptr;
     juce::ListenerList<Listener> listeners_;
 
     std::unique_ptr<TapEditItem> items_[GdMaxLines];
-    juce::Range<float> timeRange_{0, GdMaxDelay};
+    std::unique_ptr<TapMiniMap> miniMap_;
+    juce::Range<float> timeRange_{0, 1};
     TapEditMode editMode_ = kTapEditOff;
 
     int xMargin_ = 25;
@@ -34,6 +36,9 @@ struct TapEditScreen::Impl : public TapEditItem::Listener {
     void tapEditStarted(TapEditItem *item, GdParameter id) override;
     void tapEditEnded(TapEditItem *item, GdParameter id) override;
     void tapValueChanged(TapEditItem *item, GdParameter id, float value) override;
+
+    ///
+    void miniMapRangeChanged(TapMiniMap *, juce::Range<float> range) override;
 };
 
 TapEditScreen::TapEditScreen()
@@ -50,6 +55,13 @@ TapEditScreen::TapEditScreen()
         impl.updateItemSizeAndPosition(itemNumber);
     }
 
+    TapMiniMap *miniMap = new TapMiniMap;
+    impl.miniMap_.reset(miniMap);
+    miniMap->setTopLeftPosition(40.0f, 40.0f);
+    miniMap->setTimeRange(impl.timeRange_, juce::dontSendNotification);
+    miniMap->addListener(&impl);
+    addAndMakeVisible(miniMap);
+
     impl.tapRedisplayTimer_.reset(FunctionalTimer::create([this]() {
         repaint();
     }));
@@ -57,6 +69,8 @@ TapEditScreen::TapEditScreen()
 
 TapEditScreen::~TapEditScreen()
 {
+    Impl &impl = *impl_;
+    impl.miniMap_->addListener(&impl);
 }
 
 TapEditMode TapEditScreen::getEditMode() const noexcept
@@ -96,6 +110,8 @@ void TapEditScreen::setTimeRange(juce::Range<float> newTimeRange)
     impl.timeRange_ = newTimeRange;
     for (int itemNumber = 0; itemNumber < GdMaxLines; ++itemNumber)
         impl.updateItemSizeAndPosition(itemNumber);
+
+    impl.miniMap_->setTimeRange(impl.timeRange_, juce::dontSendNotification);
 }
 
 float TapEditScreen::getTapValue(GdParameter id) const
@@ -284,6 +300,12 @@ void TapEditScreen::Impl::tapValueChanged(TapEditItem *, GdParameter id, float v
 {
     TapEditScreen *self = self_;
     listeners_.call([self, id, value](Listener &listener) { listener.tapValueChanged(self, id, value); });
+}
+
+void TapEditScreen::Impl::miniMapRangeChanged(TapMiniMap *, juce::Range<float> range)
+{
+    TapEditScreen *self = self_;
+    self->setTimeRange(range);
 }
 
 //------------------------------------------------------------------------------
@@ -739,4 +761,244 @@ void TapEditItem::Impl::sliderDragEnded(juce::Slider *slider)
     GdParameter id = (GdParameter)(int)slider->getProperties().getWithDefault(identifier, -1);
     if (id != GDP_NONE)
         listeners_.call([self, id](Listener &l) { l.tapEditEnded(self, id); });
+}
+
+//------------------------------------------------------------------------------
+struct TapMiniMap::Impl {
+    TapMiniMap *self_ = nullptr;
+    juce::ListenerList<Listener> listeners_;
+    juce::Range<float> timeRange_{0, GdMaxDelay};
+    juce::Range<float> timeRangeBeforeMove_;
+
+    enum {
+        kStatusNormal,
+        kStatusMoving,
+        kStatusDraggingLeft,
+        kStatusDraggingRight,
+    };
+
+    enum {
+        kResizeGrabMargin = 4,
+    };
+
+    int status_ = kStatusNormal;
+
+    void updateCursor(juce::Point<float> position);
+    float getXForDelay(float t) const;
+    float getDelayForX(float x) const;
+    juce::Rectangle<float> getRangeBounds() const;
+    juce::Rectangle<float> getLeftResizeBounds() const;
+    juce::Rectangle<float> getRightResizeBounds() const;
+};
+
+TapMiniMap::TapMiniMap()
+    : impl_(new Impl)
+{
+    Impl &impl = *impl_;
+    impl.self_ = this;
+
+    setSize(200, 20);
+}
+
+TapMiniMap::~TapMiniMap()
+{
+}
+
+void TapMiniMap::setTimeRange(juce::Range<float> timeRange, juce::NotificationType nt)
+{
+    Impl &impl = *impl_;
+    if (impl.timeRange_ == timeRange)
+        return;
+
+    impl.timeRange_ = timeRange;
+    repaint();
+
+    if (nt != juce::dontSendNotification)
+        impl.listeners_.call([this](Listener &l) { l.miniMapRangeChanged(this, impl_->timeRange_); });
+}
+
+void TapMiniMap::addListener(Listener *listener)
+{
+    Impl &impl = *impl_;
+    impl.listeners_.add(listener);
+}
+
+void TapMiniMap::removeListener(Listener *listener)
+{
+    Impl &impl = *impl_;
+    impl.listeners_.remove(listener);
+}
+
+void TapMiniMap::mouseDown(const juce::MouseEvent &event)
+{
+    Impl &impl = *impl_;
+    juce::Point<float> position = event.position;
+    int status = impl.status_;
+
+    if (status == Impl::kStatusNormal) {
+        if (impl.getLeftResizeBounds().contains(position)) {
+            impl.status_ = Impl::kStatusDraggingLeft;
+            impl.updateCursor(event.position);
+        }
+        else if (impl.getRightResizeBounds().contains(position)) {
+            impl.status_ = Impl::kStatusDraggingRight;
+            impl.updateCursor(event.position);
+        }
+        else if (impl.getRangeBounds().contains(position)) {
+            impl.status_ = Impl::kStatusMoving;
+            impl.timeRangeBeforeMove_ = impl.timeRange_;
+            impl.updateCursor(event.position);
+        }
+    }
+}
+
+void TapMiniMap::mouseUp(const juce::MouseEvent &event)
+{
+    Impl &impl = *impl_;
+    juce::Point<float> position = event.position;
+    int status = impl.status_;
+
+    if (status != Impl::kStatusNormal) {
+        impl.status_ = Impl::kStatusNormal;
+        impl.updateCursor(position);
+    }
+}
+
+void TapMiniMap::mouseMove(const juce::MouseEvent &event)
+{
+    Impl &impl = *impl_;
+    juce::Point<float> position = event.position;
+    int status = impl.status_;
+
+    if (status == Impl::kStatusNormal)
+        impl.updateCursor(position);
+}
+
+void TapMiniMap::mouseDrag(const juce::MouseEvent &event)
+{
+    Impl &impl = *impl_;
+    juce::Point<float> position = event.position;
+    int status = impl.status_;
+
+    if (status == Impl::kStatusDraggingLeft) {
+        juce::Rectangle<float> rangeBounds = impl.getRangeBounds();
+        float minT = 0.0f;
+        float maxT = std::max(minT, impl.getDelayForX(rangeBounds.getRight()) - 0.5f);
+        float newT = juce::jlimit(minT, maxT, impl.getDelayForX(position.getX()));
+        if (impl.timeRange_.getStart() != newT) {
+            impl.timeRange_.setStart(newT);
+            impl.listeners_.call([this](Listener &l) { l.miniMapRangeChanged(this, impl_->timeRange_); });
+            repaint();
+        }
+    }
+    else if (status == Impl::kStatusDraggingRight) {
+        juce::Rectangle<float> rangeBounds = impl.getRangeBounds();
+        float maxT = GdMaxDelay;
+        float minT = std::min(maxT, impl.getDelayForX(rangeBounds.getX()) + 0.5f);
+        float newT = juce::jlimit(minT, maxT, impl.getDelayForX(position.getX()));
+        if (impl.timeRange_.getEnd() != newT) {
+            impl.timeRange_.setEnd(newT);
+            impl.listeners_.call([this](Listener &l) { l.miniMapRangeChanged(this, impl_->timeRange_); });
+            repaint();
+        }
+    }
+    else if (status == Impl::kStatusMoving) {
+        float dt = (float)GdMaxDelay * ((position.x - (float)event.getMouseDownX()) / (float)getWidth());
+        juce::Range<float> tr = impl.timeRangeBeforeMove_;
+        if (dt > 0)
+            dt = std::min(dt, (float)GdMaxDelay - tr.getEnd());
+        else if (dt < 0)
+            dt = std::max(dt, -tr.getStart());
+        tr = {tr.getStart() + dt, tr.getEnd() + dt};
+        if (impl.timeRange_ != tr) {
+            impl.timeRange_ = tr;
+            impl.listeners_.call([this](Listener &l) { l.miniMapRangeChanged(this, impl_->timeRange_); });
+            repaint();
+        }
+    }
+}
+
+void TapMiniMap::paint(juce::Graphics &g)
+{
+    juce::Rectangle<int> bounds = getLocalBounds();
+
+    juce::Colour backColour{0x40000000};
+    juce::Colour rangeColour{0x60ffffff};
+    juce::Colour contourColour{0x40ffffff};
+
+    g.setColour(backColour);
+    g.fillRect(bounds);
+    g.setColour(contourColour);
+    g.drawRect(bounds);
+
+    Impl &impl = *impl_;
+    juce::Rectangle<float> rangeBounds = impl.getRangeBounds().reduced(0.0f, 1.0f);
+    g.setColour(rangeColour);
+    g.fillRect(rangeBounds);
+    g.setColour(contourColour);
+    g.drawRect(rangeBounds);
+}
+
+void TapMiniMap::Impl::updateCursor(juce::Point<float> position)
+{
+    TapMiniMap *self = self_;
+
+    switch (status_) {
+        case kStatusNormal:
+        {
+            if (getLeftResizeBounds().contains(position) || getRightResizeBounds().contains(position))
+                self->setMouseCursor(juce::MouseCursor::LeftRightResizeCursor);
+            else if (getRangeBounds().contains(position))
+                self->setMouseCursor(juce::MouseCursor::PointingHandCursor);
+            else
+                self->setMouseCursor(juce::MouseCursor::NormalCursor);
+            break;
+        }
+        case kStatusMoving:
+            self->setMouseCursor(juce::MouseCursor::DraggingHandCursor);
+            break;
+        case kStatusDraggingLeft:
+        case kStatusDraggingRight:
+            self->setMouseCursor(juce::MouseCursor::LeftRightResizeCursor);
+            break;
+    }
+}
+
+float TapMiniMap::Impl::getXForDelay(float t) const
+{
+    TapMiniMap *self = self_;
+    juce::Rectangle<float> rc = self->getLocalBounds().toFloat();
+    return rc.getX() + rc.getWidth() * (t / (float)GdMaxDelay);
+}
+
+float TapMiniMap::Impl::getDelayForX(float x) const
+{
+    TapMiniMap *self = self_;
+    juce::Rectangle<float> rc = self->getLocalBounds().toFloat();
+    return (float)GdMaxDelay * ((x - rc.getX()) / rc.getWidth());
+}
+
+juce::Rectangle<float> TapMiniMap::Impl::getRangeBounds() const
+{
+    TapMiniMap *self = self_;
+    juce::Range<float> tr = timeRange_;
+    return self->getLocalBounds().toFloat()
+        .withLeft(getXForDelay(tr.getStart()))
+        .withRight(getXForDelay(tr.getEnd()));
+}
+
+juce::Rectangle<float> TapMiniMap::Impl::getLeftResizeBounds() const
+{
+    juce::Rectangle<float> rangeBounds = getRangeBounds();
+    juce::Rectangle<float> boundsRszL{rangeBounds.getX(), rangeBounds.getY(), 0.0f, rangeBounds.getHeight()};
+    boundsRszL.expand(kResizeGrabMargin, 0.0f);
+    return boundsRszL;
+}
+
+juce::Rectangle<float> TapMiniMap::Impl::getRightResizeBounds() const
+{
+    juce::Rectangle<float> rangeBounds = getRangeBounds();
+    juce::Rectangle<float> boundsRszR{rangeBounds.getRight(), rangeBounds.getY(), 0.0f, rangeBounds.getHeight()};
+    boundsRszR.expand(kResizeGrabMargin, 0.0f);
+    return boundsRszR;
 }

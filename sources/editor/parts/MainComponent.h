@@ -75,9 +75,6 @@ private:
     std::unique_ptr<juce::TextButton> tuneButton_;
     std::unique_ptr<juce::TextButton> panButton_;
     std::unique_ptr<juce::TextButton> levelButton_;
-    std::unique_ptr<juce::Label> timeRangeLabel_;
-    std::unique_ptr<juce::TextButton> timeRangePlusButton_;
-    std::unique_ptr<juce::TextButton> timeRangeMinusButton_;
     std::unique_ptr<juce::TextButton> firstTapButton_;
     std::unique_ptr<juce::TextButton> lastTapButton_;
     std::unique_ptr<juce::Label> activeTapLabel_;

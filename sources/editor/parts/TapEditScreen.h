@@ -84,7 +84,7 @@ public:
     void setEditMode(TapEditMode mode);
 
     float getTapValue(GdParameter id) const;
-    void setTapValue(GdParameter id, float value, juce::NotificationType nt  = juce::sendNotificationSync);
+    void setTapValue(GdParameter id, float value, juce::NotificationType nt = juce::sendNotificationSync);
 
     class Listener {
     public:
@@ -105,6 +105,34 @@ protected:
     void mouseDrag(const juce::MouseEvent &e) override;
     void moved() override;
     void resized() override;
+
+private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
+};
+
+//------------------------------------------------------------------------------
+class TapMiniMap final : public juce::Component {
+public:
+    TapMiniMap();
+    ~TapMiniMap() override;
+    void setTimeRange(juce::Range<float> timeRange, juce::NotificationType nt = juce::sendNotificationSync);
+
+    class Listener {
+    public:
+        virtual ~Listener() {}
+        virtual void miniMapRangeChanged(TapMiniMap *, juce::Range<float> range) { (void)range; }
+    };
+
+    void addListener(Listener *listener);
+    void removeListener(Listener *listener);
+
+protected:
+    void mouseDown(const juce::MouseEvent &event) override;
+    void mouseUp(const juce::MouseEvent &event) override;
+    void mouseMove(const juce::MouseEvent &event) override;
+    void mouseDrag(const juce::MouseEvent &event) override;
+    void paint(juce::Graphics &g) override;
 
 private:
     struct Impl;

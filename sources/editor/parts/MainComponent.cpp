@@ -30,14 +30,9 @@
 struct MainComponent::Impl : public TapEditScreen::Listener {
     MainComponent *self_ = nullptr;
     TapEditMode editMode_ = kTapEditOff;
-    int timeRangeIndex_ = -1;
-
-    static constexpr std::array<float, 8> presetTimeRanges{{0.1f, 0.25f, 0.5f, 0.75f, 1.0f, 2.5f, 5.0f, 10.0f}};
-    static constexpr int defaultPresetTimeRangeIndex = 4;
 
     ///
     void setEditMode(TapEditMode editMode);
-    void selectTimeRange(int index);
 
     ///
     void tappingHasStarted(TapEditScreen *) override;
@@ -93,31 +88,6 @@ MainComponent::MainComponent ()
     levelButton_->addListener (this);
 
     levelButton_->setBounds (744, 32, 150, 24);
-
-    timeRangeLabel_.reset (new juce::Label (juce::String(),
-                                            TRANS("500 ms")));
-    addAndMakeVisible (timeRangeLabel_.get());
-    timeRangeLabel_->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    timeRangeLabel_->setJustificationType (juce::Justification::centredRight);
-    timeRangeLabel_->setEditable (false, false, false);
-    timeRangeLabel_->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    timeRangeLabel_->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    timeRangeLabel_->setBounds (832, 536, 80, 24);
-
-    timeRangePlusButton_.reset (new juce::TextButton (juce::String()));
-    addAndMakeVisible (timeRangePlusButton_.get());
-    timeRangePlusButton_->setButtonText (TRANS("+"));
-    timeRangePlusButton_->addListener (this);
-
-    timeRangePlusButton_->setBounds (944, 536, 22, 24);
-
-    timeRangeMinusButton_.reset (new juce::TextButton (juce::String()));
-    addAndMakeVisible (timeRangeMinusButton_.get());
-    timeRangeMinusButton_->setButtonText (TRANS("-"));
-    timeRangeMinusButton_->addListener (this);
-
-    timeRangeMinusButton_->setBounds (920, 536, 22, 24);
 
     firstTapButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (firstTapButton_.get());
@@ -500,7 +470,6 @@ MainComponent::MainComponent ()
 
     //[Constructor] You can add your own custom stuff here..
     impl.setEditMode(kTapEditLevel);
-    impl.selectTimeRange(Impl::defaultPresetTimeRangeIndex);
 
     tapEditScreen_->addListener(&impl);
 
@@ -520,9 +489,6 @@ MainComponent::~MainComponent()
     tuneButton_ = nullptr;
     panButton_ = nullptr;
     levelButton_ = nullptr;
-    timeRangeLabel_ = nullptr;
-    timeRangePlusButton_ = nullptr;
-    timeRangeMinusButton_ = nullptr;
     firstTapButton_ = nullptr;
     lastTapButton_ = nullptr;
     activeTapLabel_ = nullptr;
@@ -688,18 +654,6 @@ void MainComponent::buttonClicked (juce::Button* buttonThatWasClicked)
         //[UserButtonCode_levelButton_] -- add your button handler code here..
         impl.setEditMode(kTapEditLevel);
         //[/UserButtonCode_levelButton_]
-    }
-    else if (buttonThatWasClicked == timeRangePlusButton_.get())
-    {
-        //[UserButtonCode_timeRangePlusButton_] -- add your button handler code here..
-        impl.selectTimeRange(impl.timeRangeIndex_ + 1);
-        //[/UserButtonCode_timeRangePlusButton_]
-    }
-    else if (buttonThatWasClicked == timeRangeMinusButton_.get())
-    {
-        //[UserButtonCode_timeRangeMinusButton_] -- add your button handler code here..
-        impl.selectTimeRange(impl.timeRangeIndex_ - 1);
-        //[/UserButtonCode_timeRangeMinusButton_]
     }
     else if (buttonThatWasClicked == firstTapButton_.get())
     {
@@ -899,17 +853,6 @@ BEGIN_JUCER_METADATA
   <TEXTBUTTON name="" id="7558d040ff50b9ed" memberName="levelButton_" virtualName=""
               explicitFocusOrder="0" pos="744 32 150 24" buttonText="Level"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
-  <LABEL name="" id="cafcacc6447ce988" memberName="timeRangeLabel_" virtualName=""
-         explicitFocusOrder="0" pos="832 536 80 24" edTextCol="ff000000"
-         edBkgCol="0" labelText="500 ms" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
-         kerning="0.0" bold="0" italic="0" justification="34"/>
-  <TEXTBUTTON name="" id="5f270ebb614cc322" memberName="timeRangePlusButton_"
-              virtualName="" explicitFocusOrder="0" pos="944 536 22 24" buttonText="+"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
-  <TEXTBUTTON name="" id="194ef40c396e7316" memberName="timeRangeMinusButton_"
-              virtualName="" explicitFocusOrder="0" pos="920 536 22 24" buttonText="-"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="43aa27172b96c021" memberName="firstTapButton_" virtualName=""
               explicitFocusOrder="0" pos="16 368 112 56" buttonText="Start tap"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
@@ -1088,9 +1031,6 @@ void MainComponent::setActiveTapLabelText(const juce::String &newText)
     activeTapLabel_->setText(newText, juce::dontSendNotification);
 }
 
-constexpr std::array<float, 8> MainComponent::Impl::presetTimeRanges;
-constexpr int MainComponent::Impl::defaultPresetTimeRangeIndex;
-
 void MainComponent::Impl::setEditMode(TapEditMode editMode)
 {
     if (editMode_ == editMode)
@@ -1103,26 +1043,6 @@ void MainComponent::Impl::setEditMode(TapEditMode editMode)
     self->tuneButton_->setToggleState(editMode == kTapEditTune, juce::dontSendNotification);
     self->panButton_->setToggleState(editMode == kTapEditPan, juce::dontSendNotification);
     self->levelButton_->setToggleState(editMode == kTapEditLevel, juce::dontSendNotification);
-}
-
-void MainComponent::Impl::selectTimeRange(int index)
-{
-    index = juce::jlimit(0, (int)presetTimeRanges.size() - 1, index);
-    timeRangeIndex_ = index;
-    float timeValue = presetTimeRanges[(size_t)index];
-
-    MainComponent *self = self_;
-    self->tapEditScreen_->setTimeRange({0.0f, timeValue});
-
-    char labelText[256];
-    if (timeValue >= 1) {
-        std::sprintf(labelText, "%g s", timeValue);
-    }
-    else {
-        float ms = timeValue * 1000;
-        std::sprintf(labelText, "%g ms", ms);
-    }
-    self->timeRangeLabel_->setText(labelText, juce::dontSendNotification);
 }
 
 void MainComponent::Impl::tappingHasStarted(TapEditScreen *)
