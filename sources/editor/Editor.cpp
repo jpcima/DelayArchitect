@@ -28,6 +28,8 @@ struct Editor::Impl : public TapEditScreen::Listener {
 
     std::unique_ptr<juce::PopupMenu> mainMenu_;
 
+    std::unique_ptr<juce::FileChooser> fileChooser_;
+
     juce::RangedAudioParameter *getRangedParameter(int i) const {
         return static_cast<juce::RangedAudioParameter *>(parameters_[i]);
     }
@@ -36,6 +38,7 @@ struct Editor::Impl : public TapEditScreen::Listener {
     void createActiveTapParameterAttachments();
 
     void choosePresetFileToImport();
+    void importPresetFile(const juce::File &file);
 
     void tapEditStarted(TapEditScreen *, GdParameter id) override;
     void tapEditEnded(TapEditScreen *, GdParameter id) override;
@@ -65,7 +68,12 @@ Editor::Editor(Processor &p)
     juce::PopupMenu *mainMenu = new juce::PopupMenu;
     impl.mainMenu_.reset(mainMenu);
     mainMenu->addItem(TRANS("Import preset"), [&impl]() { impl.choosePresetFileToImport(); });
-    mainComponent->menuButton_->onClick = [&impl]() { impl.mainMenu_->showAt(impl.mainComponent_->menuButton_.get()); };
+    mainComponent->menuButton_->onClick = [this]() {
+        impl_->mainMenu_->showMenuAsync(
+            juce::PopupMenu::Options()
+            .withParentComponent(this)
+            .withTargetComponent(impl_->mainComponent_->menuButton_.get()));
+    };
 
     setSize(mainComponent->getWidth(), mainComponent->getHeight());
     addAndMakeVisible(mainComponent);
@@ -146,16 +154,26 @@ void Editor::Impl::createActiveTapParameterAttachments()
 void Editor::Impl::choosePresetFileToImport()
 {
     Editor *self = self_;
-    juce::FileChooser chooser(TRANS("Import preset"), {}, "*.pst", true, true, self);
 
-    if (!chooser.browseForFileToOpen())
-        return;
+    juce::FileChooser *chooser = new juce::FileChooser(
+        TRANS("Import preset"), {}, "*.pst", true, true, self);
+    fileChooser_.reset(chooser);
 
-    juce::File file = chooser.getResult();
+    chooser->launchAsync(
+        juce::FileBrowserComponent::openMode|juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser &theChooser) {
+            juce::File result = theChooser.getResult();
+            if (result != juce::File{})
+                importPresetFile(result.getFullPathName());
+        });
+}
+
+void Editor::Impl::importPresetFile(const juce::File &file)
+{
     ImporterPST pst;
     ImportData idata;
     if (!pst.importFile(file, idata)) {
-        juce::AlertWindow::showMessageBox(juce::AlertWindow::WarningIcon, TRANS("Error"), TRANS("Could not import the preset file."));
+        juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::WarningIcon, TRANS("Error"), TRANS("Could not import the preset file."), juce::String{}, self_);
         return;
     }
 
