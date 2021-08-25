@@ -83,7 +83,7 @@ void GdNetwork::setParameter(unsigned parameter, float value)
             div_ = GdFindNearestDivisor(value);
             goto all_tap_delays;
         case GDP_SWING:
-            swing_ = value;
+            swing_ = value / 100.0f;
             goto all_tap_delays;
         case GDP_FEEDBACK_ENABLE:
             fbEnable_ = (bool)value;

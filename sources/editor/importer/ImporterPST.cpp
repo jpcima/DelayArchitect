@@ -56,7 +56,7 @@ bool ImporterPST::importFile(const juce::File &file, ImportData &idata)
                 globalValues[GDP_GRID] = (float)(int)(1.0f / value + 0.5f);
                 break;
             case 0x20: // Swing (%) [float32]
-                globalValues[GDP_SWING] = value / 100.0f;
+                globalValues[GDP_SWING] = value;
                 break;
             case 0x24: // Feedback (boolean) [float32]
                 globalValues[GDP_FEEDBACK_ENABLE] = (bool)value;
