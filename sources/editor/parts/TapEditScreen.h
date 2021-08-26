@@ -24,6 +24,7 @@ public:
         intervalContourColourId,
         tapLineColourId,
         tapLabelBackgroundColourId,
+        tapLabelSelectedBackgroundColourId,
         tapLabelTextColourId,
     };
 

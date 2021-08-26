@@ -471,11 +471,13 @@ struct TapEditItem::Impl : public TapSlider::Listener {
     int itemNumber_ {};
     TapEditMode editMode_ = kTapEditOff;
     std::map<TapEditMode, std::unique_ptr<TapSlider>> sliders_;
+    bool tapSelected_ = false;
 
     TapSlider *getCurrentSlider() const;
     TapSlider *getSliderForEditMode(TapEditMode editMode) const;
     void updateSliderVisibility();
     void repositionSliders();
+    void setTapSelected(bool selected);
 
     void sliderValueChanged(juce::Slider *slider) override;
     void sliderDragStarted(juce::Slider *slider) override;
@@ -709,7 +711,7 @@ void TapEditItem::paint(juce::Graphics &g)
 
     Impl &impl = *impl_;
     juce::Rectangle<int> bounds = getLocalBounds();
-    juce::Colour tapLabelBackgroundColour = findColour(TapEditScreen::tapLabelBackgroundColourId);
+    juce::Colour tapLabelBackgroundColour = findColour(impl.tapSelected_ ? TapEditScreen::tapLabelSelectedBackgroundColourId : TapEditScreen::tapLabelBackgroundColourId);
     juce::Colour tapLabelTextColour = findColour(TapEditScreen::tapLabelTextColourId);
 
     juce::Rectangle<int> rectTemp(bounds);
@@ -857,6 +859,16 @@ void TapEditItem::Impl::sliderValueChanged(juce::Slider *slider)
     GdParameter id = (GdParameter)(int)slider->getProperties().getWithDefault(identifier, -1);
     if (id != GDP_NONE)
         listeners_.call([self, id, value](Listener &l) { l.tapValueChanged(self, id, (float)value); });
+}
+
+void TapEditItem::Impl::setTapSelected(bool selected)
+{
+    if (tapSelected_ == selected)
+        return;
+
+    TapEditItem *self = self_;
+    tapSelected_ = selected;
+    self->repaint();
 }
 
 void TapEditItem::Impl::sliderDragStarted(juce::Slider *slider)
