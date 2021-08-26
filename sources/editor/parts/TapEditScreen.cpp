@@ -469,7 +469,7 @@ void TapEditScreen::paint(juce::Graphics &g)
             g.setColour((i % superMajorDiv == 0) ? superMajorIntervalTickColour :
                         (i % majorDiv == 0) ? majorIntervalTickColour :
                         minorIntervalTickColour);
-            g.drawLine(x, (float)intervalsRow.getY(), x, (float)intervalsRow.getBottom());
+            g.drawLine(x, (float)(intervalsRow.getY() + 1), x, (float)(intervalsRow.getBottom() - 1));
             if (d >= (float)GdMaxDelay) break;
         }
     }
