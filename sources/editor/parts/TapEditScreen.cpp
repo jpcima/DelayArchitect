@@ -419,7 +419,6 @@ float TapEditScreen::Impl::currentTapTime(kro::steady_clock::time_point now) con
 void TapEditScreen::Impl::updateItemSizeAndPosition(int itemNumber)
 {
     TapEditScreen *self = self_;
-    juce::Rectangle<int> bounds = self->getLocalBounds();
     juce::Rectangle<int> screenBounds = self->getScreenBounds();
     TapEditItem &item = *items_[itemNumber];
     const TapEditData &data = item.getData();
