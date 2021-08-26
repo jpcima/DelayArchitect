@@ -201,7 +201,7 @@ void TapEditScreen::setTapValue(GdParameter id, float value, juce::NotificationT
         repaint();
         break;
     case GDP_GRID:
-        impl.div_ = (int)value;
+        impl.div_ = GdFindNearestDivisor(value);
         updateAllItemSizesAndPositions();
         repaint();
         break;
@@ -457,7 +457,7 @@ void TapEditScreen::paint(juce::Graphics &g)
     g.setColour(intervalFillColour);
     g.fillRect(intervalsRow);
     if (impl.sync_) {
-        int div = GdFindNearestDivisor((float)impl.div_);
+        int div = impl.div_;
         int majorDiv = div / ((div & 3) ? 2 : 4);
         int superMajorDiv = div;
         float swing = impl.swing_;
