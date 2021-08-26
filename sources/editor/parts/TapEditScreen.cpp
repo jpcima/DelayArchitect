@@ -30,6 +30,7 @@ struct TapEditScreen::Impl : public TapEditItem::Listener,
     float xToDelay(float x) const noexcept;
     float currentTapTime(kro::steady_clock::time_point now = kro::steady_clock::now()) const noexcept;
     int findUnusedTap() const;
+    void createNewTap(int tapNumber, float delay);
     void updateItemSizeAndPosition(int itemNumber);
 
     ///
@@ -146,11 +147,8 @@ void TapEditScreen::beginTap()
     }
     else {
         int nextTapNumber = impl.findUnusedTap();
-        if (nextTapNumber != -1) {
-            float delay = impl.currentTapTime();
-            setTapValue(GdRecomposeParameter(GDP_TAP_A_ENABLE, nextTapNumber), true);
-            setTapValue(GdRecomposeParameter(GDP_TAP_A_DELAY, nextTapNumber), delay);
-        }
+        if (nextTapNumber != -1)
+            impl.createNewTap(nextTapNumber, impl.currentTapTime());
     }
 }
 
@@ -162,11 +160,8 @@ void TapEditScreen::endTap()
         return;
 
     int nextTapNumber = impl.findUnusedTap();
-    if (nextTapNumber != -1) {
-        float delay = impl.currentTapTime();
-        setTapValue(GdRecomposeParameter(GDP_TAP_A_ENABLE, nextTapNumber), true);
-        setTapValue(GdRecomposeParameter(GDP_TAP_A_DELAY, nextTapNumber), delay);
-    }
+    if (nextTapNumber != -1)
+        impl.createNewTap(nextTapNumber, impl.currentTapTime());
 
     impl.tapRedisplayTimer_->stopTimer();
     impl.tapHasBegun_ = false;
@@ -187,6 +182,28 @@ int TapEditScreen::Impl::findUnusedTap() const
     }
 
     return selectedNumber;
+}
+
+void TapEditScreen::Impl::createNewTap(int tapNumber, float delay)
+{
+    TapEditScreen *self = self_;
+
+    for (int i = 0; i < GdNumPametersPerTap; ++i) {
+        GdParameter decomposedId = (GdParameter)(GdFirstParameterOfFirstTap + i);
+        GdParameter id = GdRecomposeParameter(decomposedId, tapNumber);
+
+        switch ((int)decomposedId) {
+        case GDP_TAP_A_ENABLE:
+            self->setTapValue(id, true);
+            break;
+        case GDP_TAP_A_DELAY:
+            self->setTapValue(id, delay);
+            break;
+        default:
+            self->setTapValue(id, GdParameterDefault(id));
+            break;
+        }
+    }
 }
 
 void TapEditScreen::updateItemSizeAndPosition(int tapNumber)
