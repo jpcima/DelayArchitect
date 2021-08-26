@@ -37,6 +37,7 @@ struct TapEditScreen::Impl : public TapEditItem::Listener,
     void nextTapCapture();
     void tickTapCapture();
     void endTapCapture();
+    void autoZoomTimeRange();
     void updateItemSizeAndPosition(int itemNumber);
     void updateAllItemSizesAndPositions();
 
@@ -227,15 +228,10 @@ void TapEditScreen::Impl::nextTapCapture()
     if (delay > (float)GdMaxDelay)
         return;
 
-    int nextTapNumber;
-    if (tapCaptureCount_ == 0) {
+    if (tapCaptureCount_ == 0)
         clearAllTaps();
-        nextTapNumber = 0;
-    }
-    else {
-        nextTapNumber = findUnusedTap();
-    }
 
+    int nextTapNumber = findUnusedTap();
     if (nextTapNumber == -1)
         return;
 
@@ -259,6 +255,37 @@ void TapEditScreen::Impl::endTapCapture()
     tapCaptureTimer_->stopTimer();
     tapHasBegun_ = false;
     listeners_.call([self](Listener &l) { l.tappingHasEnded(self); });
+
+    autoZoomTimeRange();
+}
+
+void TapEditScreen::Impl::autoZoomTimeRange()
+{
+    int count = 0;
+    float maxDelay = 0;
+
+    for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber) {
+        TapEditItem &item = *items_[tapNumber];
+
+        bool enable = (bool)item.getTapValue(GdRecomposeParameter(GDP_TAP_A_ENABLE, tapNumber));
+        float delay = item.getTapValue(GdRecomposeParameter(GDP_TAP_A_DELAY, tapNumber));
+
+        if (enable) {
+            maxDelay = std::max(delay, maxDelay);
+            ++count;
+        }
+    }
+
+    if (count == 0)
+        maxDelay = GdMaxDelay;
+    else
+    {
+        const float interval = 0.5f;
+        maxDelay = std::min((float)GdMaxDelay, interval * std::floor((maxDelay + interval) / interval));
+    }
+
+    TapEditScreen *self = self_;
+    self->setTimeRange({0, maxDelay});
 }
 
 void TapEditScreen::updateItemSizeAndPosition(int tapNumber)
