@@ -23,7 +23,7 @@ struct TapEditScreen::Impl : public TapEditItem::Listener,
     ///
     bool tapHasBegun_ = false;
     kro::steady_clock::time_point tapBeginTime_;
-    std::unique_ptr<juce::Timer> tapRedisplayTimer_;
+    std::unique_ptr<juce::Timer> tapCaptureTimer_;
 
     ///
     float delayToX(float t) const noexcept;
@@ -31,6 +31,9 @@ struct TapEditScreen::Impl : public TapEditItem::Listener,
     float currentTapTime(kro::steady_clock::time_point now = kro::steady_clock::now()) const noexcept;
     int findUnusedTap() const;
     void createNewTap(int tapNumber, float delay);
+    void beginTapCapture();
+    void tickTapCapture();
+    void endTapCapture();
     void updateItemSizeAndPosition(int itemNumber);
 
     ///
@@ -63,9 +66,7 @@ TapEditScreen::TapEditScreen()
     miniMap->addListener(&impl);
     addAndMakeVisible(miniMap);
 
-    impl.tapRedisplayTimer_.reset(FunctionalTimer::create([this]() {
-        repaint();
-    }));
+    impl.tapCaptureTimer_.reset(FunctionalTimer::create([&impl]() { impl.tickTapCapture(); }));
 }
 
 TapEditScreen::~TapEditScreen()
@@ -139,17 +140,18 @@ void TapEditScreen::beginTap()
 {
     Impl &impl = *impl_;
 
-    if (!impl.tapHasBegun_) {
-        impl.tapHasBegun_ = true;
-        impl.tapBeginTime_ = kro::steady_clock::now();
-        impl.tapRedisplayTimer_->startTimerHz(60);
-        impl.listeners_.call([this](Listener &l) { l.tappingHasStarted(this); });
-    }
+    if (!impl.tapHasBegun_)
+        impl.beginTapCapture();
     else {
         int nextTapNumber = impl.findUnusedTap();
-        if (nextTapNumber != -1)
-            impl.createNewTap(nextTapNumber, impl.currentTapTime());
+        if (nextTapNumber != -1) {
+            float delay = impl.currentTapTime();
+            if (delay <= (float)GdMaxDelay)
+                impl.createNewTap(nextTapNumber, delay);
+        }
     }
+
+    repaint();
 }
 
 void TapEditScreen::endTap()
@@ -160,12 +162,13 @@ void TapEditScreen::endTap()
         return;
 
     int nextTapNumber = impl.findUnusedTap();
-    if (nextTapNumber != -1)
-        impl.createNewTap(nextTapNumber, impl.currentTapTime());
+    if (nextTapNumber != -1) {
+        float delay = impl.currentTapTime();
+        if (delay <= (float)GdMaxDelay)
+            impl.createNewTap(nextTapNumber, delay);
+    }
 
-    impl.tapRedisplayTimer_->stopTimer();
-    impl.tapHasBegun_ = false;
-    impl.listeners_.call([this](Listener &l) { l.tappingHasEnded(this); });
+    impl.endTapCapture();
 
     repaint();
 }
@@ -204,6 +207,33 @@ void TapEditScreen::Impl::createNewTap(int tapNumber, float delay)
             break;
         }
     }
+}
+
+void TapEditScreen::Impl::beginTapCapture()
+{
+    TapEditScreen *self = self_;
+    tapHasBegun_ = true;
+    tapBeginTime_ = kro::steady_clock::now();
+    tapCaptureTimer_->startTimerHz(60);
+    listeners_.call([self](Listener &l) { l.tappingHasStarted(self); });
+}
+
+void TapEditScreen::Impl::tickTapCapture()
+{
+    TapEditScreen *self = self_;
+
+    if (currentTapTime() > (float)GdMaxDelay)
+        endTapCapture();
+
+    self->repaint();
+}
+
+void TapEditScreen::Impl::endTapCapture()
+{
+    TapEditScreen *self = self_;
+    tapCaptureTimer_->stopTimer();
+    tapHasBegun_ = false;
+    listeners_.call([self](Listener &l) { l.tappingHasEnded(self); });
 }
 
 void TapEditScreen::updateItemSizeAndPosition(int tapNumber)
@@ -286,7 +316,7 @@ float TapEditScreen::Impl::currentTapTime(kro::steady_clock::time_point now) con
 {
     kro::steady_clock::duration dur = now - tapBeginTime_;
     float secs = kro::duration<float>(dur).count();
-    return std::fmod(secs, GdMaxDelay);
+    return secs;
 }
 
 void TapEditScreen::Impl::updateItemSizeAndPosition(int itemNumber)
