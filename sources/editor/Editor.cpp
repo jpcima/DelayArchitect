@@ -9,6 +9,7 @@
 #include "editor/attachments/AutomaticComboBoxParameterAttachment.h"
 #include "editor/attachments/InvertedButtonParameterAttachment.h"
 #include "editor/attachments/SliderParameterAttachmentWithTooltip.h"
+#include "editor/utility/FunctionalTimer.h"
 #include "processor/Processor.h"
 #include "importer/ImporterPST.h"
 #include "utility/AutoDeletePool.h"
@@ -18,6 +19,7 @@
 //==============================================================================
 struct Editor::Impl : public TapEditScreen::Listener {
     Editor *self_ = nullptr;
+    Processor *processor_ = nullptr;
     std::unique_ptr<AdvancedTooltipWindow> tooltipWindow_;
     std::unique_ptr<MainComponent> mainComponent_;
     juce::Array<juce::AudioProcessorParameter *> parameters_;
@@ -30,9 +32,13 @@ struct Editor::Impl : public TapEditScreen::Listener {
 
     std::unique_ptr<juce::FileChooser> fileChooser_;
 
+    std::unique_ptr<juce::Timer> idleTimer_;
+
     juce::RangedAudioParameter *getRangedParameter(int i) const {
         return static_cast<juce::RangedAudioParameter *>(parameters_[i]);
     }
+
+    void runIdle();
 
     void setActiveTap(int tapNumber);
     void createActiveTapParameterAttachments();
@@ -52,6 +58,7 @@ Editor::Editor(Processor &p)
 {
     Impl &impl = *impl_;
     impl.self_ = this;
+    impl.processor_ = &p;
 
     impl.parameters_ = p.getParameters();
 
@@ -84,12 +91,9 @@ Editor::Editor(Processor &p)
     //
     AutoDeletePool &att = impl.globalAttachments_;
 
-    for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber) {
-        for (int i = 0; i < GdNumPametersPerTap; ++i) {
-            GdParameter decomposedId = (GdParameter)(GdFirstParameterOfFirstTap + i);
-            GdParameter id = GdRecomposeParameter(decomposedId, tapNumber);
-            att.makeNew<TapParameterAttachment>(*impl.getRangedParameter((int)id), tapEdit);
-        }
+    for (int i = 0; i < GD_PARAMETER_COUNT; ++i) {
+        juce::RangedAudioParameter &parameter = *impl.getRangedParameter(i);
+        att.makeNew<TapParameterAttachment>(parameter, tapEdit);
     }
 
     att.makeNew<juce::ButtonParameterAttachment>(*impl.getRangedParameter((int)GDP_SYNC), *mainComponent->syncButton_, nullptr);
@@ -103,10 +107,21 @@ Editor::Editor(Processor &p)
 
     //
     impl.setActiveTap(0);
+
+    //
+    juce::Timer *idleTimer = FunctionalTimer::create([&impl]() { impl.runIdle(); });
+    impl.idleTimer_.reset(idleTimer);
+    idleTimer->startTimer(50);
 }
 
 Editor::~Editor()
 {
+}
+
+void Editor::Impl::runIdle()
+{
+    double bpm = processor_->getLastKnownBPM();
+    mainComponent_->tapEditScreen_->setBPM(bpm);
 }
 
 void Editor::Impl::setActiveTap(int tapNumber)

@@ -26,6 +26,9 @@ public:
         tapLabelBackgroundColourId,
         tapLabelSelectedBackgroundColourId,
         tapLabelTextColourId,
+        minorIntervalTickColourId,
+        majorIntervalTickColourId,
+        superMajorIntervalTickColourId,
     };
 
     TapEditScreen();
@@ -39,6 +42,9 @@ public:
 
     float getTapValue(GdParameter id) const;
     void setTapValue(GdParameter id, float value, juce::NotificationType nt = juce::sendNotificationSync);
+
+    double getBPM() const;
+    void setBPM(double bpm);
 
     void beginTap();
     void endTap();

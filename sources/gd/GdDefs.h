@@ -159,15 +159,22 @@ inline float GdGetGridInterval(int div, float bpm)
     return 240.0f / ((float)div * bpm);
 }
 
+// Get the delay of the nth tick in the grid
+inline float GdGetGridTick(int index, int div, float swing, float bpm)
+{
+    float interval = GdGetGridInterval(div, bpm);
+    float delay = interval * (float)index;
+    float offset = interval * (swing * 2 - 1);
+    delay += (index & 1) ? offset : 0.0f;
+    delay = (delay < (float)GdMaxDelay) ? delay : (float)GdMaxDelay;
+    return delay;
+}
+
 // Get the nearest delay value, aligned according to the grid division
 inline float GdAlignDelayToGrid(float delay, int div, float swing, float bpm)
 {
     float interval = GdGetGridInterval(div, bpm);
     delay = (delay > 0) ? delay : 0;
-    int ndiv = (int)(delay / interval + 0.5f);
-    delay = interval * (float)ndiv;
-    float offset = interval * (swing * 2 - 1);
-    delay += (ndiv & 1) ? offset : 0.0f;
-    delay = (delay < (float)GdMaxDelay) ? delay : (float)GdMaxDelay;
-    return delay;
+    int index = (int)(delay / interval + 0.5f);
+    return GdGetGridTick(index, div, swing, bpm);
 }

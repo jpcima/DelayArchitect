@@ -36,6 +36,14 @@ Processor::~Processor()
 }
 
 //==============================================================================
+double Processor::getLastKnownBPM() const
+{
+    Impl &impl = *impl_;
+    double bpm = impl.lastKnownBpm_;
+    return (bpm != 1.0) ? bpm : 120.0;
+}
+
+//==============================================================================
 void Processor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     Impl &impl = *impl_;

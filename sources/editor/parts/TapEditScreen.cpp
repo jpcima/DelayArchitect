@@ -14,10 +14,16 @@ struct TapEditScreen::Impl : public TapEditItem::Listener,
     TapEditScreen *self_ = nullptr;
     juce::ListenerList<Listener> listeners_;
 
+    ///
     std::unique_ptr<TapEditItem> items_[GdMaxLines];
     std::unique_ptr<TapMiniMap> miniMap_;
     juce::Range<float> timeRange_{0, 1};
     TapEditMode editMode_ = kTapEditOff;
+
+    bool sync_ = true;
+    int div_ = GdDefaultDivisor;
+    float swing_ = 0.5f;
+    double bpm_ = 120.0;
 
     enum {
         xMargin = 10,
@@ -148,6 +154,8 @@ void TapEditScreen::setTimeRange(juce::Range<float> newTimeRange)
     impl.updateAllItemSizesAndPositions();
 
     impl.miniMap_->setTimeRange(impl.timeRange_, juce::dontSendNotification);
+
+    repaint();
 }
 
 float TapEditScreen::getTapValue(GdParameter id) const
@@ -156,8 +164,21 @@ float TapEditScreen::getTapValue(GdParameter id) const
     GdDecomposeParameter(id, &tapNumber);
 
     Impl &impl = *impl_;
-    TapEditItem &item = *impl.items_[tapNumber];
-    return item.getTapValue(id);
+
+    switch ((int)id) {
+    default:
+        if (tapNumber != -1) {
+            TapEditItem &item = *impl.items_[tapNumber];
+            return item.getTapValue(id);
+        }
+        return 0;
+    case GDP_SYNC:
+        return impl.sync_;
+    case GDP_GRID:
+        return (float)impl.div_;
+    case GDP_SWING:
+        return impl.swing_ * 100.0f;
+    }
 }
 
 void TapEditScreen::setTapValue(GdParameter id, float value, juce::NotificationType nt)
@@ -166,8 +187,46 @@ void TapEditScreen::setTapValue(GdParameter id, float value, juce::NotificationT
     GdDecomposeParameter(id, &tapNumber);
 
     Impl &impl = *impl_;
-    TapEditItem &item = *impl.items_[tapNumber];
-    item.setTapValue(id, value, nt);
+
+    switch ((int)id) {
+    default:
+        if (tapNumber != -1) {
+            TapEditItem &item = *impl.items_[tapNumber];
+            item.setTapValue(id, value, nt);
+        }
+        break;
+    case GDP_SYNC:
+        impl.sync_ = (bool)value;
+        updateAllItemSizesAndPositions();
+        repaint();
+        break;
+    case GDP_GRID:
+        impl.div_ = (int)value;
+        updateAllItemSizesAndPositions();
+        repaint();
+        break;
+    case GDP_SWING:
+        impl.swing_ = value / 100.0f;
+        updateAllItemSizesAndPositions();
+        repaint();
+        break;
+    }
+}
+
+double TapEditScreen::getBPM() const
+{
+    Impl &impl = *impl_;
+    return impl.bpm_;
+}
+
+void TapEditScreen::setBPM(double bpm)
+{
+    Impl &impl = *impl_;
+    if (impl.bpm_ == bpm)
+        return;
+
+    impl.bpm_ = bpm;
+    repaint();
 }
 
 void TapEditScreen::beginTap()
@@ -389,11 +448,31 @@ void TapEditScreen::paint(juce::Graphics &g)
     juce::Colour screenContourColour = findColour(screenContourColourId);
     juce::Colour intervalFillColour = findColour(intervalFillColourId);
     juce::Colour intervalContourColour = findColour(intervalContourColourId);
+    juce::Colour minorIntervalTickColour = findColour(minorIntervalTickColourId);
+    juce::Colour majorIntervalTickColour = findColour(majorIntervalTickColourId);
+    juce::Colour superMajorIntervalTickColour = findColour(superMajorIntervalTickColourId);
 
     g.setColour(screenContourColour);
     g.drawRect(screenBounds);
     g.setColour(intervalFillColour);
     g.fillRect(intervalsRow);
+    if (impl.sync_) {
+        int div = GdFindNearestDivisor((float)impl.div_);
+        int majorDiv = div / ((div & 3) ? 2 : 4);
+        int superMajorDiv = div;
+        float swing = impl.swing_;
+        float bpm = (float)impl.bpm_;
+        for (int i = 0; ; ++i) {
+            float d = GdGetGridTick(i, div, swing, bpm);
+            float x = getXForDelay(d);
+            if (x > (float)intervalsRow.getRight()) break;
+            g.setColour((i % superMajorDiv == 0) ? superMajorIntervalTickColour :
+                        (i % majorDiv == 0) ? majorIntervalTickColour :
+                        minorIntervalTickColour);
+            g.drawLine(x, (float)intervalsRow.getY(), x, (float)intervalsRow.getBottom());
+            if (d >= (float)GdMaxDelay) break;
+        }
+    }
     g.setColour(intervalContourColour);
     g.drawRect(intervalsRow);
 

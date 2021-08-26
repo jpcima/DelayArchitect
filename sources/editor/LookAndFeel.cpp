@@ -25,6 +25,9 @@ LookAndFeel::LookAndFeel()
     setColour(TapEditScreen::tapLabelBackgroundColourId, juce::Colour(0xff, 0xff, 0xff));
     setColour(TapEditScreen::tapLabelSelectedBackgroundColourId, juce::Colour(0xff, 0xff, 0x80));
     setColour(TapEditScreen::tapLabelTextColourId, juce::Colour(0x00, 0x00, 0x00));
+    setColour(TapEditScreen::minorIntervalTickColourId, juce::Colour(0x00, 0x00, 0x00).withAlpha(0.5f));
+    setColour(TapEditScreen::majorIntervalTickColourId, juce::Colour(0xff, 0xff, 0xff).withAlpha(0.5f));
+    setColour(TapEditScreen::superMajorIntervalTickColourId, juce::Colour(0xff, 0xff, 0xff));
 }
 
 LookAndFeel::~LookAndFeel()
