@@ -23,6 +23,8 @@ public:
         intervalFillColourId,
         intervalContourColourId,
         tapLineColourId,
+        tapLabelBackgroundColourId,
+        tapLabelTextColourId,
     };
 
     TapEditScreen();

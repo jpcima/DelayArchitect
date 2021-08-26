@@ -709,7 +709,8 @@ void TapEditItem::paint(juce::Graphics &g)
 
     Impl &impl = *impl_;
     juce::Rectangle<int> bounds = getLocalBounds();
-    juce::Colour lineColour = findColour(TapEditScreen::lineColourId);
+    juce::Colour tapLabelBackgroundColour = findColour(TapEditScreen::tapLabelBackgroundColourId);
+    juce::Colour tapLabelTextColour = findColour(TapEditScreen::tapLabelTextColourId);
 
     juce::Rectangle<int> rectTemp(bounds);
     juce::Rectangle<int> labelBounds = rectTemp.removeFromBottom(getLabelHeight());
@@ -718,8 +719,9 @@ void TapEditItem::paint(juce::Graphics &g)
     labelTextCstr[0] = (char)(impl.itemNumber_ + 'A');
     labelTextCstr[1] = '\0';
 
-    g.setColour(lineColour);
-    g.drawRect(labelBounds);
+    g.setColour(tapLabelBackgroundColour);
+    g.fillRoundedRectangle(labelBounds.toFloat(), 3.0f);
+    g.setColour(tapLabelTextColour);
     g.drawText(labelTextCstr, labelBounds, juce::Justification::centred);
 }
 
