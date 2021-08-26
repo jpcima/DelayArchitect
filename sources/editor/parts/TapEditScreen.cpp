@@ -213,6 +213,7 @@ void TapEditScreen::Impl::clearAllTaps()
 void TapEditScreen::Impl::beginTapCapture()
 {
     TapEditScreen *self = self_;
+    self->setTimeRange({0, GdMaxDelay});
     tapHasBegun_ = true;
     tapCaptureCount_ = 0;
     tapBeginTime_ = kro::steady_clock::now();
@@ -226,10 +227,15 @@ void TapEditScreen::Impl::nextTapCapture()
     if (delay > (float)GdMaxDelay)
         return;
 
-    if (tapCaptureCount_ == 0)
+    int nextTapNumber;
+    if (tapCaptureCount_ == 0) {
         clearAllTaps();
+        nextTapNumber = 0;
+    }
+    else {
+        nextTapNumber = findUnusedTap();
+    }
 
-    int nextTapNumber = findUnusedTap();
     if (nextTapNumber == -1)
         return;
 
