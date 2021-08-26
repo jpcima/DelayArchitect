@@ -18,7 +18,10 @@ struct TapEditScreen::Impl : public TapEditItem::Listener,
     juce::Range<float> timeRange_{0, 1};
     TapEditMode editMode_ = kTapEditOff;
 
-    int xMargin_ = 25;
+    enum {
+        xMargin = 10,
+        yMargin = 10,
+    };
 
     ///
     bool tapHasBegun_ = false;
@@ -312,6 +315,28 @@ float TapEditScreen::getDelayForX(float x) const
     return impl.xToDelay(x);
 }
 
+juce::Rectangle<int> TapEditScreen::getLocalBoundsNoMargin() const
+{
+    return getLocalBounds().reduced(Impl::xMargin, Impl::yMargin);
+}
+
+juce::Rectangle<int> TapEditScreen::getScreenBounds() const
+{
+    return getIntervalsRow().getUnion(getSlidersRow());
+}
+
+juce::Rectangle<int> TapEditScreen::getIntervalsRow() const
+{
+    int intervalsHeight = TapEditItem::getLabelHeight();
+    return getLocalBoundsNoMargin().removeFromBottom(intervalsHeight);
+}
+
+juce::Rectangle<int> TapEditScreen::getSlidersRow() const
+{
+    int intervalsHeight = TapEditItem::getLabelHeight();
+    return getLocalBoundsNoMargin().withTrimmedBottom(intervalsHeight);
+}
+
 void TapEditScreen::addListener(Listener *listener)
 {
     Impl &impl = *impl_;
@@ -330,17 +355,31 @@ void TapEditScreen::paint(juce::Graphics &g)
 
     Impl &impl = *impl_;
     juce::Rectangle<int> bounds = getLocalBounds();
+    juce::Rectangle<int> screenBounds = getScreenBounds();
+    juce::Rectangle<int> intervalsRow = getIntervalsRow();
+    juce::Rectangle<int> slidersRow = getSlidersRow();
+
+    juce::Colour screenContourColour = findColour(screenContourColourId);
+    juce::Colour intervalFillColour = findColour(intervalFillColourId);
+    juce::Colour intervalContourColour = findColour(intervalContourColourId);
+
+    g.setColour(screenContourColour);
+    g.drawRect(screenBounds);
+    g.setColour(intervalFillColour);
+    g.fillRect(intervalsRow);
+    g.setColour(intervalContourColour);
+    g.drawRect(intervalsRow);
 
     switch ((int)impl.editMode_) {
     case kTapEditTune:
     case kTapEditPan:
-        {
-            juce::Colour lineColour = findColour(lineColourId);
-            g.setColour(lineColour);
-            float lineY = 0.5f * (float)(bounds.getHeight() - impl.items_[0]->getLabelHeight());
-            g.drawHorizontalLine((int)(lineY + 0.5f), (float)bounds.getX(), (float)bounds.getRight());
-            break;
-        }
+    {
+        juce::Colour lineColour = findColour(lineColourId);
+        g.setColour(lineColour);
+        float lineY = slidersRow.toFloat().getCentreY();
+        g.drawHorizontalLine((int)(lineY + 0.5f), (float)bounds.getX(), (float)bounds.getRight());
+        break;
+    }
     default:
         break;
     }
@@ -357,7 +396,7 @@ void TapEditScreen::paint(juce::Graphics &g)
 float TapEditScreen::Impl::delayToX(float t) const noexcept
 {
     TapEditScreen *self = self_;
-    juce::Rectangle<float> rc = self->getLocalBounds().reduced(xMargin_, 0.0f).toFloat();
+    juce::Rectangle<float> rc = self->getLocalBoundsNoMargin().toFloat().reduced((float)TapEditItem::getLabelWidth() / 2.0f, 0);
     juce::Range<float> tr = timeRange_;
     return rc.getX() + rc.getWidth() * ((t - tr.getStart()) / tr.getLength());
 }
@@ -365,7 +404,7 @@ float TapEditScreen::Impl::delayToX(float t) const noexcept
 float TapEditScreen::Impl::xToDelay(float x) const noexcept
 {
     TapEditScreen *self = self_;
-    juce::Rectangle<float> rc = self->getLocalBounds().reduced(xMargin_, 0.0f).toFloat();
+    juce::Rectangle<float> rc = self->getLocalBoundsNoMargin().toFloat().reduced((float)TapEditItem::getLabelWidth() / 2.0f, 0);
     juce::Range<float> tr = timeRange_;
     return tr.getStart() + tr.getLength() * ((x - rc.getX()) / rc.getWidth());
 }
@@ -381,12 +420,13 @@ void TapEditScreen::Impl::updateItemSizeAndPosition(int itemNumber)
 {
     TapEditScreen *self = self_;
     juce::Rectangle<int> bounds = self->getLocalBounds();
+    juce::Rectangle<int> screenBounds = self->getScreenBounds();
     TapEditItem &item = *items_[itemNumber];
     const TapEditData &data = item.getData();
     int width = item.getLabelWidth();
-    int height = bounds.getHeight();
+    int height = screenBounds.getHeight();
     item.setSize(width, height);
-    item.setTopLeftPosition((int)(delayToX(data.delay) - 0.5f * (float)width), 0);
+    item.setTopLeftPosition((int)(delayToX(data.delay) - 0.5f * (float)width), screenBounds.getY());
 }
 
 void TapEditScreen::Impl::updateAllItemSizesAndPositions()
@@ -430,8 +470,6 @@ struct TapEditItem::Impl : public TapSlider::Listener {
     TapEditData data_;
     TapEditScreen *screen_ = nullptr;
     int itemNumber_ {};
-    int labelWidth_ = 20;
-    int labelHeight_ = 20;
     TapEditMode editMode_ = kTapEditOff;
     std::map<TapEditMode, std::unique_ptr<TapSlider>> sliders_;
 
@@ -509,18 +547,6 @@ const TapEditData &TapEditItem::getData() const noexcept
 {
     Impl &impl = *impl_;
     return impl.data_;
-}
-
-int TapEditItem::getLabelWidth() const noexcept
-{
-    Impl &impl = *impl_;
-    return impl.labelWidth_;
-}
-
-int TapEditItem::getLabelHeight() const noexcept
-{
-    Impl &impl = *impl_;
-    return impl.labelHeight_;
 }
 
 TapEditMode TapEditItem::getEditMode() const noexcept
@@ -687,7 +713,7 @@ void TapEditItem::paint(juce::Graphics &g)
     juce::Colour lineColour = findColour(TapEditScreen::lineColourId);
 
     juce::Rectangle<int> rectTemp(bounds);
-    juce::Rectangle<int> labelBounds = rectTemp.removeFromBottom(impl.labelHeight_);
+    juce::Rectangle<int> labelBounds = rectTemp.removeFromBottom(getLabelHeight());
 
     char labelTextCstr[2];
     labelTextCstr[0] = (char)(impl.itemNumber_ + 'A');
@@ -703,7 +729,7 @@ void TapEditItem::mouseDown(const juce::MouseEvent &e)
     Impl &impl = *impl_;
     juce::Rectangle<int> bounds = getLocalBounds();
 
-    if (impl.dragChangeId_ == GDP_NONE && e.y >= bounds.getBottom() - impl.labelHeight_) {
+    if (impl.dragChangeId_ == GDP_NONE && e.y >= bounds.getBottom() - getLabelHeight()) {
         impl.dragChangeId_ = GdRecomposeParameter(GDP_TAP_A_DELAY, impl.itemNumber_);
         impl.dragger_.startDraggingComponent(this, e);
         impl.listeners_.call([this](Listener &l) { l.tapEditStarted(this, impl_->dragChangeId_); });
@@ -798,7 +824,7 @@ void TapEditItem::Impl::repositionSliders()
 {
     TapEditItem *self = self_;
     juce::Rectangle<int> bounds = self->getLocalBounds();
-    juce::Rectangle<int> sliderBounds = bounds.withTrimmedBottom(labelHeight_);
+    juce::Rectangle<int> sliderBounds = bounds.withTrimmedBottom(getLabelHeight());
     sliderBounds = sliderBounds.withSizeKeepingCentre(8, sliderBounds.getHeight());
 
     for (const auto &sliderPair : sliders_) {

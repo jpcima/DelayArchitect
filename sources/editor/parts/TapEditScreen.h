@@ -19,6 +19,9 @@ class TapEditScreen final : public juce::Component {
 public:
     enum ColourIds {
         lineColourId = 0x1000,
+        screenContourColourId,
+        intervalFillColourId,
+        intervalContourColourId,
         tapLineColourId,
     };
 
@@ -41,6 +44,11 @@ public:
     void updateAllItemSizesAndPositions();
     float getXForDelay(float delay) const;
     float getDelayForX(float x) const;
+
+    juce::Rectangle<int> getLocalBoundsNoMargin() const;
+    juce::Rectangle<int> getScreenBounds() const;
+    juce::Rectangle<int> getIntervalsRow() const;
+    juce::Rectangle<int> getSlidersRow() const;
 
     class Listener {
     public:
@@ -78,8 +86,8 @@ public:
     ~TapEditItem() override;
     int getItemNumber() const noexcept;
     const TapEditData &getData() const noexcept;
-    int getLabelWidth() const noexcept;
-    int getLabelHeight() const noexcept;
+    static constexpr int getLabelWidth() noexcept { return 20; }
+    static constexpr int getLabelHeight() noexcept { return 20; }
 
     TapEditMode getEditMode() const noexcept;
     void setEditMode(TapEditMode mode);
