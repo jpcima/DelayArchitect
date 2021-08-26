@@ -7,7 +7,8 @@
 namespace kro = std::chrono;
 
 struct TapEditScreen::Impl : public TapEditItem::Listener,
-                             public TapMiniMap::Listener {
+                             public TapMiniMap::Listener,
+                             public juce::ChangeListener {
     using Listener = TapEditScreen::Listener;
 
     TapEditScreen *self_ = nullptr;
@@ -28,6 +29,21 @@ struct TapEditScreen::Impl : public TapEditItem::Listener,
     unsigned tapCaptureCount_ = 0;
     kro::steady_clock::time_point tapBeginTime_;
     std::unique_ptr<juce::Timer> tapCaptureTimer_;
+
+    ///
+    class TapLassoSource : public juce::LassoSource<TapEditItem *> {
+    public:
+        explicit TapLassoSource(Impl &impl);
+        void findLassoItemsInArea(juce::Array<TapEditItem *> &itemsFound, const juce::Rectangle<int> &area) override;
+        juce::SelectedItemSet<TapEditItem *> &getLassoSelection() override;
+    private:
+        Impl *impl_ = nullptr;
+    };
+    using TapLassoComponent = juce::LassoComponent<TapEditItem *>;
+    std::unique_ptr<TapLassoComponent> lasso_;
+    std::unique_ptr<TapLassoSource> lassoSource_;
+    juce::SelectedItemSet<TapEditItem *> lassoSelection_;
+    bool lassoStarted_ = false;
 
     ///
     float delayToX(float t) const noexcept;
@@ -51,6 +67,9 @@ struct TapEditScreen::Impl : public TapEditItem::Listener,
 
     ///
     void miniMapRangeChanged(TapMiniMap *, juce::Range<float> range) override;
+
+    ///
+    void changeListenerCallback(juce::ChangeBroadcaster *source) override;
 };
 
 TapEditScreen::TapEditScreen()
@@ -74,13 +93,21 @@ TapEditScreen::TapEditScreen()
     miniMap->addListener(&impl);
     addAndMakeVisible(miniMap);
 
+    Impl::TapLassoComponent *lasso = new Impl::TapLassoComponent;
+    impl.lasso_.reset(lasso);
+    addChildComponent(lasso);
+    Impl::TapLassoSource *lassoSource = new Impl::TapLassoSource(impl);
+    impl.lassoSource_.reset(lassoSource);
+    impl.lassoSelection_.addChangeListener(&impl);
+
     impl.tapCaptureTimer_.reset(FunctionalTimer::create([&impl]() { impl.tickTapCapture(); }));
 }
 
 TapEditScreen::~TapEditScreen()
 {
     Impl &impl = *impl_;
-    impl.miniMap_->addListener(&impl);
+    impl.miniMap_->removeListener(&impl);
+    impl.lassoSelection_.removeChangeListener(&impl);
 }
 
 TapEditMode TapEditScreen::getEditMode() const noexcept
@@ -393,6 +420,43 @@ void TapEditScreen::paint(juce::Graphics &g)
     }
 }
 
+void TapEditScreen::mouseDown(const juce::MouseEvent &e)
+{
+    (void)e;
+}
+
+void TapEditScreen::mouseUp(const juce::MouseEvent &e)
+{
+    Impl &impl = *impl_;
+
+    (void)e;
+
+    if (impl.lassoStarted_) {
+        impl.lasso_->endLasso();
+        impl.lassoStarted_ = false;
+    }
+    else {
+        for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber) {
+            TapEditItem &item = *impl.items_[tapNumber];
+            item.setTapSelected(false);
+        }
+    }
+}
+
+void TapEditScreen::mouseDrag(const juce::MouseEvent &e)
+{
+    Impl &impl = *impl_;
+
+    if (!impl.lassoStarted_) {
+        impl.lasso_->beginLasso(e, impl.lassoSource_.get());
+        impl.lassoStarted_ = true;
+    }
+    if (impl.lassoStarted_) {
+        impl.lasso_->dragLasso(e);
+    }
+}
+
+
 float TapEditScreen::Impl::delayToX(float t) const noexcept
 {
     TapEditScreen *self = self_;
@@ -458,6 +522,42 @@ void TapEditScreen::Impl::miniMapRangeChanged(TapMiniMap *, juce::Range<float> r
     self->setTimeRange(range);
 }
 
+void TapEditScreen::Impl::changeListenerCallback(juce::ChangeBroadcaster *source)
+{
+    if (source == &lassoSelection_) {
+        bool selected[GdMaxLines] = {};
+        for (TapEditItem *item : lassoSelection_)
+            selected[item->getItemNumber()] = true;
+
+        for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber) {
+            TapEditItem &item = *items_[tapNumber];
+            item.setTapSelected(selected[tapNumber]);
+        }
+    }
+}
+
+///
+TapEditScreen::Impl::TapLassoSource::TapLassoSource(Impl &impl)
+    : impl_(&impl)
+{
+}
+
+void TapEditScreen::Impl::TapLassoSource::findLassoItemsInArea(juce::Array<TapEditItem *> &itemsFound, const juce::Rectangle<int> &area)
+{
+    Impl &impl = *impl_;
+    for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber) {
+        TapEditItem &item = *impl.items_[tapNumber];
+        if (item.isVisible() && area.intersects(item.getBounds()))
+            itemsFound.add(&item);
+    }
+}
+
+juce::SelectedItemSet<TapEditItem *> &TapEditScreen::Impl::TapLassoSource::getLassoSelection()
+{
+    Impl &impl = *impl_;
+    return impl.lassoSelection_;
+}
+
 //------------------------------------------------------------------------------
 struct TapEditItem::Impl : public TapSlider::Listener {
     using Listener = TapEditItem::Listener;
@@ -477,7 +577,6 @@ struct TapEditItem::Impl : public TapSlider::Listener {
     TapSlider *getSliderForEditMode(TapEditMode editMode) const;
     void updateSliderVisibility();
     void repositionSliders();
-    void setTapSelected(bool selected);
 
     void sliderValueChanged(juce::Slider *slider) override;
     void sliderDragStarted(juce::Slider *slider) override;
@@ -693,6 +792,23 @@ void TapEditItem::setTapValue(GdParameter id, float value, juce::NotificationTyp
     }
 }
 
+bool TapEditItem::isTapSelected() const
+{
+    Impl &impl = *impl_;
+    return impl.tapSelected_;
+}
+
+void TapEditItem::setTapSelected(bool selected)
+{
+    Impl &impl = *impl_;
+
+    if (impl.tapSelected_ == selected)
+        return;
+
+    impl.tapSelected_ = selected;
+    repaint();
+}
+
 void TapEditItem::addListener(Listener *listener)
 {
     Impl &impl = *impl_;
@@ -859,16 +975,6 @@ void TapEditItem::Impl::sliderValueChanged(juce::Slider *slider)
     GdParameter id = (GdParameter)(int)slider->getProperties().getWithDefault(identifier, -1);
     if (id != GDP_NONE)
         listeners_.call([self, id, value](Listener &l) { l.tapValueChanged(self, id, (float)value); });
-}
-
-void TapEditItem::Impl::setTapSelected(bool selected)
-{
-    if (tapSelected_ == selected)
-        return;
-
-    TapEditItem *self = self_;
-    tapSelected_ = selected;
-    self->repaint();
 }
 
 void TapEditItem::Impl::sliderDragStarted(juce::Slider *slider)

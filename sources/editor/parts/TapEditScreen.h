@@ -70,6 +70,9 @@ public:
 
 protected:
     void paint(juce::Graphics &g) override;
+    void mouseDown(const juce::MouseEvent &e) override;
+    void mouseUp(const juce::MouseEvent &e) override;
+    void mouseDrag(const juce::MouseEvent &e) override;
 
 private:
     struct Impl;
@@ -97,6 +100,9 @@ public:
 
     float getTapValue(GdParameter id) const;
     void setTapValue(GdParameter id, float value, juce::NotificationType nt = juce::sendNotificationSync);
+
+    bool isTapSelected() const;
+    void setTapSelected(bool selected);
 
     class Listener {
     public:
