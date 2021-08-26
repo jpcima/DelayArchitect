@@ -38,6 +38,7 @@ struct TapEditScreen::Impl : public TapEditItem::Listener,
     void tickTapCapture();
     void endTapCapture();
     void updateItemSizeAndPosition(int itemNumber);
+    void updateAllItemSizesAndPositions();
 
     ///
     void tapEditStarted(TapEditItem *item, GdParameter id) override;
@@ -113,8 +114,7 @@ void TapEditScreen::setTimeRange(juce::Range<float> newTimeRange)
         return;
 
     impl.timeRange_ = newTimeRange;
-    for (int itemNumber = 0; itemNumber < GdMaxLines; ++itemNumber)
-        impl.updateItemSizeAndPosition(itemNumber);
+    impl.updateAllItemSizesAndPositions();
 
     impl.miniMap_->setTimeRange(impl.timeRange_, juce::dontSendNotification);
 }
@@ -261,6 +261,12 @@ void TapEditScreen::updateItemSizeAndPosition(int tapNumber)
     impl.updateItemSizeAndPosition(tapNumber);
 }
 
+void TapEditScreen::updateAllItemSizesAndPositions()
+{
+    Impl &impl = *impl_;
+    impl.updateAllItemSizesAndPositions();
+}
+
 float TapEditScreen::getXForDelay(float delay) const
 {
     Impl &impl = *impl_;
@@ -348,6 +354,12 @@ void TapEditScreen::Impl::updateItemSizeAndPosition(int itemNumber)
     int height = bounds.getHeight();
     item.setSize(width, height);
     item.setTopLeftPosition((int)(delayToX(data.delay) - 0.5f * (float)width), 0);
+}
+
+void TapEditScreen::Impl::updateAllItemSizesAndPositions()
+{
+    for (int itemNumber = 0; itemNumber < GdMaxLines; ++itemNumber)
+        updateItemSizeAndPosition(itemNumber);
 }
 
 void TapEditScreen::Impl::tapEditStarted(TapEditItem *, GdParameter id)

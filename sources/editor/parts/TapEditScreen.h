@@ -38,6 +38,7 @@ public:
     void endTap();
 
     void updateItemSizeAndPosition(int tapNumber);
+    void updateAllItemSizesAndPositions();
     float getXForDelay(float delay) const;
     float getDelayForX(float x) const;
 
