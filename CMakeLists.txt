@@ -186,9 +186,11 @@ if(OPENMP_FOUND)
 endif()
 
 ###
-target_link_libraries(Gd
-  PRIVATE
-  openmp)
+if(TARGET openmp)
+  target_link_libraries(Gd
+    PRIVATE
+    openmp)
+endif()
 
 ###
 add_library(SoundTouch STATIC EXCLUDE_FROM_ALL
