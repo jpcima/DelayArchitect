@@ -118,5 +118,5 @@ jobs:
       run: ls -lR
     - uses: actions/upload-artifact@v2
       with:
-        name: GNU/Linux VST3
+        name: GNU-Linux VST3
         path: "${{runner.workspace}}/build/*_artefacts/${{env.BUILD_TYPE}}/VST3/*.vst3"
