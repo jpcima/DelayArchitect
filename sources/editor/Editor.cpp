@@ -197,6 +197,10 @@ void Editor::Impl::importPresetFile(const juce::File &file)
         juce::RangedAudioParameter *parameter = static_cast<juce::RangedAudioParameter *>(parameters[p]);
         parameter->setValueNotifyingHost(parameter->convertTo0to1(idata.values[p]));
     }
+
+    MainComponent *mainComponent = mainComponent_.get();
+    TapEditScreen *tapEdit = mainComponent->tapEditScreen_.get();
+    tapEdit->autoZoomTimeRange();
 }
 
 void Editor::Impl::tapEditStarted(TapEditScreen *, GdParameter id)

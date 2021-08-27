@@ -450,6 +450,12 @@ float TapEditScreen::alignDelayToGrid(float delay) const
     return newDelay;
 }
 
+void TapEditScreen::autoZoomTimeRange()
+{
+    Impl &impl = *impl_;
+    impl.autoZoomTimeRange();
+}
+
 juce::Rectangle<int> TapEditScreen::getLocalBoundsNoMargin() const
 {
     return getLocalBounds().reduced(Impl::xMargin, Impl::yMargin);
