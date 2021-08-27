@@ -317,6 +317,9 @@ void TapEditScreen::Impl::nextTapCapture()
     if (delay > (float)GdMaxDelay)
         return;
 
+    TapEditScreen *self = self_;
+    delay = self->alignDelayToGrid(delay);
+
     if (tapCaptureCount_ == 0)
         clearAllTaps();
 
