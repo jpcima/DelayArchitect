@@ -401,6 +401,17 @@ float TapEditScreen::getDelayForX(float x) const
     return impl.xToDelay(x);
 }
 
+float TapEditScreen::alignDelayToGrid(float delay) const
+{
+    Impl &impl = *impl_;
+    float newDelay;
+    if (!impl.sync_)
+        newDelay = juce::jlimit(0.0f, (float)GdMaxDelay, delay);
+    else
+        newDelay = GdAlignDelayToGrid(delay, impl.div_, impl.swing_, (float)impl.bpm_);
+    return newDelay;
+}
+
 juce::Rectangle<int> TapEditScreen::getLocalBoundsNoMargin() const
 {
     return getLocalBounds().reduced(Impl::xMargin, Impl::yMargin);
@@ -964,20 +975,18 @@ void TapEditItem::mouseDrag(const juce::MouseEvent &e)
             void checkBounds(juce::Rectangle<int> &bounds, const juce::Rectangle<int> &previousBounds, const juce::Rectangle<int> &, bool, bool, bool, bool) override
             {
                 TapEditScreen *screen = screen_;
+                float newDelay = screen->alignDelayToGrid(screen->getDelayForX(bounds.toFloat().getCentreX()));
                 float halfWidth = 0.5f * (float)bounds.getWidth();
-                juce::Range<float> timeRange = screen->getTimeRange();
-                int x1 = (int)std::floor(screen->getXForDelay(timeRange.getStart()) - halfWidth);
-                int x2 = (int)std::ceil(screen->getXForDelay(timeRange.getEnd()) - halfWidth);
-                bounds.setX(juce::jlimit(x1, x2, bounds.getX()));
+                bounds.setX(juce::roundToInt(screen->getXForDelay(newDelay) - halfWidth));
                 bounds.setY(previousBounds.getY());
             }
         private:
             TapEditScreen *screen_ = nullptr;
         };
-        TapConstrainer constrainer(impl.screen_);
+        TapEditScreen *screen = impl.screen_;
+        TapConstrainer constrainer(screen);
         impl.dragger_.dragComponent(this, e, &constrainer);
-        float newDelay = impl.screen_->getDelayForX(getBounds().toFloat().getCentreX());
-        newDelay = impl.screen_->getTimeRange().clipValue(newDelay);
+        float newDelay = screen->alignDelayToGrid(screen->getDelayForX(getBounds().toFloat().getCentreX()));
         GdParameter id = GdRecomposeParameter(GDP_TAP_A_DELAY, impl.itemNumber_);
         setTapValue(id, newDelay);
         return;

@@ -53,6 +53,7 @@ public:
     void updateAllItemSizesAndPositions();
     float getXForDelay(float delay) const;
     float getDelayForX(float x) const;
+    float alignDelayToGrid(float delay) const;
 
     juce::Rectangle<int> getLocalBoundsNoMargin() const;
     juce::Rectangle<int> getScreenBounds() const;
