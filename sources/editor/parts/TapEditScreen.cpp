@@ -102,6 +102,8 @@ TapEditScreen::TapEditScreen()
     Impl::TapLassoComponent *lasso = new Impl::TapLassoComponent;
     impl.lasso_.reset(lasso);
     addChildComponent(lasso);
+    lasso->setColour(Impl::TapLassoComponent::lassoFillColourId, findColour(lassoFillColourId));
+    lasso->setColour(Impl::TapLassoComponent::lassoOutlineColourId, findColour(lassoOutlineColourId));
     Impl::TapLassoSource *lassoSource = new Impl::TapLassoSource(impl);
     impl.lassoSource_.reset(lassoSource);
     impl.lassoSelection_.addChangeListener(&impl);

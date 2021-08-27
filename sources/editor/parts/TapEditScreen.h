@@ -29,6 +29,8 @@ public:
         minorIntervalTickColourId,
         majorIntervalTickColourId,
         superMajorIntervalTickColourId,
+        lassoFillColourId,
+        lassoOutlineColourId,
     };
 
     TapEditScreen();
