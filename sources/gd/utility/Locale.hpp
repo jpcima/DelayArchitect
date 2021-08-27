@@ -1,4 +1,7 @@
 #include "Locale.h"
+#if defined(__APPLE__)
+#include <xlocale.h>
+#endif
 #include <cstdio>
 
 inline Locale::Locale(handle_type handle) noexcept
