@@ -53,6 +53,7 @@ struct TapEditScreen::Impl : public TapEditItem::Listener,
     ///
     enum {
         kStatusNormal,
+        kStatusClicked,
         kStatusLasso,
     };
     int status_ = kStatusNormal;
@@ -541,7 +542,20 @@ void TapEditScreen::paint(juce::Graphics &g)
 
 void TapEditScreen::mouseDown(const juce::MouseEvent &e)
 {
-    (void)e;
+    Impl &impl = *impl_;
+    juce::Rectangle<int> intervalsRow = getIntervalsRow();
+
+    if (intervalsRow.toFloat().contains(e.position)) {
+        float delay = alignDelayToGrid(getDelayForX(e.position.getX()));
+        int tapNumber = impl.findUnusedTap();
+        if (tapNumber != -1) {
+            impl.createNewTap(tapNumber, delay);
+            setOnlyTapSelected(tapNumber);
+        }
+    }
+    else {
+        impl.status_ = Impl::kStatusClicked;
+    }
 }
 
 void TapEditScreen::mouseUp(const juce::MouseEvent &e)
@@ -551,8 +565,9 @@ void TapEditScreen::mouseUp(const juce::MouseEvent &e)
     (void)e;
 
     switch (impl.status_) {
-    case Impl::kStatusNormal:
+    case Impl::kStatusClicked:
         setAllTapsSelected(false);
+        impl.status_ = Impl::kStatusNormal;
         break;
     case Impl::kStatusLasso:
         impl.lasso_->endLasso();
@@ -566,7 +581,7 @@ void TapEditScreen::mouseDrag(const juce::MouseEvent &e)
     Impl &impl = *impl_;
 
     switch (impl.status_) {
-    case Impl::kStatusNormal:
+    case Impl::kStatusClicked:
         impl.lasso_->beginLasso(e, impl.lassoSource_.get());
         impl.status_ = Impl::kStatusLasso;
         break;
