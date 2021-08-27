@@ -45,6 +45,7 @@ public:
     float getTapValue(GdParameter id) const;
     void setTapValue(GdParameter id, float value, juce::NotificationType nt = juce::sendNotificationSync);
 
+    bool isTapSelected(int tapNumber) const;
     void setAllTapsSelected(bool selected);
     void setOnlyTapSelected(int selectedTapNumber);
 
@@ -85,6 +86,7 @@ protected:
     void mouseDown(const juce::MouseEvent &e) override;
     void mouseUp(const juce::MouseEvent &e) override;
     void mouseDrag(const juce::MouseEvent &e) override;
+    bool keyPressed(const juce::KeyPress &e) override;
 
 private:
     struct Impl;

@@ -91,6 +91,8 @@ TapEditScreen::TapEditScreen()
     Impl &impl = *impl_;
     impl.self_ = this;
 
+    setWantsKeyboardFocus(true);
+
     for (int itemNumber = 0; itemNumber < GdMaxLines; ++itemNumber) {
         TapEditItem *item = new TapEditItem(this, itemNumber);
         impl.items_[itemNumber].reset(item);
@@ -220,6 +222,12 @@ void TapEditScreen::setTapValue(GdParameter id, float value, juce::NotificationT
         repaint();
         break;
     }
+}
+
+bool TapEditScreen::isTapSelected(int tapNumber) const
+{
+    Impl &impl = *impl_;
+    return impl.items_[tapNumber]->isTapSelected();
 }
 
 void TapEditScreen::setAllTapsSelected(bool selected)
@@ -589,6 +597,20 @@ void TapEditScreen::mouseDrag(const juce::MouseEvent &e)
         impl.lasso_->dragLasso(e);
         break;
     }
+}
+
+bool TapEditScreen::keyPressed(const juce::KeyPress &e)
+{
+    if (e.isKeyCode(juce::KeyPress::deleteKey)) {
+        for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber) {
+            if (isTapSelected(tapNumber)) {
+                GdParameter id = GdRecomposeParameter(GDP_TAP_A_ENABLE, tapNumber);
+                setTapValue(id, false);
+            }
+        }
+        setAllTapsSelected(false);
+    }
+    return false;
 }
 
 float TapEditScreen::Impl::delayToX(float t) const noexcept
