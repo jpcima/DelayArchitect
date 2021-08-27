@@ -11,6 +11,14 @@ set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+if(WIN32)
+  add_definitions("-DNOMINMAX=1")
+  add_definitions("-D_USE_MATH_DEFINES=1")
+endif()
+if(MSVC)
+  add_compile_options("/utf-8")
+endif()
+
 find_package(PkgConfig)
 add_subdirectory("thirdparty/JUCE" EXCLUDE_FROM_ALL)
 
