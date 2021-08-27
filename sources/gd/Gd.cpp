@@ -4,7 +4,7 @@
 #include "utility/LinearSmoother.h"
 #include "utility/NextPowerOfTwo.h"
 #include "utility/Volume.h"
-#include "utility/Locale.h"
+#include "utility/StdcLocale.h"
 #include <vector>
 #include <algorithm>
 #include <cmath>

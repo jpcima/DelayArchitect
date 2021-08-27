@@ -1,4 +1,7 @@
 #pragma once
+#if defined(__APPLE__)
+#   include <xlocale.h>
+#endif
 #include <clocale>
 #include <cstddef>
 
@@ -32,4 +35,4 @@ private:
     handle_type handle_ = (handle_type)0;
 };
 
-#include "Locale.hpp"
+#include "StdcLocale.hpp"

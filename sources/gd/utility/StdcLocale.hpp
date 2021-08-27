@@ -1,4 +1,4 @@
-#include "Locale.h"
+#include "StdcLocale.h"
 #include <cstdio>
 
 inline Locale::Locale(handle_type handle) noexcept

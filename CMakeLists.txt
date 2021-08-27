@@ -136,9 +136,9 @@ add_library(Gd STATIC
   "sources/gd/utility/Clamp.h"
   "sources/gd/utility/NextPowerOfTwo.h"
   "sources/gd/utility/Volume.h"
-  "sources/gd/utility/Locale.cpp"
-  "sources/gd/utility/Locale.h"
-  "sources/gd/utility/Locale.hpp")
+  "sources/gd/utility/StdcLocale.cpp"
+  "sources/gd/utility/StdcLocale.h"
+  "sources/gd/utility/StdcLocale.hpp")
 set_source_files_properties(
   "sources/gd/shifters/GdShifterSimple.cpp"
   "sources/gd/shifters/GdShifterSoundTouch.cpp"
