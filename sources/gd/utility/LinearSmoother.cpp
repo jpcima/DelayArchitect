@@ -54,7 +54,7 @@ void LinearSmoother::nextBlock(float *__restrict output, uint32_t count) noexcep
     uint32_t i = 0;
 #if SIMDE_NATURAL_VECTOR_SIZE_GE(128)
     for (; i + 4 < count; i += 4)
-        _mm_storeu_ps(&output[i], nextPS());
+        simde_mm_storeu_ps(&output[i], nextPS());
 #endif
     for (; i < count; ++i)
         output[i] = next();
