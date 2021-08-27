@@ -45,6 +45,9 @@ public:
     float getTapValue(GdParameter id) const;
     void setTapValue(GdParameter id, float value, juce::NotificationType nt = juce::sendNotificationSync);
 
+    void setAllTapsSelected(bool selected);
+    void setOnlyTapSelected(int selectedTapNumber);
+
     double getBPM() const;
     void setBPM(double bpm);
 

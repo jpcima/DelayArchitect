@@ -49,7 +49,13 @@ struct TapEditScreen::Impl : public TapEditItem::Listener,
     std::unique_ptr<TapLassoComponent> lasso_;
     std::unique_ptr<TapLassoSource> lassoSource_;
     juce::SelectedItemSet<TapEditItem *> lassoSelection_;
-    bool lassoStarted_ = false;
+
+    ///
+    enum {
+        kStatusNormal,
+        kStatusLasso,
+    };
+    int status_ = kStatusNormal;
 
     ///
     float delayToX(float t) const noexcept;
@@ -212,6 +218,24 @@ void TapEditScreen::setTapValue(GdParameter id, float value, juce::NotificationT
         updateAllItemSizesAndPositions();
         repaint();
         break;
+    }
+}
+
+void TapEditScreen::setAllTapsSelected(bool selected)
+{
+    Impl &impl = *impl_;
+    for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber) {
+        TapEditItem &item = *impl.items_[tapNumber];
+        item.setTapSelected(selected);
+    }
+}
+
+void TapEditScreen::setOnlyTapSelected(int selectedTapNumber)
+{
+    Impl &impl = *impl_;
+    for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber) {
+        TapEditItem &item = *impl.items_[tapNumber];
+        item.setTapSelected(tapNumber == selectedTapNumber);
     }
 }
 
@@ -526,15 +550,14 @@ void TapEditScreen::mouseUp(const juce::MouseEvent &e)
 
     (void)e;
 
-    if (impl.lassoStarted_) {
+    switch (impl.status_) {
+    case Impl::kStatusNormal:
+        setAllTapsSelected(false);
+        break;
+    case Impl::kStatusLasso:
         impl.lasso_->endLasso();
-        impl.lassoStarted_ = false;
-    }
-    else {
-        for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber) {
-            TapEditItem &item = *impl.items_[tapNumber];
-            item.setTapSelected(false);
-        }
+        impl.status_ = Impl::kStatusNormal;
+        break;
     }
 }
 
@@ -542,15 +565,16 @@ void TapEditScreen::mouseDrag(const juce::MouseEvent &e)
 {
     Impl &impl = *impl_;
 
-    if (!impl.lassoStarted_) {
+    switch (impl.status_) {
+    case Impl::kStatusNormal:
         impl.lasso_->beginLasso(e, impl.lassoSource_.get());
-        impl.lassoStarted_ = true;
-    }
-    if (impl.lassoStarted_) {
+        impl.status_ = Impl::kStatusLasso;
+        break;
+    case Impl::kStatusLasso:
         impl.lasso_->dragLasso(e);
+        break;
     }
 }
-
 
 float TapEditScreen::Impl::delayToX(float t) const noexcept
 {
@@ -672,6 +696,7 @@ struct TapEditItem::Impl : public TapSlider::Listener {
     TapSlider *getSliderForEditMode(TapEditMode editMode) const;
     void updateSliderVisibility();
     void repositionSliders();
+    juce::Rectangle<int> getLabelBounds() const;
 
     void sliderValueChanged(juce::Slider *slider) override;
     void sliderDragStarted(juce::Slider *slider) override;
@@ -921,17 +946,14 @@ void TapEditItem::paint(juce::Graphics &g)
     juce::Component::paint(g);
 
     Impl &impl = *impl_;
-    juce::Rectangle<int> bounds = getLocalBounds();
     juce::Colour tapLabelBackgroundColour = findColour(impl.tapSelected_ ? TapEditScreen::tapLabelSelectedBackgroundColourId : TapEditScreen::tapLabelBackgroundColourId);
     juce::Colour tapLabelTextColour = findColour(TapEditScreen::tapLabelTextColourId);
-
-    juce::Rectangle<int> rectTemp(bounds);
-    juce::Rectangle<int> labelBounds = rectTemp.removeFromBottom(getLabelHeight());
 
     char labelTextCstr[2];
     labelTextCstr[0] = (char)(impl.itemNumber_ + 'A');
     labelTextCstr[1] = '\0';
 
+    juce::Rectangle<int> labelBounds = impl.getLabelBounds();
     g.setColour(tapLabelBackgroundColour);
     g.fillRoundedRectangle(labelBounds.toFloat(), 3.0f);
     g.setColour(tapLabelTextColour);
@@ -944,6 +966,7 @@ void TapEditItem::mouseDown(const juce::MouseEvent &e)
     juce::Rectangle<int> bounds = getLocalBounds();
 
     if (impl.dragChangeId_ == GDP_NONE && e.y >= bounds.getBottom() - getLabelHeight()) {
+        impl.screen_->setOnlyTapSelected(impl.itemNumber_);
         impl.dragChangeId_ = GdRecomposeParameter(GDP_TAP_A_DELAY, impl.itemNumber_);
         impl.dragger_.startDraggingComponent(this, e);
         impl.listeners_.call([this](Listener &l) { l.tapEditStarted(this, impl_->dragChangeId_); });
@@ -1043,6 +1066,12 @@ void TapEditItem::Impl::repositionSliders()
         TapSlider *slider = sliderPair.second.get();
         slider->setBounds(sliderBounds);
     }
+}
+
+juce::Rectangle<int> TapEditItem::Impl::getLabelBounds() const
+{
+    TapEditItem *self = self_;
+    return self->getLocalBounds().removeFromBottom(getLabelHeight());
 }
 
 void TapEditItem::Impl::sliderValueChanged(juce::Slider *slider)
