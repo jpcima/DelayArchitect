@@ -17,7 +17,7 @@ struct TapEditScreen::Impl : public TapEditItem::Listener,
     ///
     std::unique_ptr<TapEditItem> items_[GdMaxLines];
     std::unique_ptr<TapMiniMap> miniMap_;
-    juce::Range<float> timeRange_{0, 1};
+    juce::Range<float> timeRange_{0, 5};
     TapEditMode editMode_ = kTapEditOff;
 
     bool sync_ = true;
