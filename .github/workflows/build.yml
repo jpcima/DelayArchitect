@@ -30,7 +30,7 @@ jobs:
     - name: Configure CMake
       working-directory: ${{runner.workspace}}/build
       run: |
-       cmake "${Env:GITHUB_WORKSPACE}" -G"Visual Studio 16 2019" -A"${Env:release_arch}" -DCMAKE_BUILD_TYPE="${Env:BUILD_TYPE}" -DCMAKE_CXX_STANDARD=17
+       cmake "${Env:GITHUB_WORKSPACE}" -G"Visual Studio 16 2019" -A"${Env:release_arch}" -DCMAKE_BUILD_TYPE="${Env:BUILD_TYPE}" -DCMAKE_CXX_STANDARD=14
     - name: Build
       working-directory: ${{runner.workspace}}/build
       run: cmake --build . --config "${Env:BUILD_TYPE}" -j 2
@@ -55,7 +55,7 @@ jobs:
     - name: Configure CMake
       working-directory: ${{runner.workspace}}/build
       run: |
-       cmake "${Env:GITHUB_WORKSPACE}" -G"Visual Studio 16 2019" -A"${Env:release_arch}" -DCMAKE_BUILD_TYPE="${Env:BUILD_TYPE}" -DCMAKE_CXX_STANDARD=17
+       cmake "${Env:GITHUB_WORKSPACE}" -G"Visual Studio 16 2019" -A"${Env:release_arch}" -DCMAKE_BUILD_TYPE="${Env:BUILD_TYPE}" -DCMAKE_CXX_STANDARD=14
     - name: Build
       working-directory: ${{runner.workspace}}/build
       run: cmake --build . --config "${Env:BUILD_TYPE}" -j 2
@@ -76,7 +76,7 @@ jobs:
     - name: Configure CMake
       working-directory: ${{runner.workspace}}/build
       run: |
-       cmake "${GITHUB_WORKSPACE}" -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" -DCMAKE_CXX_STANDARD=17 -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"
+       cmake "${GITHUB_WORKSPACE}" -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" -DCMAKE_CXX_STANDARD=14 -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"
     - name: Build
       working-directory: ${{runner.workspace}}/build
       run: cmake --build . --config "${BUILD_TYPE}" -j 2
@@ -91,3 +91,32 @@ jobs:
       with:
         name: macOS AU
         path: "${{runner.workspace}}/build/*_artefacts/${{env.BUILD_TYPE}}/AU/*.component"
+
+  build_for_linux:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: Install dependencies
+      shell: bash
+      run: |
+        sudo apt-get -y update
+        sudo apt-get -y install libgl-dev libx11-dev libxext-dev libxrandr-dev libxinerama-dev libxcursor-dev libasound2-dev
+    - name: Create Build Environment
+      working-directory: ${{runner.workspace}}
+      run: cmake -E make_directory build
+    - name: Configure CMake
+      working-directory: ${{runner.workspace}}/build
+      run: |
+       cmake "${GITHUB_WORKSPACE}" -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" -DCMAKE_CXX_STANDARD=14
+    - name: Build
+      working-directory: ${{runner.workspace}}/build
+      run: cmake --build . --config "${BUILD_TYPE}" -j 2
+    - name: Print file list
+      working-directory: ${{runner.workspace}}/build
+      run: ls -lR
+    - uses: actions/upload-artifact@v2
+      with:
+        name: GNU/Linux VST3
+        path: "${{runner.workspace}}/build/*_artefacts/${{env.BUILD_TYPE}}/VST3/*.vst3"
