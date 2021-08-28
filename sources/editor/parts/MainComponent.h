@@ -115,6 +115,7 @@ private:
     std::unique_ptr<juce::TextButton> tuneEnableButton_;
     std::unique_ptr<juce::TextButton> muteButton_;
     std::unique_ptr<juce::TextButton> feedbackEnableButton_;
+    std::unique_ptr<juce::TextButton> flipEnableButton_;
 
 
     //==============================================================================
