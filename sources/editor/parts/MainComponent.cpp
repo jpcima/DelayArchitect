@@ -59,37 +59,42 @@ MainComponent::MainComponent ()
     cutoffButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (cutoffButton_.get());
     cutoffButton_->setButtonText (TRANS("Cutoff"));
+    cutoffButton_->setConnectedEdges (juce::Button::ConnectedOnRight);
     cutoffButton_->addListener (this);
 
-    cutoffButton_->setBounds (104, 8, 150, 24);
+    cutoffButton_->setBounds (160, 8, 136, 24);
 
     resonanceButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (resonanceButton_.get());
     resonanceButton_->setButtonText (TRANS("Resonance"));
+    resonanceButton_->setConnectedEdges (juce::Button::ConnectedOnLeft | juce::Button::ConnectedOnRight);
     resonanceButton_->addListener (this);
 
-    resonanceButton_->setBounds (264, 8, 150, 24);
+    resonanceButton_->setBounds (296, 8, 136, 24);
 
     tuneButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (tuneButton_.get());
     tuneButton_->setButtonText (TRANS("Tune"));
+    tuneButton_->setConnectedEdges (juce::Button::ConnectedOnLeft | juce::Button::ConnectedOnRight);
     tuneButton_->addListener (this);
 
-    tuneButton_->setBounds (424, 8, 150, 24);
+    tuneButton_->setBounds (432, 8, 136, 24);
 
     panButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (panButton_.get());
     panButton_->setButtonText (TRANS("Pan"));
+    panButton_->setConnectedEdges (juce::Button::ConnectedOnLeft | juce::Button::ConnectedOnRight);
     panButton_->addListener (this);
 
-    panButton_->setBounds (584, 8, 150, 24);
+    panButton_->setBounds (568, 8, 136, 24);
 
     levelButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (levelButton_.get());
     levelButton_->setButtonText (TRANS("Level"));
+    levelButton_->setConnectedEdges (juce::Button::ConnectedOnLeft);
     levelButton_->addListener (this);
 
-    levelButton_->setBounds (744, 8, 150, 24);
+    levelButton_->setBounds (704, 8, 136, 24);
 
     firstTapButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (firstTapButton_.get());
@@ -870,20 +875,20 @@ BEGIN_JUCER_METADATA
                     explicitFocusOrder="0" pos="136 40 728 384" class="TapEditScreen"
                     params=""/>
   <TEXTBUTTON name="" id="fbe209bdcd7b5a8f" memberName="cutoffButton_" virtualName=""
-              explicitFocusOrder="0" pos="104 8 150 24" buttonText="Cutoff"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              explicitFocusOrder="0" pos="160 8 136 24" buttonText="Cutoff"
+              connectedEdges="2" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="b57b7360ebc749d9" memberName="resonanceButton_" virtualName=""
-              explicitFocusOrder="0" pos="264 8 150 24" buttonText="Resonance"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              explicitFocusOrder="0" pos="296 8 136 24" buttonText="Resonance"
+              connectedEdges="3" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="53c3c11e2e3cc96f" memberName="tuneButton_" virtualName=""
-              explicitFocusOrder="0" pos="424 8 150 24" buttonText="Tune" connectedEdges="0"
+              explicitFocusOrder="0" pos="432 8 136 24" buttonText="Tune" connectedEdges="3"
               needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="c12936716811e246" memberName="panButton_" virtualName=""
-              explicitFocusOrder="0" pos="584 8 150 24" buttonText="Pan" connectedEdges="0"
+              explicitFocusOrder="0" pos="568 8 136 24" buttonText="Pan" connectedEdges="3"
               needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="7558d040ff50b9ed" memberName="levelButton_" virtualName=""
-              explicitFocusOrder="0" pos="744 8 150 24" buttonText="Level"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              explicitFocusOrder="0" pos="704 8 136 24" buttonText="Level"
+              connectedEdges="1" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="43aa27172b96c021" memberName="firstTapButton_" virtualName=""
               explicitFocusOrder="0" pos="16 280 104 56" buttonText="Start tap"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
