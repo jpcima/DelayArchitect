@@ -105,16 +105,16 @@ private:
     std::unique_ptr<juce::Label> unknown11;
     std::unique_ptr<juce::Label> unknown12;
     std::unique_ptr<juce::Label> unknown13;
-    std::unique_ptr<juce::ToggleButton> filterEnableButton_;
-    std::unique_ptr<juce::ToggleButton> tuneEnableButton_;
     std::unique_ptr<juce::TextButton> syncButton_;
     std::unique_ptr<juce::ComboBox> gridChoice_;
     std::unique_ptr<juce::Label> unknown14;
     std::unique_ptr<juce::TextButton> menuButton_;
-    std::unique_ptr<juce::ToggleButton> feedbackEnableButton_;
     std::unique_ptr<juce::Label> unknown15;
     std::unique_ptr<juce::Slider> swingSlider_;
-    std::unique_ptr<juce::ToggleButton> muteButton_;
+    std::unique_ptr<juce::TextButton> filterEnableButton_;
+    std::unique_ptr<juce::TextButton> tuneEnableButton_;
+    std::unique_ptr<juce::TextButton> muteButton_;
+    std::unique_ptr<juce::TextButton> feedbackEnableButton_;
 
 
     //==============================================================================

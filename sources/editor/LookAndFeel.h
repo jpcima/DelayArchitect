@@ -16,6 +16,9 @@ public:
     void drawComboBox(juce::Graphics &, int width, int height, bool isButtonDown, int buttonX, int buttonY, int buttonW, int buttonH, juce::ComboBox &) override;
     void positionComboBoxText(juce::ComboBox &box, juce::Label &label) override;
 
+    static void setTextButtonFont(juce::TextButton &button, const juce::Font &font);
+    juce::Font getTextButtonFont(juce::TextButton &button, int buttonHeight) override;
+
 private:
     struct Impl;
     std::unique_ptr<Impl> impl_;

@@ -21,6 +21,7 @@ endif()
 
 find_package(PkgConfig)
 add_subdirectory("thirdparty/JUCE" EXCLUDE_FROM_ALL)
+juce_add_module("thirdparty/fontaudio/wrappers/juce/module/fontaudio")
 
 option(GD_BENCHMARKS "Build benchmarks" OFF)
 set(GD_PITCH_SHIFTER_TYPE "SuperCollider" CACHE STRING "Pitch shifter implementation to use")
@@ -147,12 +148,14 @@ set_source_files_properties(
   HEADER_FILE_ONLY ON)
 target_include_directories(Gd
   PUBLIC
-  "sources/gd")
+  "sources/gd"
+  "sources/appconfig")
 
 ###
 target_link_libraries(DelayArchitect
   PRIVATE
-  Gd)
+  Gd
+  fontaudio)
 
 ###
 add_library(simde INTERFACE)

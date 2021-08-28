@@ -4,3 +4,6 @@
 [submodule "thirdparty/simde"]
 	path = thirdparty/simde
 	url = https://github.com/simd-everywhere/simde.git
+[submodule "thirdparty/fontaudio"]
+	path = thirdparty/fontaudio
+	url = https://github.com/jpcima/fontaudio.git

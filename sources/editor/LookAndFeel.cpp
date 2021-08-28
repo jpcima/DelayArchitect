@@ -2,11 +2,13 @@
 #include "editor/parts/TapEditScreen.h"
 #include "editor/parts/TapSlider.h"
 #include "BinaryData.h"
+#include <fontaudio/fontaudio.h>
 
 static const juce::StringRef kSansSerifTypefaceName = "Liberation Sans";
 
 struct LookAndFeel::Impl {
     juce::Typeface::Ptr sansTypeface_;
+    juce::SharedResourcePointer<fontaudio::IconHelper> fontAudio_;
 };
 
 LookAndFeel::LookAndFeel()
@@ -47,6 +49,8 @@ juce::Typeface::Ptr LookAndFeel::getTypefaceForFont(const juce::Font &font)
         tf = impl.sansTypeface_;
     else if (typefaceName == kSansSerifTypefaceName)
         tf = impl.sansTypeface_;
+    else if (typefaceName == "Fontaudio")
+        tf = impl.fontAudio_->getFont().getTypeface();
 
     if (!tf)
         tf = BaseLookAndFeel::getTypefaceForFont(font);
@@ -99,4 +103,24 @@ void LookAndFeel::positionComboBoxText(juce::ComboBox &box, juce::Label &label)
                     box.getHeight() - 2);
 
     label.setFont(getComboBoxFont(box));
+}
+
+void LookAndFeel::setTextButtonFont(juce::TextButton &button, const juce::Font &font)
+{
+    juce::NamedValueSet &properties = button.getProperties();
+    properties.set("font", font.getTypefaceName());
+    properties.set("font-size", font.getHeight());
+    properties.set("font-style", font.getStyleFlags());
+}
+
+juce::Font LookAndFeel::getTextButtonFont(juce::TextButton &button, int buttonHeight)
+{
+    const juce::NamedValueSet &properties = button.getProperties();
+    if (properties.contains("font")) {
+        return juce::Font(
+            properties.getWithDefault("font", "").toString(),
+            (float)properties.getWithDefault("font-size", 0.0f),
+            (int)properties.getWithDefault("font-style", 0));
+    }
+    return BaseLookAndFeel::getTextButtonFont(button, buttonHeight);
 }
