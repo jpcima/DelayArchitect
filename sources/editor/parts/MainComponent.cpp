@@ -440,30 +440,35 @@ MainComponent::MainComponent ()
 
     filterEnableButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (filterEnableButton_.get());
+    filterEnableButton_->setConnectedEdges (juce::Button::ConnectedOnRight);
     filterEnableButton_->addListener (this);
 
     filterEnableButton_->setBounds (16, 544, 24, 24);
 
     tuneEnableButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (tuneEnableButton_.get());
+    tuneEnableButton_->setConnectedEdges (juce::Button::ConnectedOnRight);
     tuneEnableButton_->addListener (this);
 
     tuneEnableButton_->setBounds (568, 544, 24, 24);
 
     muteButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (muteButton_.get());
+    muteButton_->setConnectedEdges (juce::Button::ConnectedOnRight);
     muteButton_->addListener (this);
 
     muteButton_->setBounds (880, 544, 24, 24);
 
     feedbackEnableButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (feedbackEnableButton_.get());
+    feedbackEnableButton_->setConnectedEdges (juce::Button::ConnectedOnRight);
     feedbackEnableButton_->addListener (this);
 
     feedbackEnableButton_->setBounds (880, 88, 24, 24);
 
     flipEnableButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (flipEnableButton_.get());
+    flipEnableButton_->setConnectedEdges (juce::Button::ConnectedOnRight);
     flipEnableButton_->addListener (this);
 
     flipEnableButton_->setBounds (680, 544, 24, 24);
@@ -1034,19 +1039,19 @@ BEGIN_JUCER_METADATA
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
   <TEXTBUTTON name="" id="7bcc36a07c5c42ff" memberName="filterEnableButton_"
               virtualName="" explicitFocusOrder="0" pos="16 544 24 24" buttonText=""
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              connectedEdges="2" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="7496b3b0f072ed02" memberName="tuneEnableButton_"
               virtualName="" explicitFocusOrder="0" pos="568 544 24 24" buttonText=""
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              connectedEdges="2" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="2f55e1ddbe6ca060" memberName="muteButton_" virtualName=""
-              explicitFocusOrder="0" pos="880 544 24 24" buttonText="" connectedEdges="0"
+              explicitFocusOrder="0" pos="880 544 24 24" buttonText="" connectedEdges="2"
               needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="e43adf889edc780a" memberName="feedbackEnableButton_"
               virtualName="" explicitFocusOrder="0" pos="880 88 24 24" buttonText=""
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              connectedEdges="2" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="26aa605edc3b0e21" memberName="flipEnableButton_"
               virtualName="" explicitFocusOrder="0" pos="680 544 24 24" buttonText=""
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              connectedEdges="2" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
