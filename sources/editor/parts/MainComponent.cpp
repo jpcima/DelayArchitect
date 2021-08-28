@@ -123,7 +123,7 @@ MainComponent::MainComponent ()
     tapDelaySlider_->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
     tapDelaySlider_->addListener (this);
 
-    tapDelaySlider_->setBounds (424, 544, 150, 24);
+    tapDelaySlider_->setBounds (424, 544, 152, 24);
 
     unknown.reset (new juce::Label (juce::String(),
                                     TRANS("Delay")));
@@ -138,10 +138,9 @@ MainComponent::MainComponent ()
 
     tapEnabledButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (tapEnabledButton_.get());
-    tapEnabledButton_->setButtonText (TRANS("Enabled"));
     tapEnabledButton_->addListener (this);
 
-    tapEnabledButton_->setBounds (424, 480, 150, 24);
+    tapEnabledButton_->setBounds (472, 480, 56, 32);
 
     feedbackTapChoice_.reset (new juce::ComboBox (juce::String()));
     addAndMakeVisible (feedbackTapChoice_.get());
@@ -365,7 +364,7 @@ MainComponent::MainComponent ()
 
     unknown12.reset (new juce::Label (juce::String(),
                                       TRANS("Dry")));
-    addAndMakeVisible (unknown12.get());
+    addAndMakeVisible (unknown12.get());
     unknown12->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     unknown12->setJustificationType (juce::Justification::centred);
     unknown12->setEditable (false, false, false);
@@ -483,12 +482,16 @@ MainComponent::MainComponent ()
 
     juce::TextButton *powerButtons[] = {
         feedbackEnableButton_.get(),
+        tapEnabledButton_.get(),
         filterEnableButton_.get(),
         tuneEnableButton_.get(),
         muteButton_.get(),
     };
     for (juce::TextButton *powerButton : powerButtons) {
-        LookAndFeel::setTextButtonFont(*powerButton, juce::Font("Fontaudio", 12.0f, juce::Font::plain));
+        float textHeight = 12.0f;
+        if (powerButton == tapEnabledButton_.get())
+            textHeight = 24.0f;
+        LookAndFeel::setTextButtonFont(*powerButton, juce::Font("Fontaudio", textHeight, juce::Font::plain));
         powerButton->setClickingTogglesState(true);
         powerButton->setButtonText(fontaudio::Powerswitch);
     }
@@ -872,7 +875,7 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="30.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <SLIDER name="" id="9f8e11541428b98a" memberName="tapDelaySlider_" virtualName=""
-          explicitFocusOrder="0" pos="424 544 150 24" min="0.0" max="10.0"
+          explicitFocusOrder="0" pos="424 544 152 24" min="0.0" max="10.0"
           int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
   <LABEL name="" id="c604cf3d3c3ee5b1" memberName="unknown" virtualName=""
@@ -881,7 +884,7 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <TEXTBUTTON name="" id="7240b06205c10e61" memberName="tapEnabledButton_"
-              virtualName="" explicitFocusOrder="0" pos="424 480 150 24" buttonText="Enabled"
+              virtualName="" explicitFocusOrder="0" pos="472 480 56 32" buttonText=""
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <COMBOBOX name="" id="4376ef98cd0f798e" memberName="feedbackTapChoice_"
             virtualName="" explicitFocusOrder="0" pos="904 88 80 24" editable="0"
