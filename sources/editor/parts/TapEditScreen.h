@@ -31,6 +31,7 @@ public:
         superMajorIntervalTickColourId,
         lassoFillColourId,
         lassoOutlineColourId,
+        textColourId,
     };
 
     TapEditScreen();
@@ -88,6 +89,7 @@ protected:
     void mouseUp(const juce::MouseEvent &e) override;
     void mouseDrag(const juce::MouseEvent &e) override;
     bool keyPressed(const juce::KeyPress &e) override;
+    void resized() override;
 
 private:
     struct Impl;

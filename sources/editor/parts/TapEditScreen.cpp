@@ -37,6 +37,9 @@ struct TapEditScreen::Impl : public TapEditItem::Listener,
     std::unique_ptr<juce::Timer> tapCaptureTimer_;
 
     ///
+    std::unique_ptr<juce::Label> timeRangeLabel_[2];
+
+    ///
     class TapLassoSource : public juce::LassoSource<TapEditItem *> {
     public:
         explicit TapLassoSource(Impl &impl);
@@ -72,6 +75,8 @@ struct TapEditScreen::Impl : public TapEditItem::Listener,
     void autoZoomTimeRange();
     void updateItemSizeAndPosition(int itemNumber);
     void updateAllItemSizesAndPositions();
+    void relayoutSubcomponents();
+    void updateTimeRangeLabels();
 
     ///
     void tapEditStarted(TapEditItem *item, GdParameter id) override;
@@ -98,12 +103,10 @@ TapEditScreen::TapEditScreen()
         impl.items_[itemNumber].reset(item);
         item->addListener(&impl);
         addChildComponent(item);
-        impl.updateItemSizeAndPosition(itemNumber);
     }
 
     TapMiniMap *miniMap = new TapMiniMap;
     impl.miniMap_.reset(miniMap);
-    miniMap->setTopLeftPosition(40.0f, 40.0f);
     miniMap->setTimeRange(impl.timeRange_, juce::dontSendNotification);
     miniMap->addListener(&impl);
     addAndMakeVisible(miniMap);
@@ -117,7 +120,20 @@ TapEditScreen::TapEditScreen()
     impl.lassoSource_.reset(lassoSource);
     impl.lassoSelection_.addChangeListener(&impl);
 
+    for (int i = 0; i < 2; ++i) {
+        juce::Label *label = new juce::Label;
+        label->setSize(100, 24);
+        label->setColour(juce::Label::textColourId, findColour(textColourId));
+        impl.timeRangeLabel_[i].reset(label);
+        addAndMakeVisible(label);
+    }
+    impl.timeRangeLabel_[0]->setJustificationType(juce::Justification::left);
+    impl.timeRangeLabel_[1]->setJustificationType(juce::Justification::right);
+
     impl.tapCaptureTimer_.reset(FunctionalTimer::create([&impl]() { impl.tickTapCapture(); }));
+
+    impl.updateTimeRangeLabels();
+    impl.relayoutSubcomponents();
 }
 
 TapEditScreen::~TapEditScreen()
@@ -166,6 +182,7 @@ void TapEditScreen::setTimeRange(juce::Range<float> newTimeRange)
 
     impl.miniMap_->setTimeRange(impl.timeRange_, juce::dontSendNotification);
 
+    impl.updateTimeRangeLabels();
     repaint();
 }
 
@@ -619,6 +636,12 @@ bool TapEditScreen::keyPressed(const juce::KeyPress &e)
     return false;
 }
 
+void TapEditScreen::resized()
+{
+    Impl &impl = *impl_;
+    impl.relayoutSubcomponents();
+}
+
 float TapEditScreen::Impl::delayToX(float t) const noexcept
 {
     TapEditScreen *self = self_;
@@ -658,6 +681,34 @@ void TapEditScreen::Impl::updateAllItemSizesAndPositions()
 {
     for (int itemNumber = 0; itemNumber < GdMaxLines; ++itemNumber)
         updateItemSizeAndPosition(itemNumber);
+}
+
+void TapEditScreen::Impl::relayoutSubcomponents()
+{
+    updateAllItemSizesAndPositions();
+
+    TapEditScreen *self = self_;
+    juce::Rectangle<int> screenBounds = self->getScreenBounds();
+    juce::Rectangle<int> intervalsRow = self->getIntervalsRow();
+
+    TapMiniMap &miniMap = *miniMap_;
+    juce::Point<int> miniMapPosition = screenBounds.getTopRight().translated(-10, 10);
+    miniMap.setTopRightPosition(miniMapPosition.getX(), miniMapPosition.getY());
+
+    juce::Point<int> timeRangeLabelPos[2] = {
+        intervalsRow.getTopLeft().translated(0.0f, -timeRangeLabel_[0]->getHeight()),
+        intervalsRow.getTopRight().translated(0.0f, -timeRangeLabel_[1]->getHeight()),
+    };
+    timeRangeLabel_[0]->setTopLeftPosition(timeRangeLabelPos[0].getX(), timeRangeLabelPos[0].getY());
+    timeRangeLabel_[1]->setTopRightPosition(timeRangeLabelPos[1].getX(), timeRangeLabelPos[1].getY());
+}
+
+void TapEditScreen::Impl::updateTimeRangeLabels()
+{
+    int t1ms = juce::roundToInt(1000 * timeRange_.getStart());
+    int t2ms = juce::roundToInt(1000 * timeRange_.getEnd());
+    timeRangeLabel_[0]->setText(juce::String(t1ms) + " ms", juce::dontSendNotification);
+    timeRangeLabel_[1]->setText(juce::String(t2ms) + " ms", juce::dontSendNotification);
 }
 
 void TapEditScreen::Impl::tapEditStarted(TapEditItem *, GdParameter id)
