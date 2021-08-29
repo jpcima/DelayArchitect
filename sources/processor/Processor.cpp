@@ -27,6 +27,7 @@
  */
 
 #include "processor/Processor.h"
+#include "processor/PresetFile.h"
 #include "editor/Editor.h"
 #include "GdJuce.h"
 #include "Gd.h"
@@ -229,38 +230,30 @@ void Processor::changeProgramName(int index, const juce::String &newName)
 }
 
 //==============================================================================
-static const char StateIdentifier_v1[] = "DelayArchitectV1";
-
 void Processor::getStateInformation(juce::MemoryBlock &destData)
 {
-    juce::ValueTree tree(StateIdentifier_v1);
+    PresetFile pst;
+    pst.valid = true;
 
     for (unsigned i = 0; i < GD_PARAMETER_COUNT; ++i) {
         const auto &parameter = static_cast<const juce::RangedAudioParameter &>(*getParameters()[(int)i]);
-        const char *name = GdParameterName((GdParameter)i);
-        float value = parameter.convertFrom0to1(parameter.getValue());
-        tree.setProperty(name, (double)value, nullptr);
+        pst.values[i] = parameter.convertFrom0to1(parameter.getValue());
     }
 
-
-    juce::MemoryOutputStream memStream(destData, false);
-    juce::GZIPCompressorOutputStream gzipStream(memStream);
-    tree.writeToStream(gzipStream);
+    bool saveOk = PresetFile::saveToData(pst, destData);
+    jassert(saveOk);
+    (void)saveOk;
 }
 
 void Processor::setStateInformation(const void *data, int sizeInBytes)
 {
-    juce::ValueTree tree = juce::ValueTree::readFromGZIPData(data, (size_t)sizeInBytes);
-    if (!tree.isValid() || tree.getType() != juce::StringRef(StateIdentifier_v1))
-        return;
+    PresetFile pst = PresetFile::loadFromData(data, (size_t)sizeInBytes);
+    if (!pst)
+        pst = PresetFile::makeDefault();
 
     for (unsigned i = 0; i < GD_PARAMETER_COUNT; ++i) {
         auto &parameter = static_cast<juce::RangedAudioParameter &>(*getParameters()[(int)i]);
-        const char *name = GdParameterName((GdParameter)i);
-        juce::var value = tree.getProperty(name);
-        if (!value.isDouble())
-            value = (double)GdParameterDefault((GdParameter)i);
-        parameter.setValueNotifyingHost(parameter.convertTo0to1((float)(double)value));
+        parameter.setValueNotifyingHost(parameter.convertTo0to1(pst.values[i]));
     }
 }
 

@@ -59,6 +59,8 @@ target_sources(DelayArchitect
   PRIVATE
   "sources/processor/Processor.h"
   "sources/processor/Processor.cpp"
+  "sources/processor/PresetFile.h"
+  "sources/processor/PresetFile.cpp"
   "sources/editor/Editor.h"
   "sources/editor/Editor.cpp"
   "sources/editor/LookAndFeel.h"
