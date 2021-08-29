@@ -111,6 +111,7 @@ public:
     const TapEditData &getData() const noexcept;
     static constexpr int getLabelWidth() noexcept { return 20; }
     static constexpr int getLabelHeight() noexcept { return 20; }
+    bool getReferenceLineY(TapEditMode mode, float &lineY, juce::Component *relativeTo = nullptr) const;
 
     TapEditMode getEditMode() const noexcept;
     void setEditMode(TapEditMode mode);

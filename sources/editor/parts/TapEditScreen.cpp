@@ -515,7 +515,6 @@ void TapEditScreen::paint(juce::Graphics &g)
     juce::Rectangle<int> bounds = getLocalBounds();
     juce::Rectangle<int> screenBounds = getScreenBounds();
     juce::Rectangle<int> intervalsRow = getIntervalsRow();
-    juce::Rectangle<int> slidersRow = getSlidersRow();
 
     juce::Colour screenContourColour = findColour(screenContourColourId);
     juce::Colour intervalFillColour = findColour(intervalFillColourId);
@@ -548,18 +547,12 @@ void TapEditScreen::paint(juce::Graphics &g)
     g.setColour(intervalContourColour);
     g.drawRect(intervalsRow);
 
-    switch ((int)impl.editMode_) {
-    case kTapEditTune:
-    case kTapEditPan:
-    {
+    ///
+    float refLineY = 0;
+    if (impl.items_[0]->getReferenceLineY(impl.editMode_, refLineY, this)) {
         juce::Colour lineColour = findColour(lineColourId);
         g.setColour(lineColour);
-        float lineY = slidersRow.toFloat().getCentreY();
-        g.drawHorizontalLine((int)(lineY + 0.5f), (float)bounds.getX(), (float)bounds.getRight());
-        break;
-    }
-    default:
-        break;
+        g.drawHorizontalLine((int)(refLineY + 0.5f), (float)(screenBounds.getX() + 1), (float)(screenBounds.getRight() - 1));
     }
 
     if (impl.tapHasBegun_) {
@@ -692,7 +685,7 @@ void TapEditScreen::Impl::relayoutSubcomponents()
     juce::Rectangle<int> intervalsRow = self->getIntervalsRow();
 
     TapMiniMap &miniMap = *miniMap_;
-    juce::Point<int> miniMapPosition = screenBounds.getTopRight().translated(-10, 10);
+    juce::Point<int> miniMapPosition = screenBounds.getTopRight().translated(-5, 5);
     miniMap.setTopRightPosition(miniMapPosition.getX(), miniMapPosition.getY());
 
     juce::Point<int> timeRangeLabelPos[2] = {
@@ -861,6 +854,47 @@ const TapEditData &TapEditItem::getData() const noexcept
 {
     Impl &impl = *impl_;
     return impl.data_;
+}
+
+bool TapEditItem::getReferenceLineY(TapEditMode mode, float &lineY, juce::Component *relativeTo) const
+{
+    Impl &impl = *impl_;
+    bool have = false;
+
+    ///
+    auto getSliderValueY = [](juce::Slider &slider, double value) -> double {
+        double ratio = slider.valueToProportionOfLength(value);
+        return slider.getBottom() - ratio * slider.getHeight();
+    };
+
+    ///
+    switch ((int)mode) {
+    case kTapEditCutoff:
+        if (TapSlider *slider = impl.getSliderForEditMode(mode)) {
+            lineY = (float)getSliderValueY(*slider, 1000.0);
+            have = true;
+        }
+        break;
+    case kTapEditResonance:
+        if (TapSlider *slider = impl.getSliderForEditMode(mode)) {
+            lineY = (float)getSliderValueY(*slider, 12.0);
+            have = true;
+        }
+        break;
+    case kTapEditTune:
+    case kTapEditPan:
+    case kTapEditLevel:
+        if (TapSlider *slider = impl.getSliderForEditMode(mode)) {
+            lineY = (float)getSliderValueY(*slider, 0.0);
+            have = true;
+        }
+        break;
+    }
+
+    if (have && relativeTo)
+        lineY = relativeTo->getLocalPoint(this, juce::Point<float>{0.0f, lineY}).getY();
+
+    return have;
 }
 
 TapEditMode TapEditItem::getEditMode() const noexcept

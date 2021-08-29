@@ -19,7 +19,7 @@ LookAndFeel::LookAndFeel()
 
     ///
     setColourScheme(getLightColourScheme());
-    setColour(TapEditScreen::lineColourId, juce::Colour(0xff, 0xff, 0xff));
+    setColour(TapEditScreen::lineColourId, juce::Colour(0xff, 0xff, 0xff).withAlpha(0.5f));
     setColour(TapEditScreen::screenContourColourId, juce::Colour(0xff, 0xff, 0xff).withAlpha(0.5f));
     setColour(TapEditScreen::intervalFillColourId, juce::Colour(0xff, 0xff, 0xff).withAlpha(0.25f));
     setColour(TapEditScreen::intervalContourColourId, juce::Colour(0xff, 0xff, 0xff).withAlpha(0.5f));
