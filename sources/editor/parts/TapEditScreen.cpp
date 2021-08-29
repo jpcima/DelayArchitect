@@ -811,6 +811,15 @@ struct TapEditItem::Impl : public TapSlider::Listener {
     std::map<TapEditMode, std::unique_ptr<TapSlider>> sliders_;
     bool tapSelected_ = false;
 
+    class Slider : public TapSlider {
+    public:
+        explicit Slider(TapEditItem::Impl &impl);
+    protected:
+        void paint(juce::Graphics &g) override;
+    private:
+        TapEditItem::Impl &impl_;
+    };
+
     TapSlider *getCurrentSlider() const;
     TapSlider *getSliderForEditMode(TapEditMode editMode) const;
     void updateSliderVisibility();
@@ -839,7 +848,7 @@ TapEditItem::TapEditItem(TapEditScreen *screen, int itemNumber)
     auto createSlider = [this, &impl]
         (TapEditMode mode, GdParameter id, GdParameter id2, int kind)
     {
-        TapSlider *slider = new TapSlider;
+        TapSlider *slider = new TapEditItem::Impl::Slider(impl);
         impl.sliders_[mode] = std::unique_ptr<TapSlider>(slider);
         GdRange range = GdParameterRange((GdParameter)id);
         float def = GdParameterDefault((GdParameter)id);
@@ -1099,9 +1108,11 @@ void TapEditItem::removeListener(Listener *listener)
 
 void TapEditItem::paint(juce::Graphics &g)
 {
+    Impl &impl = *impl_;
+    TapEditScreen *screen = impl.screen_;
+
     juce::Component::paint(g);
 
-    Impl &impl = *impl_;
     juce::Colour tapLabelBackgroundColour = findColour(impl.tapSelected_ ? TapEditScreen::tapLabelSelectedBackgroundColourId : TapEditScreen::tapLabelBackgroundColourId);
     juce::Colour tapLabelTextColour = findColour(TapEditScreen::tapLabelTextColourId);
 
@@ -1110,6 +1121,11 @@ void TapEditItem::paint(juce::Graphics &g)
     labelTextCstr[1] = '\0';
 
     juce::Rectangle<int> labelBounds = impl.getLabelBounds();
+
+    // clips painting within the screen area
+    juce::Rectangle<int> clipBounds = getLocalArea(screen, screen->getScreenArea());
+    g.reduceClipRegion(clipBounds);
+
     g.setColour(tapLabelBackgroundColour);
     g.fillRoundedRectangle(labelBounds.toFloat(), 3.0f);
     g.setColour(tapLabelTextColour);
@@ -1295,6 +1311,24 @@ void TapEditItem::Impl::sliderDragEnded(juce::Slider *slider)
     GdParameter id = (GdParameter)(int)slider->getProperties().getWithDefault(identifier, -1);
     if (id != GDP_NONE)
         listeners_.call([self, id](Listener &l) { l.tapEditEnded(self, id); });
+}
+
+TapEditItem::Impl::Slider::Slider(TapEditItem::Impl &impl)
+    : impl_(impl)
+{
+}
+
+void TapEditItem::Impl::Slider::paint(juce::Graphics &g)
+{
+    TapEditItem::Impl &impl = impl_;
+    TapEditScreen *screen = impl.screen_;
+
+    // clips painting within the screen area
+    // NOTE(jpc) is there a simpler solution than reimplement `paint` just for this?
+    juce::Rectangle<int> clipBounds = getLocalArea(screen, screen->getScreenArea());
+    g.reduceClipRegion(clipBounds);
+
+    TapSlider::paint(g);
 }
 
 //------------------------------------------------------------------------------

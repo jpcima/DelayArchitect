@@ -33,12 +33,12 @@
 class TapSlider : public juce::Slider {
 public:
     TapSlider();
-    ~TapSlider() override;
+    virtual ~TapSlider() override;
 
     void setBipolarAround(bool isBipolar, float centerValue);
 
 protected:
-    void paint(juce::Graphics &g) override;
+    virtual void paint(juce::Graphics &g) override;
 
 private:
     struct Impl;
