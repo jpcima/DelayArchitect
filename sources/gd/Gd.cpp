@@ -412,6 +412,16 @@ void GdFormatParameterValue(GdParameter p, float value, char *text, unsigned tex
             return;
         }
         break;
+    case GDP_TAP_A_PAN:
+        if (value < 0)
+            snprintf(text, textsize, "%.2f %%L", -value);
+        else if (value > 0)
+            snprintf(text, textsize, "%.2f %%R", value);
+        else
+            strncpy(text, "Center", textsize);
+        if (textsize > 0)
+            text[textsize - 1] = '\0';
+        return;
     }
     GdDefaultFormatParameterValue(p, value, text, textsize);
 }
