@@ -1,6 +1,10 @@
 import("stdfaust.lib");
 
 ///
+declare author "Jean Pierre Cimalando";
+declare license "BSD-2-Clause";
+
+///
 process = one, one with {
   one = (cf, rs, _) <: ((!, !, _), lpReson6dB, hpReson6dB, lpReson12dB, hpReson12dB) : ba.selectn(5, ty);
   ty = hslider("[0] type [style:menu{'Off':0;'LP6':1;'HP6':2;'LP12':3;'HP12':4}]", 0, 0, 4, 1);
