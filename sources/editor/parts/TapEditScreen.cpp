@@ -507,7 +507,7 @@ juce::Rectangle<int> TapEditScreen::getLocalBoundsNoMargin() const
     return getLocalBounds().reduced(Impl::xMargin, Impl::yMargin);
 }
 
-juce::Rectangle<int> TapEditScreen::getScreenBounds() const
+juce::Rectangle<int> TapEditScreen::getScreenArea() const
 {
     return getIntervalsRow().getUnion(getSlidersRow());
 }
@@ -542,7 +542,7 @@ void TapEditScreen::paint(juce::Graphics &g)
 
     Impl &impl = *impl_;
     juce::Rectangle<int> bounds = getLocalBounds();
-    juce::Rectangle<int> screenBounds = getScreenBounds();
+    juce::Rectangle<int> screenBounds = getScreenArea();
     juce::Rectangle<int> intervalsRow = getIntervalsRow();
 
     juce::Colour screenContourColour = findColour(screenContourColourId);
@@ -690,7 +690,7 @@ float TapEditScreen::Impl::currentTapTime(kro::steady_clock::time_point now) con
 void TapEditScreen::Impl::updateItemSizeAndPosition(int itemNumber)
 {
     TapEditScreen *self = self_;
-    juce::Rectangle<int> screenBounds = self->getScreenBounds();
+    juce::Rectangle<int> screenBounds = self->getScreenArea();
     TapEditItem &item = *items_[itemNumber];
     const TapEditData &data = item.getData();
     int width = item.getLabelWidth();
@@ -713,7 +713,7 @@ void TapEditScreen::Impl::relayoutSubcomponents()
     updateAllItemSizesAndPositions();
 
     TapEditScreen *self = self_;
-    juce::Rectangle<int> screenBounds = self->getScreenBounds();
+    juce::Rectangle<int> screenBounds = self->getScreenArea();
     juce::Rectangle<int> intervalsRow = self->getIntervalsRow();
 
     TapMiniMap &miniMap = *miniMap_;

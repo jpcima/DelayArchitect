@@ -91,7 +91,7 @@ public:
     void autoZoomTimeRange();
 
     juce::Rectangle<int> getLocalBoundsNoMargin() const;
-    juce::Rectangle<int> getScreenBounds() const;
+    juce::Rectangle<int> getScreenArea() const;
     juce::Rectangle<int> getIntervalsRow() const;
     juce::Rectangle<int> getSlidersRow() const;
 
