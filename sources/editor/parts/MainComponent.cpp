@@ -139,17 +139,6 @@ MainComponent::MainComponent ()
 
     lastTapButton_->setBounds (16, 352, 104, 56);
 
-    activeTapLabel_.reset (new juce::Label (juce::String(),
-                                            TRANS("Tap A")));
-    addAndMakeVisible (activeTapLabel_.get());
-    activeTapLabel_->setFont (juce::Font (30.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    activeTapLabel_->setJustificationType (juce::Justification::centred);
-    activeTapLabel_->setEditable (false, false, false);
-    activeTapLabel_->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    activeTapLabel_->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    activeTapLabel_->setBounds (424, 440, 150, 32);
-
     tapDelaySlider_.reset (new juce::Slider (juce::String()));
     addAndMakeVisible (tapDelaySlider_.get());
     tapDelaySlider_->setRange (0, 10, 0);
@@ -181,7 +170,7 @@ MainComponent::MainComponent ()
     feedbackTapChoice_->setEditableText (false);
     feedbackTapChoice_->setJustificationType (juce::Justification::centredLeft);
     feedbackTapChoice_->setTextWhenNothingSelected (juce::String());
-    feedbackTapChoice_->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    feedbackTapChoice_->setTextWhenNoChoicesAvailable (juce::String());
     feedbackTapChoice_->addListener (this);
 
     feedbackTapChoice_->setBounds (904, 88, 80, 24);
@@ -430,7 +419,7 @@ MainComponent::MainComponent ()
     gridChoice_->setEditableText (false);
     gridChoice_->setJustificationType (juce::Justification::centredLeft);
     gridChoice_->setTextWhenNothingSelected (juce::String());
-    gridChoice_->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    gridChoice_->setTextWhenNoChoicesAvailable (juce::String());
     gridChoice_->addListener (this);
 
     gridChoice_->setBounds (16, 152, 104, 24);
@@ -507,6 +496,16 @@ MainComponent::MainComponent ()
 
     flipEnableButton_->setBounds (680, 544, 24, 24);
 
+    activeTapChoice_.reset (new juce::ComboBox (juce::String()));
+    addAndMakeVisible (activeTapChoice_.get());
+    activeTapChoice_->setEditableText (false);
+    activeTapChoice_->setJustificationType (juce::Justification::centred);
+    activeTapChoice_->setTextWhenNothingSelected (juce::String());
+    activeTapChoice_->setTextWhenNoChoicesAvailable (juce::String());
+    activeTapChoice_->addListener (this);
+
+    activeTapChoice_->setBounds (448, 440, 104, 32);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -544,6 +543,8 @@ MainComponent::MainComponent ()
     LookAndFeel::setTextButtonFont(*flipEnableButton_, juce::Font("Fontaudio", 12.0f, juce::Font::plain));
     flipEnableButton_->setClickingTogglesState(true);
     flipEnableButton_->setButtonText(fontaudio::Diskio);
+
+    LookAndFeel::setComboBoxFont(*activeTapChoice_, juce::Font(24.0f));
     //[/Constructor]
 }
 
@@ -560,7 +561,6 @@ MainComponent::~MainComponent()
     levelButton_ = nullptr;
     firstTapButton_ = nullptr;
     lastTapButton_ = nullptr;
-    activeTapLabel_ = nullptr;
     tapDelaySlider_ = nullptr;
     unknown = nullptr;
     tapEnabledButton_ = nullptr;
@@ -599,6 +599,7 @@ MainComponent::~MainComponent()
     muteButton_ = nullptr;
     feedbackEnableButton_ = nullptr;
     flipEnableButton_ = nullptr;
+    activeTapChoice_ = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -863,6 +864,11 @@ void MainComponent::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
         //[UserComboBoxCode_gridChoice_] -- add your combo box handling code here..
         //[/UserComboBoxCode_gridChoice_]
     }
+    else if (comboBoxThatHasChanged == activeTapChoice_.get())
+    {
+        //[UserComboBoxCode_activeTapChoice_] -- add your combo box handling code here..
+        //[/UserComboBoxCode_activeTapChoice_]
+    }
 
     //[UsercomboBoxChanged_Post]
     //[/UsercomboBoxChanged_Post]
@@ -922,11 +928,6 @@ BEGIN_JUCER_METADATA
   <TEXTBUTTON name="" id="66ad3e0b5c14c7ae" memberName="lastTapButton_" virtualName=""
               explicitFocusOrder="0" pos="16 352 104 56" buttonText="Last tap"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
-  <LABEL name="" id="f36e1a9b08999a8f" memberName="activeTapLabel_" virtualName=""
-         explicitFocusOrder="0" pos="424 440 150 32" edTextCol="ff000000"
-         edBkgCol="0" labelText="Tap A" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="30.0"
-         kerning="0.0" bold="0" italic="0" justification="36"/>
   <SLIDER name="" id="9f8e11541428b98a" memberName="tapDelaySlider_" virtualName=""
           explicitFocusOrder="0" pos="448 544 104 24" min="0.0" max="10.0"
           int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
@@ -941,7 +942,7 @@ BEGIN_JUCER_METADATA
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <COMBOBOX name="" id="4376ef98cd0f798e" memberName="feedbackTapChoice_"
             virtualName="" explicitFocusOrder="0" pos="904 88 80 24" editable="0"
-            layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+            layout="33" items="" textWhenNonSelected="" textWhenNoItems=""/>
   <LABEL name="" id="db4d1c75cd692557" memberName="unknown2" virtualName=""
          explicitFocusOrder="0" pos="880 48 102 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Feedback" editableSingleClick="0" editableDoubleClick="0"
@@ -1051,7 +1052,7 @@ BEGIN_JUCER_METADATA
               needsCallback="1" radioGroupId="0"/>
   <COMBOBOX name="" id="16cd36a80d420093" memberName="gridChoice_" virtualName=""
             explicitFocusOrder="0" pos="16 152 104 24" editable="0" layout="33"
-            items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+            items="" textWhenNonSelected="" textWhenNoItems=""/>
   <LABEL name="" id="ca6f4632ff8df183" memberName="unknown14" virtualName=""
          explicitFocusOrder="0" pos="16 128 104 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Grid" editableSingleClick="0" editableDoubleClick="0"
@@ -1084,6 +1085,9 @@ BEGIN_JUCER_METADATA
   <TEXTBUTTON name="" id="26aa605edc3b0e21" memberName="flipEnableButton_"
               virtualName="" explicitFocusOrder="0" pos="680 544 24 24" buttonText=""
               connectedEdges="2" needsCallback="1" radioGroupId="0"/>
+  <COMBOBOX name="" id="61cd9161ffe3a708" memberName="activeTapChoice_" virtualName=""
+            explicitFocusOrder="0" pos="448 440 104 32" editable="0" layout="36"
+            items="" textWhenNonSelected="" textWhenNoItems=""/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
@@ -1092,11 +1096,6 @@ END_JUCER_METADATA
 
 
 //[EndFile] You can add extra defines here...
-void MainComponent::setActiveTapLabelText(const juce::String &newText)
-{
-    activeTapLabel_->setText(newText, juce::dontSendNotification);
-}
-
 void MainComponent::Impl::setEditMode(TapEditMode editMode)
 {
     if (editMode_ == editMode)

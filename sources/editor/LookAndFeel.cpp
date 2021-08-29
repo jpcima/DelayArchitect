@@ -152,3 +152,23 @@ juce::Font LookAndFeel::getTextButtonFont(juce::TextButton &button, int buttonHe
     }
     return BaseLookAndFeel::getTextButtonFont(button, buttonHeight);
 }
+
+void LookAndFeel::setComboBoxFont(juce::ComboBox &combo, const juce::Font &font)
+{
+    juce::NamedValueSet &properties = combo.getProperties();
+    properties.set("font", font.getTypefaceName());
+    properties.set("font-size", font.getHeight());
+    properties.set("font-style", font.getStyleFlags());
+}
+
+juce::Font LookAndFeel::getComboBoxFont(juce::ComboBox &combo)
+{
+    const juce::NamedValueSet &properties = combo.getProperties();
+    if (properties.contains("font")) {
+        return juce::Font(
+            properties.getWithDefault("font", "").toString(),
+            (float)properties.getWithDefault("font-size", 0.0f),
+            (int)properties.getWithDefault("font-style", 0));
+    }
+    return BaseLookAndFeel::getComboBoxFont(combo);
+}

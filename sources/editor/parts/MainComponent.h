@@ -76,7 +76,6 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-    void setActiveTapLabelText(const juce::String &newText);
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -106,7 +105,6 @@ private:
     std::unique_ptr<juce::TextButton> levelButton_;
     std::unique_ptr<juce::TextButton> firstTapButton_;
     std::unique_ptr<juce::TextButton> lastTapButton_;
-    std::unique_ptr<juce::Label> activeTapLabel_;
     std::unique_ptr<juce::Slider> tapDelaySlider_;
     std::unique_ptr<juce::Label> unknown;
     std::unique_ptr<juce::TextButton> tapEnabledButton_;
@@ -145,6 +143,7 @@ private:
     std::unique_ptr<juce::TextButton> muteButton_;
     std::unique_ptr<juce::TextButton> feedbackEnableButton_;
     std::unique_ptr<juce::TextButton> flipEnableButton_;
+    std::unique_ptr<juce::ComboBox> activeTapChoice_;
 
 
     //==============================================================================

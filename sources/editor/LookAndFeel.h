@@ -47,6 +47,9 @@ public:
     static void setTextButtonFont(juce::TextButton &button, const juce::Font &font);
     juce::Font getTextButtonFont(juce::TextButton &button, int buttonHeight) override;
 
+    static void setComboBoxFont(juce::ComboBox &combo, const juce::Font &font);
+    juce::Font getComboBoxFont(juce::ComboBox &combo) override;
+
 private:
     struct Impl;
     std::unique_ptr<Impl> impl_;

@@ -138,6 +138,19 @@ Editor::Editor(Processor &p)
     att.makeNew<GridParameterAttachment>(*impl.getRangedParameter((int)GDP_GRID), *mainComponent->gridChoice_);
 
     //
+    for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber) {
+        char tapChar = (char)('A' + tapNumber);
+        juce::String tapFormat = TRANS("Tap %s");
+        juce::String tapText = tapFormat.replaceFirstOccurrenceOf("%s", juce::String(&tapChar, 1));
+        mainComponent->activeTapChoice_->addItem(tapText, tapNumber + 1);
+    }
+    mainComponent->activeTapChoice_->onChange = [&impl]() {
+        int id = impl.mainComponent_->activeTapChoice_->getSelectedId();
+        if (id > 0)
+            impl.setActiveTap(id - 1);
+    };
+
+    //
     impl.setActiveTap(0);
 
     //
@@ -165,12 +178,12 @@ void Editor::Impl::setActiveTap(int tapNumber)
 
     ///
     MainComponent &mainComponent = *mainComponent_;
-    char tapChar = (char)('A' + tapNumber);
+    juce::ComboBox &activeTapChoice = *mainComponent.activeTapChoice_;
+    activeTapChoice.setSelectedId(tapNumber + 1, juce::dontSendNotification);
 
-    juce::String tapFormat = TRANS("Tap %c");
-    char tapText[256];
-    std::sprintf(tapText, tapFormat.toRawUTF8(), tapChar);
-    mainComponent.setActiveTapLabelText(tapText);
+    ///
+    TapEditScreen &screen = *mainComponent.tapEditScreen_;
+    screen.setOnlyTapSelected(tapNumber);
 
     ///
     createActiveTapParameterAttachments();

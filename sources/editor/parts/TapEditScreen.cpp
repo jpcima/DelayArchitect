@@ -289,7 +289,10 @@ void TapEditScreen::setOnlyTapSelected(int selectedTapNumber)
     Impl &impl = *impl_;
     for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber) {
         TapEditItem &item = *impl.items_[tapNumber];
-        item.setTapSelected(tapNumber == selectedTapNumber);
+        bool selected = tapNumber == selectedTapNumber;
+        item.setTapSelected(selected);
+        if (selected)
+            item.toFront(false);
     }
 }
 
