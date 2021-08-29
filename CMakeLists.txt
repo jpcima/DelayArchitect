@@ -114,6 +114,7 @@ add_library(Gd STATIC
   "sources/gd/Gd.h"
   "sources/gd/GdDefs.cpp"
   "sources/gd/GdDefs.h"
+  "sources/gd/GdJuce.h"
   "sources/gd/GdLine.cpp"
   "sources/gd/GdLine.h"
   "sources/gd/GdNetwork.cpp"

@@ -2,6 +2,7 @@
 #include "TapEditScreen.h"
 #include "TapSlider.h"
 #include "editor/utility/FunctionalTimer.h"
+#include <GdJuce.h>
 #include <Gd.h>
 #include <chrono>
 namespace kro = std::chrono;
@@ -809,10 +810,9 @@ TapEditItem::TapEditItem(TapEditScreen *screen, int itemNumber)
     {
         TapSlider *slider = new TapSlider;
         impl.sliders_[mode] = std::unique_ptr<TapSlider>(slider);
-        float min = GdParameterMin((GdParameter)id);
-        float max = GdParameterMax((GdParameter)id);
+        GdRange range = GdParameterRange((GdParameter)id);
         float def = GdParameterDefault((GdParameter)id);
-        slider->setRange(min, max);
+        slider->setNormalisableRange(GdJuceRange<double>(range));
         slider->setValue(def);
         slider->setDoubleClickReturnValue(true, def);
         if (kind == kTapSliderBipolar)

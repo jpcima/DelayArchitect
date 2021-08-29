@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: BSD-2-Clause
 #include "processor/Processor.h"
 #include "editor/Editor.h"
+#include "GdJuce.h"
 #include "Gd.h"
 
 struct Processor::Impl : public juce::AudioProcessorListener {
@@ -278,8 +279,7 @@ void Processor::Impl::setupParameters()
         default:
         case GDP_FLOAT:
         {
-            juce::NormalisableRange<float> normalisedRange{range.start, range.end, range.interval, range.skew, range.symmetricSkew};
-            parameter = new juce::AudioParameterFloat(name, label, normalisedRange, def, juce::String{}, juce::AudioProcessorParameter::genericParameter, stringFromValue);
+            parameter = new juce::AudioParameterFloat(name, label, GdJuceRange<float>(range), def, juce::String{}, juce::AudioProcessorParameter::genericParameter, stringFromValue);
             break;
         }
         case GDP_BOOLEAN:

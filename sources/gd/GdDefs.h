@@ -31,12 +31,18 @@ struct GdRange {
     float end;
     float interval;
     float skew;
-    bool symmetricSkew;
+    int mode;
 };
 
-inline constexpr GdRange GdMakeRange(float start, float end, float interval = 0, float skew = 1, bool symmetricSkew = false)
+enum GdRangeMode {
+    GDR_NONE,
+    GDR_SYMMETRIC,
+    GDR_MIDPOINT,
+};
+
+inline constexpr GdRange GdMakeRange(float start, float end, float interval = 0, float skew = 1, int mode = GDR_NONE)
 {
-    return GdRange{start, end, interval, skew, symmetricSkew};
+    return GdRange{start, end, interval, skew, mode};
 }
 
 Ignorable static constexpr GdRange GdDefaultRange = {0, 1, 0, 1, false};
@@ -55,9 +61,9 @@ Ignorable static constexpr float GdMinFeedbackGainDB = -64.0f;
     _(SWING, (1, 99), 50, GDP_FLOAT, "Swing", "%", -1)                         \
     _(FEEDBACK_ENABLE, (false, true), false, GDP_BOOLEAN, "Feedback Enable", "", -1) \
     _(FEEDBACK_TAP, (0, GdMaxLines - 1), 0, GDP_CHOICE, "Feedback Tap", "", -1) \
-    _(FEEDBACK_GAIN, (GdMinFeedbackGainDB, 6.0), GdMinFeedbackGainDB, GDP_FLOAT, "Feedback Gain", "dB", -1) \
-    _(MIX_DRY, (GdMinMixGainDB, 0), -6, GDP_FLOAT, "Dry mix", "dB", -1)        \
-    _(MIX_WET, (GdMinMixGainDB, 0), -6, GDP_FLOAT, "Wet mix", "dB", -1)        \
+    _(FEEDBACK_GAIN, (GdMinFeedbackGainDB, 6.0, 0, -6, GDR_MIDPOINT), GdMinFeedbackGainDB, GDP_FLOAT, "Feedback Gain", "dB", -1) \
+    _(MIX_DRY, (GdMinMixGainDB, 0, 0, -10, GDR_MIDPOINT), -6, GDP_FLOAT, "Dry Mix", "dB", -1) \
+    _(MIX_WET, (GdMinMixGainDB, 0, 0, -10, GDR_MIDPOINT), -6, GDP_FLOAT, "Wet Mix", "dB", -1) \
     GD_EACH_LINE_PARAMETER(_, A, 0)                                            \
     GD_EACH_LINE_PARAMETER(_, B, 1)                                            \
     GD_EACH_LINE_PARAMETER(_, C, 2)                                            \
@@ -91,7 +97,7 @@ Ignorable static constexpr float GdMinFeedbackGainDB = -64.0f;
     /* NOTE: Tap Enable must always appear first */                            \
     _(TAP_##X##_ENABLE, (false, true), false, GDP_BOOLEAN, "Tap " #X " Enable", "", I) \
     _(TAP_##X##_DELAY, (0, GdMaxDelay), 0, GDP_FLOAT, "Tap " #X " Delay", "s", I) \
-    _(TAP_##X##_LEVEL, (-64, 6), 0, GDP_FLOAT, "Tap " #X " Level", "dB", I)     \
+    _(TAP_##X##_LEVEL, (-64, 6, 0, -6, GDR_MIDPOINT), 0, GDP_FLOAT, "Tap " #X " Level", "dB", I) \
     _(TAP_##X##_MUTE, (false, true), false, GDP_BOOLEAN, "Tap " #X " Mute", "", I) \
     _(TAP_##X##_FILTER_ENABLE, (false, true), false, GDP_BOOLEAN, "Tap " #X " Filter Enable", "", I) \
     _(TAP_##X##_FILTER, (0, GdNumFilterTypes - 1), 0, GDP_CHOICE, "Tap " #X " Filter", "", I) \
