@@ -197,7 +197,7 @@ bool Processor::isMidiEffect() const
 
 double Processor::getTailLengthSeconds() const
 {
-    return 0.0;
+    return (double)GdMaxDelay;
 }
 
 //==============================================================================
