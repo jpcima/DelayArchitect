@@ -109,6 +109,24 @@ bool PresetFile::saveToData(const PresetFile &pst, juce::MemoryBlock &data, bool
 
 bool PresetFile::saveToFile(const PresetFile &pst, const juce::File &file)
 {
-    juce::FileOutputStream stream(file);
-    return stream.openedOk() && saveToStream(pst, stream) && stream.getStatus().wasOk();
+    std::unique_ptr<juce::FileOutputStream> stream(new juce::FileOutputStream(file));
+    if (!stream->openedOk())
+        return false;
+
+    stream->setPosition(0);
+    stream->truncate();
+    if (!saveToStream(pst, *stream)) {
+        stream.reset();
+        file.deleteFile();
+        return false;
+    }
+
+    stream->flush();
+    if (!stream->getStatus().wasOk()) {
+        stream.reset();
+        file.deleteFile();
+        return false;
+    }
+
+    return true;
 }
