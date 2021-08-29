@@ -60,6 +60,7 @@ struct Editor::Impl : public TapEditScreen::Listener {
     std::unique_ptr<juce::PopupMenu> mainMenu_;
 
     std::unique_ptr<juce::FileChooser> fileChooser_;
+    juce::File fileChooserInitialDirectory_;
 
     std::unique_ptr<juce::Timer> idleTimer_;
 
@@ -225,15 +226,18 @@ void Editor::Impl::choosePresetFileToLoad()
     Editor *self = self_;
 
     juce::FileChooser *chooser = new juce::FileChooser(
-        TRANS("Load preset"), {}, "*.dap", true, true, self);
+        TRANS("Load preset"), fileChooserInitialDirectory_,
+        "*.dap", true, true, self);
     fileChooser_.reset(chooser);
 
     chooser->launchAsync(
         juce::FileBrowserComponent::openMode|juce::FileBrowserComponent::canSelectFiles,
         [this](const juce::FileChooser &theChooser) {
             juce::File result = theChooser.getResult();
-            if (result != juce::File{})
+            if (result != juce::File{}) {
+                fileChooserInitialDirectory_ = result.getParentDirectory();
                 loadPresetFile(result.getFullPathName());
+            }
         });
 }
 
@@ -242,15 +246,18 @@ void Editor::Impl::choosePresetFileToSave()
     Editor *self = self_;
 
     juce::FileChooser *chooser = new juce::FileChooser(
-        TRANS("Save preset"), {}, "*.dap", true, true, self);
+        TRANS("Save preset"), fileChooserInitialDirectory_,
+        "*.dap", true, true, self);
     fileChooser_.reset(chooser);
 
     chooser->launchAsync(
         juce::FileBrowserComponent::saveMode|juce::FileBrowserComponent::canSelectFiles,
         [this](const juce::FileChooser &theChooser) {
             juce::File result = theChooser.getResult();
-            if (result != juce::File{})
+            if (result != juce::File{}) {
+                fileChooserInitialDirectory_ = result.getParentDirectory();
                 savePresetFile(result.getFullPathName());
+            }
         });
 }
 
@@ -259,15 +266,18 @@ void Editor::Impl::choosePresetFileToImport()
     Editor *self = self_;
 
     juce::FileChooser *chooser = new juce::FileChooser(
-        TRANS("Import preset"), {}, "*.pst", true, true, self);
+        TRANS("Import preset"), fileChooserInitialDirectory_,
+        "*.pst", true, true, self);
     fileChooser_.reset(chooser);
 
     chooser->launchAsync(
         juce::FileBrowserComponent::openMode|juce::FileBrowserComponent::canSelectFiles,
         [this](const juce::FileChooser &theChooser) {
             juce::File result = theChooser.getResult();
-            if (result != juce::File{})
+            if (result != juce::File{}) {
+                fileChooserInitialDirectory_ = result.getParentDirectory();
                 importPresetFile(result.getFullPathName());
+            }
         });
 }
 
