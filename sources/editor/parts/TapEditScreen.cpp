@@ -835,9 +835,6 @@ TapEditItem::TapEditItem(TapEditScreen *screen, int itemNumber)
     createSlider(kTapEditTune, GdRecomposeParameter(GDP_TAP_A_TUNE, itemNumber), GDP_NONE, kTapSliderBipolar);
     createSlider(kTapEditPan, GdRecomposeParameter(GDP_TAP_A_PAN, itemNumber), GDP_NONE, kTapSliderBipolar);
     createSlider(kTapEditLevel, GdRecomposeParameter(GDP_TAP_A_LEVEL, itemNumber), GDP_NONE, kTapSliderNormal);
-
-    if (TapSlider *slider = impl.getSliderForEditMode(kTapEditCutoff))
-        slider->setSkewFactor(0.25f);
 }
 
 TapEditItem::~TapEditItem()
