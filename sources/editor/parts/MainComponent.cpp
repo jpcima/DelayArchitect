@@ -590,7 +590,7 @@ void MainComponent::paint (juce::Graphics& g)
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
         g.setColour (fillColour);
-        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+        g.fillRoundedRectangle (x, y, width, height, 5.000f);
     }
 
     {
@@ -599,7 +599,7 @@ void MainComponent::paint (juce::Graphics& g)
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
         g.setColour (fillColour);
-        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+        g.fillRoundedRectangle (x, y, width, height, 5.000f);
     }
 
     {
@@ -608,7 +608,7 @@ void MainComponent::paint (juce::Graphics& g)
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
         g.setColour (fillColour);
-        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+        g.fillRoundedRectangle (x, y, width, height, 5.000f);
     }
 
     {
@@ -617,7 +617,7 @@ void MainComponent::paint (juce::Graphics& g)
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
         g.setColour (fillColour);
-        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+        g.fillRoundedRectangle (x, y, width, height, 5.000f);
     }
 
     {
@@ -626,7 +626,7 @@ void MainComponent::paint (juce::Graphics& g)
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
         g.setColour (fillColour);
-        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+        g.fillRoundedRectangle (x, y, width, height, 5.000f);
     }
 
     {
@@ -635,7 +635,7 @@ void MainComponent::paint (juce::Graphics& g)
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
         g.setColour (fillColour);
-        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+        g.fillRoundedRectangle (x, y, width, height, 5.000f);
     }
 
     //[UserPaint] Add your own custom painting code here..
@@ -859,17 +859,15 @@ BEGIN_JUCER_METADATA
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="1" initialWidth="1000" initialHeight="600">
   <BACKGROUND backgroundColour="ff323e44">
-    <ROUNDRECT pos="136 40 728 384" cornerSize="10.0" fill="solid: ff2a7ca5"
+    <ROUNDRECT pos="136 40 728 384" cornerSize="5.0" fill="solid: ff2a7ca5"
                hasStroke="0"/>
-    <ROUNDRECT pos="8 431 984 161" cornerSize="10.0" fill="solid: ffc86d4f"
+    <ROUNDRECT pos="8 431 984 161" cornerSize="5.0" fill="solid: ffc86d4f" hasStroke="0"/>
+    <ROUNDRECT pos="872 40 120 192" cornerSize="5.0" fill="solid: fffff080"
                hasStroke="0"/>
-    <ROUNDRECT pos="872 40 120 192" cornerSize="10.0" fill="solid: fffff080"
+    <ROUNDRECT pos="872 240 120 184" cornerSize="5.0" fill="solid: fffff080"
                hasStroke="0"/>
-    <ROUNDRECT pos="872 240 120 184" cornerSize="10.0" fill="solid: fffff080"
-               hasStroke="0"/>
-    <ROUNDRECT pos="8 263 120 161" cornerSize="10.0" fill="solid: fffff080"
-               hasStroke="0"/>
-    <ROUNDRECT pos="8 40 120 216" cornerSize="10.0" fill="solid: fffff080" hasStroke="0"/>
+    <ROUNDRECT pos="8 263 120 161" cornerSize="5.0" fill="solid: fffff080" hasStroke="0"/>
+    <ROUNDRECT pos="8 40 120 216" cornerSize="5.0" fill="solid: fffff080" hasStroke="0"/>
   </BACKGROUND>
   <GENERICCOMPONENT name="" id="c36eda615afd52ad" memberName="tapEditScreen_" virtualName=""
                     explicitFocusOrder="0" pos="136 40 728 384" class="TapEditScreen"
