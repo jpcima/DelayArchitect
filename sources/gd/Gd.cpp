@@ -350,7 +350,7 @@ GD_API const char *GdGroupLabel(GdParameter p)
     return nullptr;
 }
 
-void GdFormatParameterValue(GdParameter p, float value, char *text, unsigned textsize)
+static void GdDefaultFormatParameterValue(GdParameter p, float value, char *text, unsigned textsize)
 {
     int flags = GdParameterFlags(p);
     const char *unit = GdParameterUnit(p);
@@ -379,4 +379,21 @@ void GdFormatParameterValue(GdParameter p, float value, char *text, unsigned tex
 
     if (textsize > 0)
         text[textsize - 1] = '\0';
+}
+
+void GdFormatParameterValue(GdParameter p, float value, char *text, unsigned textsize)
+{
+    switch ((int)GdDecomposeParameter(p, nullptr)) {
+    case GDP_FEEDBACK_GAIN:
+    case GDP_MIX_DRY:
+    case GDP_MIX_WET:
+        if (value <= GdParameterRange(p).start) {
+            strncpy(text, "-inf dB", textsize);
+            if (textsize > 0)
+                text[textsize - 1] = '\0';
+            return;
+        }
+        break;
+    }
+    GdDefaultFormatParameterValue(p, value, text, textsize);
 }
