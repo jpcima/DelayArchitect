@@ -256,7 +256,21 @@ void Editor::Impl::choosePresetFileToSave()
             juce::File result = theChooser.getResult();
             if (result != juce::File{}) {
                 fileChooserInitialDirectory_ = result.getParentDirectory();
-                savePresetFile(result.getFullPathName());
+                if (!result.hasFileExtension("dap"))
+                    result = result.withFileExtension("dap");
+                if (!result.exists())
+                    savePresetFile(result.getFullPathName());
+                else {
+                    juce::MessageBoxOptions opt = juce::MessageBoxOptions{}
+                        .withTitle(TRANS("Confirm overwrite"))
+                        .withMessage(TRANS("The file already exists. Would you like to replace it?"))
+                        .withButton(TRANS("Yes")).withButton(TRANS("No"))
+                        .withAssociatedComponent(self_);
+                    juce::AlertWindow::showAsync(opt, [this, result](int button) {
+                        if (button == 1)
+                            savePresetFile(result.getFullPathName());
+                    });
+                }
             }
         });
 }
