@@ -39,6 +39,7 @@
 #include "editor/attachments/SliderParameterAttachmentWithTooltip.h"
 #include "editor/utility/FunctionalTimer.h"
 #include "processor/Processor.h"
+#include "processor/PresetFile.h"
 #include "importer/ImporterPST.h"
 #include "utility/AutoDeletePool.h"
 #include "Gd.h"
@@ -71,7 +72,11 @@ struct Editor::Impl : public TapEditScreen::Listener {
     void setActiveTap(int tapNumber);
     void createActiveTapParameterAttachments();
 
+    void choosePresetFileToLoad();
+    void choosePresetFileToSave();
     void choosePresetFileToImport();
+    void loadPresetFile(const juce::File &file);
+    void savePresetFile(const juce::File &file);
     void importPresetFile(const juce::File &file);
 
     void showAbout();
@@ -104,6 +109,9 @@ Editor::Editor(Processor &p)
 
     juce::PopupMenu *mainMenu = new juce::PopupMenu;
     impl.mainMenu_.reset(mainMenu);
+    mainMenu->addItem(TRANS("Load preset"), [&impl]() { impl.choosePresetFileToLoad(); });
+    mainMenu->addItem(TRANS("Save preset"), [&impl]() { impl.choosePresetFileToSave(); });
+    mainMenu->addSeparator();
     mainMenu->addItem(TRANS("Import preset"), [&impl]() { impl.choosePresetFileToImport(); });
     mainMenu->addSeparator();
     mainMenu->addItem(TRANS("About"), [&impl]() { impl.showAbout(); });
@@ -212,6 +220,40 @@ void Editor::Impl::createActiveTapParameterAttachments()
     att.makeNew<InvertedButtonParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_MUTE, tapNumber)), *mainComponent->muteButton_, nullptr);
 }
 
+void Editor::Impl::choosePresetFileToLoad()
+{
+    Editor *self = self_;
+
+    juce::FileChooser *chooser = new juce::FileChooser(
+        TRANS("Load preset"), {}, "*.dap", true, true, self);
+    fileChooser_.reset(chooser);
+
+    chooser->launchAsync(
+        juce::FileBrowserComponent::openMode|juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser &theChooser) {
+            juce::File result = theChooser.getResult();
+            if (result != juce::File{})
+                loadPresetFile(result.getFullPathName());
+        });
+}
+
+void Editor::Impl::choosePresetFileToSave()
+{
+    Editor *self = self_;
+
+    juce::FileChooser *chooser = new juce::FileChooser(
+        TRANS("Save preset"), {}, "*.dap", true, true, self);
+    fileChooser_.reset(chooser);
+
+    chooser->launchAsync(
+        juce::FileBrowserComponent::saveMode|juce::FileBrowserComponent::canSelectFiles,
+        [this](const juce::FileChooser &theChooser) {
+            juce::File result = theChooser.getResult();
+            if (result != juce::File{})
+                savePresetFile(result.getFullPathName());
+        });
+}
+
 void Editor::Impl::choosePresetFileToImport()
 {
     Editor *self = self_;
@@ -229,6 +271,41 @@ void Editor::Impl::choosePresetFileToImport()
         });
 }
 
+void Editor::Impl::loadPresetFile(const juce::File &file)
+{
+    PresetFile pst = PresetFile::loadFromFile(file);
+    if (!pst) {
+        juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::WarningIcon, TRANS("Error"), TRANS("Could not load the preset file."), juce::String{}, self_);
+        return;
+    }
+
+    for (int i = 0; i < GD_PARAMETER_COUNT; ++i) {
+        juce::RangedAudioParameter *parameter = getRangedParameter(i);
+        parameter->setValueNotifyingHost(parameter->convertTo0to1(pst.values[i]));
+    }
+
+    ///
+    MainComponent *mainComponent = mainComponent_.get();
+    TapEditScreen *tapEdit = mainComponent->tapEditScreen_.get();
+    tapEdit->autoZoomTimeRange();
+}
+
+void Editor::Impl::savePresetFile(const juce::File &file)
+{
+    PresetFile pst;
+    pst.valid = true;
+
+    for (int i = 0; i < GD_PARAMETER_COUNT; ++i) {
+        juce::RangedAudioParameter *parameter = getRangedParameter(i);
+        pst.values[i] = parameter->convertFrom0to1(parameter->getValue());
+    }
+
+    if (!PresetFile::saveToFile(pst, file)) {
+        juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::WarningIcon, TRANS("Error"), TRANS("Could not save the preset file."), juce::String{}, self_);
+        return;
+    }
+}
+
 void Editor::Impl::importPresetFile(const juce::File &file)
 {
     ImporterPST pst;
@@ -244,6 +321,7 @@ void Editor::Impl::importPresetFile(const juce::File &file)
         parameter->setValueNotifyingHost(parameter->convertTo0to1(idata.values[p]));
     }
 
+    ///
     MainComponent *mainComponent = mainComponent_.get();
     TapEditScreen *tapEdit = mainComponent->tapEditScreen_.get();
     tapEdit->autoZoomTimeRange();
