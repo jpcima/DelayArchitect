@@ -279,6 +279,7 @@ void TapEditScreen::setBPM(double bpm)
         return;
 
     impl.bpm_ = bpm;
+    impl.updateAllItemSizesAndPositions();
     repaint();
 }
 
@@ -668,7 +669,10 @@ void TapEditScreen::Impl::updateItemSizeAndPosition(int itemNumber)
     int width = item.getLabelWidth();
     int height = screenBounds.getHeight();
     item.setSize(width, height);
-    item.setTopLeftPosition((int)(delayToX(data.delay) - 0.5f * (float)width), screenBounds.getY());
+    float delay = data.delay;
+    if (sync_)
+        delay = GdAlignDelayToGrid(delay, div_, swing_, (float)bpm_);
+    item.setTopLeftPosition((int)(delayToX(delay) - 0.5f * (float)width), screenBounds.getY());
 }
 
 void TapEditScreen::Impl::updateAllItemSizesAndPositions()
