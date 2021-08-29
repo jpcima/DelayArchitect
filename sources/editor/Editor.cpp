@@ -29,6 +29,7 @@
 #include "editor/Editor.h"
 #include "editor/LookAndFeel.h"
 #include "editor/parts/MainComponent.h"
+#include "editor/parts/AboutComponent.h"
 #include "editor/parts/TapEditScreen.h"
 #include "editor/parts/AdvancedTooltipWindow.h"
 #include "editor/attachments/TapParameterAttachment.h"
@@ -73,6 +74,8 @@ struct Editor::Impl : public TapEditScreen::Listener {
     void choosePresetFileToImport();
     void importPresetFile(const juce::File &file);
 
+    void showAbout();
+
     void tapEditStarted(TapEditScreen *, GdParameter id) override;
     void tapEditEnded(TapEditScreen *, GdParameter id) override;
     void tapValueChanged(TapEditScreen *, GdParameter id, float value) override;
@@ -102,6 +105,8 @@ Editor::Editor(Processor &p)
     juce::PopupMenu *mainMenu = new juce::PopupMenu;
     impl.mainMenu_.reset(mainMenu);
     mainMenu->addItem(TRANS("Import preset"), [&impl]() { impl.choosePresetFileToImport(); });
+    mainMenu->addSeparator();
+    mainMenu->addItem(TRANS("About"), [&impl]() { impl.showAbout(); });
     mainComponent->menuButton_->onClick = [this]() {
         impl_->mainMenu_->showMenuAsync(
             juce::PopupMenu::Options()
@@ -229,6 +234,19 @@ void Editor::Impl::importPresetFile(const juce::File &file)
     MainComponent *mainComponent = mainComponent_.get();
     TapEditScreen *tapEdit = mainComponent->tapEditScreen_.get();
     tapEdit->autoZoomTimeRange();
+}
+
+void Editor::Impl::showAbout()
+{
+    Editor *self = self_;
+    juce::DialogWindow::LaunchOptions opt;
+
+    opt.dialogTitle = TRANS("About");
+    opt.content.set(new AboutComponent, true);
+    opt.componentToCentreAround = self;
+    opt.resizable = false;
+
+    opt.launchAsync();
 }
 
 void Editor::Impl::tapEditStarted(TapEditScreen *, GdParameter id)

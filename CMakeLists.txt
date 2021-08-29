@@ -65,6 +65,8 @@ target_sources(DelayArchitect
   "sources/editor/LookAndFeel.cpp"
   "sources/editor/parts/MainComponent.h"
   "sources/editor/parts/MainComponent.cpp"
+  "sources/editor/parts/AboutComponent.h"
+  "sources/editor/parts/AboutComponent.cpp"
   "sources/editor/parts/TapEditScreen.h"
   "sources/editor/parts/TapEditScreen.cpp"
   "sources/editor/parts/TapSlider.h"
