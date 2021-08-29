@@ -192,7 +192,7 @@ unsigned GdParameterCount()
 const char *GdParameterName(GdParameter p)
 {
     switch (p) {
-    #define EACH(p, min, max, def, flags, label, unit, group) case GDP_##p: return #p;
+    #define EACH(p, range, def, flags, label, unit, group) case GDP_##p: return #p;
     GD_EACH_PARAMETER(EACH)
     #undef EACH
     default:
@@ -209,10 +209,21 @@ GdParameter GdParameterByName(const char *name)
     return (GdParameter)-1;
 }
 
+GdRange GdParameterRange(GdParameter p)
+{
+    switch (p) {
+    #define EACH(p, range, def, flags, label, unit, group) case GDP_##p: return (GdMakeRange range);
+    GD_EACH_PARAMETER(EACH)
+    #undef EACH
+    default:
+        return GdDefaultRange;
+    }
+}
+
 float GdParameterMin(GdParameter p)
 {
     switch (p) {
-    #define EACH(p, min, max, def, flags, label, unit, group) case GDP_##p: return min;
+    #define EACH(p, range, def, flags, label, unit, group) case GDP_##p: return (GdMakeRange range).start;
     GD_EACH_PARAMETER(EACH)
     #undef EACH
     default:
@@ -223,7 +234,7 @@ float GdParameterMin(GdParameter p)
 float GdParameterMax(GdParameter p)
 {
     switch (p) {
-    #define EACH(p, min, max, def, flags, label, unit, group) case GDP_##p: return max;
+    #define EACH(p, range, def, flags, label, unit, group) case GDP_##p: return (GdMakeRange range).end;
     GD_EACH_PARAMETER(EACH)
     #undef EACH
     default:
@@ -234,7 +245,7 @@ float GdParameterMax(GdParameter p)
 float GdParameterDefault(GdParameter p)
 {
     switch (p) {
-    #define EACH(p, min, max, def, flags, label, unit, group) case GDP_##p: return def;
+    #define EACH(p, range, def, flags, label, unit, group) case GDP_##p: return def;
     GD_EACH_PARAMETER(EACH)
     #undef EACH
     default:
@@ -245,7 +256,7 @@ float GdParameterDefault(GdParameter p)
 unsigned GdParameterFlags(GdParameter p)
 {
     switch (p) {
-    #define EACH(p, min, max, def, flags, label, unit, group) case GDP_##p: return flags;
+    #define EACH(p, range, def, flags, label, unit, group) case GDP_##p: return flags;
     GD_EACH_PARAMETER(EACH)
     #undef EACH
     default:
@@ -256,7 +267,7 @@ unsigned GdParameterFlags(GdParameter p)
 const char *GdParameterLabel(GdParameter p)
 {
     switch (p) {
-    #define EACH(p, min, max, def, flags, label, unit, group) case GDP_##p: return label;
+    #define EACH(p, range, def, flags, label, unit, group) case GDP_##p: return label;
     GD_EACH_PARAMETER(EACH)
     #undef EACH
     default:
@@ -267,7 +278,7 @@ const char *GdParameterLabel(GdParameter p)
 const char *GdParameterUnit(GdParameter p)
 {
     switch (p) {
-    #define EACH(p, min, max, def, flags, label, unit, group) case GDP_##p: return unit;
+    #define EACH(p, range, def, flags, label, unit, group) case GDP_##p: return unit;
     GD_EACH_PARAMETER(EACH)
     #undef EACH
     default:
@@ -311,7 +322,7 @@ const char *const *GdParameterChoices(GdParameter p)
 int GdParameterGroup(GdParameter p)
 {
     switch (p) {
-    #define EACH(p, min, max, def, flags, label, unit, group) case GDP_##p: return group;
+    #define EACH(p, range, def, flags, label, unit, group) case GDP_##p: return group;
     GD_EACH_PARAMETER(EACH)
     #undef EACH
     default:

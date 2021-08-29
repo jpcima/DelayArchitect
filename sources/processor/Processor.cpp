@@ -250,8 +250,7 @@ void Processor::Impl::setupParameters()
         unsigned flags = GdParameterFlags((GdParameter)i);
         const char *name = GdParameterName((GdParameter)i);
         const char *label = GdParameterLabel((GdParameter)i);
-        float min = GdParameterMin((GdParameter)i);
-        float max = GdParameterMax((GdParameter)i);
+        GdRange range = GdParameterRange((GdParameter)i);
         float def = GdParameterDefault((GdParameter)i);
         int group = GdParameterGroup((GdParameter)i);
         unsigned type = flags & (GDP_FLOAT|GDP_BOOLEAN|GDP_INTEGER|GDP_CHOICE);
@@ -279,8 +278,8 @@ void Processor::Impl::setupParameters()
         default:
         case GDP_FLOAT:
         {
-            juce::AudioParameterFloat *parameterFloat = new juce::AudioParameterFloat(name, label, {min, max}, def, juce::String{}, juce::AudioProcessorParameter::genericParameter, stringFromValue);
-            parameter = parameterFloat;
+            juce::NormalisableRange<float> normalisedRange{range.start, range.end, range.interval, range.skew, range.symmetricSkew};
+            parameter = new juce::AudioParameterFloat(name, label, normalisedRange, def, juce::String{}, juce::AudioProcessorParameter::genericParameter, stringFromValue);
             break;
         }
         case GDP_BOOLEAN:
@@ -288,7 +287,7 @@ void Processor::Impl::setupParameters()
             break;
         case GDP_INTEGER:
         {
-            parameter = new juce::AudioParameterInt(name, label, (int)min, (int)max, (int)def, juce::String{}, stringFromValue);
+            parameter = new juce::AudioParameterInt(name, label, (int)range.start, (int)range.end, (int)def, juce::String{}, stringFromValue);
             break;
         }
         case GDP_CHOICE:

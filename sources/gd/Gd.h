@@ -26,6 +26,7 @@ GD_API float GdAdjustParameter(GdParameter p, float value);
 GD_API unsigned GdParameterCount();
 GD_API const char *GdParameterName(GdParameter p);
 GD_API GdParameter GdParameterByName(const char *name);
+GD_API GdRange GdParameterRange(GdParameter p);
 GD_API float GdParameterMin(GdParameter p);
 GD_API float GdParameterMax(GdParameter p);
 GD_API float GdParameterDefault(GdParameter p);
