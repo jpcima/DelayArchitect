@@ -107,7 +107,7 @@ Ignorable static constexpr float GdMinFeedbackGainDB = -64.0f;
     _(TAP_##X##_TUNE_ENABLE, (false, true), false, GDP_BOOLEAN, "Tap " #X " Tune Enable", "", I) \
     _(TAP_##X##_TUNE, (-1200, 1200), 0, GDP_FLOAT, "Tap " #X " Tune", "cts", I) \
     _(TAP_##X##_PAN, (-100, 100), 0, GDP_FLOAT, "Tap " #X " Pan", "%", I)       \
-    _(TAP_##X##_WIDTH, (0, 1000), 100, GDP_FLOAT, "Tap " #X " Width", "%", I)   \
+    _(TAP_##X##_WIDTH, (0, 1000, 0, 100, GDR_MIDPOINT), 100, GDP_FLOAT, "Tap " #X " Width", "%", I) \
     _(TAP_##X##_FLIP, (false, true), false, GDP_BOOLEAN, "Tap " #X " Flip", "", I) \
     /* End */
 
