@@ -306,6 +306,7 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
                         inputAndFeedbackSum[i] = in;
                         float out = tap.line_.processOne(in, delays[i]);
                         out = fx.processOne(out, fxControl, i);
+                        out = cubicNL(out); // saturate feedback
                         feedbackTapOutput[i] = out;
                         feedback = out;
                     }
@@ -317,6 +318,7 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
                         inputAndFeedbackSum[i] = in;
                         float out = tap.line_.processOne(in, delays[i]);
                         out = fx.processOne(out, fxControl, i);
+                        out = cubicNL(out); // saturate feedback
                         feedbackTapOutput[i] = out;
                         feedback = out;
                     }
