@@ -172,7 +172,7 @@ bool ImporterPST::importFile(const juce::File &file, ImportData &idata)
                     tapValues[GDP_TAP_A_FILTER_ENABLE] = (bool)value;
                     break;
                 case 0x48: // Resonance (%) [float32]
-                    tapValues[GDP_TAP_A_RESONANCE] = value * (24.0f / 100.0f);
+                    tapValues[GDP_TAP_A_RESONANCE] = value * (20.0f / 100.0f);
                     break;
                 case 0x4c: // Filter slope (0=6dB/oct, 1=12dB/oct) [float32]
                     tapValues[GDP_TAP_A_FILTER] = (float)(int)value;
