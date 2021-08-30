@@ -32,5 +32,7 @@ template <class Real>
 inline Real cubicNL(Real x)
 {
     Real oneThird = (Real)1 / (Real)3;
+    x = (x > -1) ? x : -1;
+    x = (x < +1) ? x : +1;
     return x - x * x * x * oneThird;
 }
