@@ -650,12 +650,18 @@ void TapEditScreen::mouseDrag(const juce::MouseEvent &e)
 bool TapEditScreen::keyPressed(const juce::KeyPress &e)
 {
     if (e.isKeyCode(juce::KeyPress::deleteKey)) {
+        bool selected[GdMaxLines];
+
+        for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber)
+            selected[tapNumber] = isTapSelected(tapNumber);
+
         for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber) {
-            if (isTapSelected(tapNumber)) {
+            if (selected[tapNumber]) {
                 GdParameter id = GdRecomposeParameter(GDP_TAP_A_ENABLE, tapNumber);
                 setTapValue(id, false);
             }
         }
+
         setAllTapsSelected(false);
     }
     return false;
