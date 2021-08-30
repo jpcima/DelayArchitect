@@ -53,6 +53,8 @@ public:
         tapLabelBackgroundColourId,
         tapLabelSelectedBackgroundColourId,
         tapLabelTextColourId,
+        tapSliderBackgroundColourId,
+        tapSliderFillColourId,
         minorIntervalTickColourId,
         majorIntervalTickColourId,
         superMajorIntervalTickColourId,

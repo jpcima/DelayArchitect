@@ -870,6 +870,8 @@ TapEditItem::TapEditItem(TapEditScreen *screen, int itemNumber)
             properties.set("X-Change-ID-1", (int)id);
             properties.set("X-Change-ID-2", (int)id2);
         }
+        slider->setColour(juce::Slider::backgroundColourId, findColour(TapEditScreen::tapSliderBackgroundColourId));
+        slider->setColour(juce::Slider::trackColourId, findColour(TapEditScreen::tapSliderFillColourId));
         addChildComponent(slider);
     };
 
