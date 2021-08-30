@@ -58,6 +58,7 @@ struct Editor::Impl : public TapEditScreen::Listener {
     AutoDeletePool activeTapAttachments_;
 
     std::unique_ptr<juce::PopupMenu> mainMenu_;
+    std::unique_ptr<juce::PopupMenu> tapMenu_;
 
     std::unique_ptr<juce::FileChooser> fileChooser_;
     juce::File fileChooserInitialDirectory_;
@@ -80,6 +81,9 @@ struct Editor::Impl : public TapEditScreen::Listener {
     void savePresetFile(const juce::File &file);
     void importPresetFile(const juce::File &file);
     void loadPreset(const PresetFile &pst);
+
+    void copyActiveTap();
+    void pasteActiveTap();
 
     void showAbout();
 
@@ -124,6 +128,17 @@ Editor::Editor(Processor &p)
             juce::PopupMenu::Options()
             .withParentComponent(this)
             .withTargetComponent(impl_->mainComponent_->menuButton_.get()));
+    };
+
+    juce::PopupMenu *tapMenu = new juce::PopupMenu;
+    impl.tapMenu_.reset(tapMenu);
+    tapMenu->addItem(TRANS("Copy tap"), [&impl]() { impl.copyActiveTap(); });
+    tapMenu->addItem(TRANS("Paste tap"), [&impl]() { impl.pasteActiveTap(); });
+    mainComponent->tapMenuButton_->onClick = [this]() {
+        impl_->tapMenu_->showMenuAsync(
+            juce::PopupMenu::Options()
+            .withParentComponent(this)
+            .withTargetComponent(impl_->mainComponent_->tapMenuButton_.get()));
     };
 
     setSize(mainComponent->getWidth(), mainComponent->getHeight());
@@ -348,6 +363,45 @@ void Editor::Impl::loadPreset(const PresetFile &pst)
     MainComponent *mainComponent = mainComponent_.get();
     TapEditScreen *tapEdit = mainComponent->tapEditScreen_.get();
     tapEdit->autoZoomTimeRange();
+}
+
+void Editor::Impl::copyActiveTap()
+{
+    int activeTapNumber = activeTapNumber_;
+    juce::ValueTree tree("TapParameters");
+
+    for (int i = 0; i < GdNumPametersPerTap; ++i) {
+        GdParameter decomposedId = (GdParameter)(GdFirstParameterOfFirstTap + i);
+        if (decomposedId == GDP_TAP_A_ENABLE || decomposedId == GDP_TAP_A_DELAY)
+            continue;
+
+        GdParameter id = GdRecomposeParameter(decomposedId, activeTapNumber);
+        juce::RangedAudioParameter *parameter = getRangedParameter((int)id);
+        float value = parameter->convertFrom0to1(parameter->getValue());
+        tree.setProperty(GdParameterName(decomposedId), (double)value, nullptr);
+    }
+
+    juce::SystemClipboard::copyTextToClipboard(tree.toXmlString().toRawUTF8());
+}
+
+void Editor::Impl::pasteActiveTap()
+{
+    int activeTapNumber = activeTapNumber_;
+    juce::ValueTree tree = juce::ValueTree::fromXml(juce::SystemClipboard::getTextFromClipboard());
+
+    if (tree.getType().toString() != "TapParameters")
+        return;
+
+    for (int i = 0; i < GdNumPametersPerTap; ++i) {
+        GdParameter decomposedId = (GdParameter)(GdFirstParameterOfFirstTap + i);
+        if (decomposedId == GDP_TAP_A_ENABLE || decomposedId == GDP_TAP_A_DELAY)
+            continue;
+
+        GdParameter id = GdRecomposeParameter(decomposedId, activeTapNumber);
+        juce::RangedAudioParameter *parameter = getRangedParameter((int)id);
+        if (const juce::var *value = tree.getPropertyPointer(GdParameterName(decomposedId)))
+            parameter->setValueNotifyingHost(parameter->convertTo0to1((float)(double)*value));
+    }
 }
 
 void Editor::Impl::showAbout()

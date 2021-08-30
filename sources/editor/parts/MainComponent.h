@@ -145,6 +145,7 @@ private:
     std::unique_ptr<juce::TextButton> feedbackEnableButton_;
     std::unique_ptr<juce::TextButton> flipEnableButton_;
     std::unique_ptr<juce::ComboBox> activeTapChoice_;
+    std::unique_ptr<juce::TextButton> tapMenuButton_;
 
 
     //==============================================================================

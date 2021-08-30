@@ -161,9 +161,10 @@ MainComponent::MainComponent ()
 
     tapEnabledButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (tapEnabledButton_.get());
+    tapEnabledButton_->setConnectedEdges (juce::Button::ConnectedOnRight);
     tapEnabledButton_->addListener (this);
 
-    tapEnabledButton_->setBounds (472, 480, 56, 32);
+    tapEnabledButton_->setBounds (408, 440, 40, 32);
 
     feedbackTapChoice_.reset (new juce::ComboBox (juce::String()));
     addAndMakeVisible (feedbackTapChoice_.get());
@@ -506,6 +507,13 @@ MainComponent::MainComponent ()
 
     activeTapChoice_->setBounds (448, 440, 104, 32);
 
+    tapMenuButton_.reset (new juce::TextButton (juce::String()));
+    addAndMakeVisible (tapMenuButton_.get());
+    tapMenuButton_->setConnectedEdges (juce::Button::ConnectedOnLeft);
+    tapMenuButton_->addListener (this);
+
+    tapMenuButton_->setBounds (552, 440, 40, 32);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -521,42 +529,32 @@ MainComponent::MainComponent ()
     syncButton_->setClickingTogglesState(true);
     tapEnabledButton_->setClickingTogglesState(true);
 
-    LookAndFeel::setTextButtonFont(*menuButton_, juce::Font("Fontaudio", 12.0f, juce::Font::plain));
-    menuButton_->setButtonText(fontaudio::HExpand);
-
-    juce::TextButton *powerButtons[] = {
-        feedbackEnableButton_.get(),
-        tapEnabledButton_.get(),
-        filterEnableButton_.get(),
-        tuneEnableButton_.get(),
-        muteButton_.get(),
-    };
-    for (juce::TextButton *powerButton : powerButtons) {
-        float textHeight = 12.0f;
-        if (powerButton == tapEnabledButton_.get())
-            textHeight = 24.0f;
-        LookAndFeel::setTextButtonFont(*powerButton, juce::Font("Fontaudio", textHeight, juce::Font::plain));
-        powerButton->setClickingTogglesState(true);
-        fontaudio::IconName iconName = fontaudio::Powerswitch;
-        if (powerButton == muteButton_.get())
-            iconName = fontaudio::Mute;
-        powerButton->setButtonText(iconName);
-    }
-
-    LookAndFeel::setTextButtonFont(*flipEnableButton_, juce::Font("Fontaudio", 12.0f, juce::Font::plain));
+    feedbackEnableButton_->setClickingTogglesState(true);
+    tapEnabledButton_->setClickingTogglesState(true);
+    filterEnableButton_->setClickingTogglesState(true);
+    tuneEnableButton_->setClickingTogglesState(true);
+    muteButton_->setClickingTogglesState(true);
     flipEnableButton_->setClickingTogglesState(true);
-    flipEnableButton_->setButtonText(fontaudio::Diskio);
+
+    auto setupFontAudioButton = [](juce::TextButton &button, float textHeight, const fontaudio::IconName &iconName) {
+        LookAndFeel::setTextButtonFont(button, juce::Font("Fontaudio", textHeight, juce::Font::plain));
+        button.setButtonText(iconName);
+    };
+    setupFontAudioButton(*menuButton_, 12.0f, fontaudio::HExpand);
+    setupFontAudioButton(*feedbackEnableButton_, 12.0f, fontaudio::Powerswitch);
+    setupFontAudioButton(*tapEnabledButton_, 24.0f, fontaudio::Powerswitch);
+    setupFontAudioButton(*tapMenuButton_, 24.0f, fontaudio::HExpand);
+    setupFontAudioButton(*filterEnableButton_, 12.0f, fontaudio::Powerswitch);
+    setupFontAudioButton(*tuneEnableButton_, 12.0f, fontaudio::Powerswitch);
+    setupFontAudioButton(*muteButton_, 12.0f, fontaudio::Mute);
+    setupFontAudioButton(*flipEnableButton_, 12.0f, fontaudio::Diskio);
 
     LookAndFeel::setComboBoxFont(*activeTapChoice_, juce::Font(24.0f));
 
-    juce::ComboBox *comboBoxes[] = {
-        activeTapChoice_.get(),
-        feedbackTapChoice_.get(),
-        gridChoice_.get(),
-        filterChoice_.get(),
-    };
-    for (juce::ComboBox *combo : comboBoxes)
-        combo->setScrollWheelEnabled(true);
+    activeTapChoice_->setScrollWheelEnabled(true);
+    feedbackTapChoice_->setScrollWheelEnabled(true);
+    gridChoice_->setScrollWheelEnabled(true);
+    filterChoice_->setScrollWheelEnabled(true);
     //[/Constructor]
 }
 
@@ -612,6 +610,7 @@ MainComponent::~MainComponent()
     feedbackEnableButton_ = nullptr;
     flipEnableButton_ = nullptr;
     activeTapChoice_ = nullptr;
+    tapMenuButton_ = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -780,6 +779,11 @@ void MainComponent::buttonClicked (juce::Button* buttonThatWasClicked)
     {
         //[UserButtonCode_flipEnableButton_] -- add your button handler code here..
         //[/UserButtonCode_flipEnableButton_]
+    }
+    else if (buttonThatWasClicked == tapMenuButton_.get())
+    {
+        //[UserButtonCode_tapMenuButton_] -- add your button handler code here..
+        //[/UserButtonCode_tapMenuButton_]
     }
 
     //[UserbuttonClicked_Post]
@@ -950,8 +954,8 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <TEXTBUTTON name="" id="7240b06205c10e61" memberName="tapEnabledButton_"
-              virtualName="" explicitFocusOrder="0" pos="472 480 56 32" buttonText=""
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              virtualName="" explicitFocusOrder="0" pos="408 440 40 32" buttonText=""
+              connectedEdges="2" needsCallback="1" radioGroupId="0"/>
   <COMBOBOX name="" id="4376ef98cd0f798e" memberName="feedbackTapChoice_"
             virtualName="" explicitFocusOrder="0" pos="904 88 80 24" editable="0"
             layout="33" items="" textWhenNonSelected="" textWhenNoItems=""/>
@@ -1100,6 +1104,9 @@ BEGIN_JUCER_METADATA
   <COMBOBOX name="" id="61cd9161ffe3a708" memberName="activeTapChoice_" virtualName=""
             explicitFocusOrder="0" pos="448 440 104 32" editable="0" layout="36"
             items="" textWhenNonSelected="" textWhenNoItems=""/>
+  <TEXTBUTTON name="" id="923d76d9239ffb8" memberName="tapMenuButton_" virtualName=""
+              explicitFocusOrder="0" pos="552 440 40 32" buttonText="" connectedEdges="1"
+              needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
