@@ -18,6 +18,7 @@
  */
 
 #include "GdFilter.h"
+#include <cmath>
 
 inline void GdFilter::clear()
 {
@@ -81,8 +82,12 @@ inline GdFilter::Real GdFilter::processOne(Real input)
         const Coeff2 c = coeff2_;
         Mem2 m = mem2_;
         output = m.s1 + c.b0 * input;
-        m.s1 = m.s2 + c.b1 * input - c.a1 * output;
-        m.s2 = c.b2 * input - c.a2 * output;
+
+        // cubic nonlinearity
+        auto nl = [](Real x) -> Real { return x - x * x * x * (Real)(1.0 / 3.0); };
+
+        m.s1 = nl(m.s2 + c.b1 * input - c.a1 * output);
+        m.s2 = nl(c.b2 * input - c.a2 * output);
         mem2_ = m;
     }
 
