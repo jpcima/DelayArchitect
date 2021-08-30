@@ -79,6 +79,7 @@ struct Editor::Impl : public TapEditScreen::Listener {
     void loadPresetFile(const juce::File &file);
     void savePresetFile(const juce::File &file);
     void importPresetFile(const juce::File &file);
+    void loadPreset(const PresetFile &pst);
 
     void showAbout();
 
@@ -114,6 +115,8 @@ Editor::Editor(Processor &p)
     mainMenu->addItem(TRANS("Save preset"), [&impl]() { impl.choosePresetFileToSave(); });
     mainMenu->addSeparator();
     mainMenu->addItem(TRANS("Import preset"), [&impl]() { impl.choosePresetFileToImport(); });
+    mainMenu->addSeparator();
+    mainMenu->addItem(TRANS("Recall defaults"), [&impl]() { impl.loadPreset(PresetFile::makeDefault()); });
     mainMenu->addSeparator();
     mainMenu->addItem(TRANS("About"), [&impl]() { impl.showAbout(); });
     mainComponent->menuButton_->onClick = [this]() {
@@ -303,15 +306,7 @@ void Editor::Impl::loadPresetFile(const juce::File &file)
         return;
     }
 
-    for (int i = 0; i < GD_PARAMETER_COUNT; ++i) {
-        juce::RangedAudioParameter *parameter = getRangedParameter(i);
-        parameter->setValueNotifyingHost(parameter->convertTo0to1(pst.values[i]));
-    }
-
-    ///
-    MainComponent *mainComponent = mainComponent_.get();
-    TapEditScreen *tapEdit = mainComponent->tapEditScreen_.get();
-    tapEdit->autoZoomTimeRange();
+    loadPreset(pst);
 }
 
 void Editor::Impl::savePresetFile(const juce::File &file)
@@ -339,10 +334,14 @@ void Editor::Impl::importPresetFile(const juce::File &file)
         return;
     }
 
-    juce::AudioProcessorParameter **parameters = parameters_.data();
-    for (uint32_t p = 0; p < GD_PARAMETER_COUNT; ++p) {
-        juce::RangedAudioParameter *parameter = static_cast<juce::RangedAudioParameter *>(parameters[p]);
-        parameter->setValueNotifyingHost(parameter->convertTo0to1(idata.values[p]));
+    loadPreset(idata.pst);
+}
+
+void Editor::Impl::loadPreset(const PresetFile &pst)
+{
+    for (int i = 0; i < GD_PARAMETER_COUNT; ++i) {
+        juce::RangedAudioParameter *parameter = getRangedParameter(i);
+        parameter->setValueNotifyingHost(parameter->convertTo0to1(pst.values[i]));
     }
 
     ///

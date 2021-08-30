@@ -27,11 +27,12 @@
  */
 
 #pragma once
+#include "processor/PresetFile.h"
 #include "GdDefs.h"
 #include <juce_core/juce_core.h>
 
 struct ImportData {
-    float values[GD_PARAMETER_COUNT] {};
+    PresetFile pst;
 };
 
 class Importer {

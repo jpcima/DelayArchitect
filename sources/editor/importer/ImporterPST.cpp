@@ -64,12 +64,14 @@ bool ImporterPST::importFile(const juce::File &file, ImportData &idata)
         return false;
 
     ///
+    PresetFile &pst = idata.pst;
+    pst.valid = true;
     for (uint32_t p = 0; p < GD_PARAMETER_COUNT; ++p)
-        idata.values[p] = GdParameterDefault((GdParameter)p);
+        pst.values[p] = GdParameterDefault((GdParameter)p);
 
     ///
     {
-        float *globalValues = idata.values;
+        float *globalValues = pst.values;
         for (uint32_t i = 0, end = false; !end; ++i) {
             float value = readF32();
             if (stream.isExhausted())
@@ -121,7 +123,7 @@ bool ImporterPST::importFile(const juce::File &file, ImportData &idata)
         if ((blockMagic & 0xffffff00u) == fourcc("Tap\0") &&
             (tapNumber = (int)(blockMagic & 0xff) - 'A') >= 0 && tapNumber < GdMaxLines)
         {
-            float *tapValues = &idata.values[tapNumber * GdNumPametersPerTap];
+            float *tapValues = &pst.values[tapNumber * GdNumPametersPerTap];
             tapValues[GDP_TAP_A_ENABLE] = 1.0f;
 
             uint32_t numValues = blockSize / sizeof(float);
@@ -202,7 +204,7 @@ bool ImporterPST::importFile(const juce::File &file, ImportData &idata)
     for (uint32_t p = 0; p < GD_PARAMETER_COUNT; ++p) {
         float min = GdParameterMin((GdParameter)p);
         float max = GdParameterMax((GdParameter)p);
-        idata.values[p] = juce::jlimit(min, max, idata.values[p]);
+        pst.values[p] = juce::jlimit(min, max, pst.values[p]);
     }
 
     return true;
