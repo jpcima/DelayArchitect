@@ -139,7 +139,7 @@ MainComponent::MainComponent ()
 
     lastTapButton_->setBounds (16, 352, 104, 56);
 
-    tapDelaySlider_.reset (new juce::Slider (juce::String()));
+    tapDelaySlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (tapDelaySlider_.get());
     tapDelaySlider_->setRange (0, 10, 0);
     tapDelaySlider_->setSliderStyle (juce::Slider::LinearBar);
@@ -186,7 +186,7 @@ MainComponent::MainComponent ()
 
     unknown2->setBounds (880, 48, 102, 24);
 
-    feedbackTapGainSlider_.reset (new juce::Slider (juce::String()));
+    feedbackTapGainSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (feedbackTapGainSlider_.get());
     feedbackTapGainSlider_->setRange (0, 10, 0);
     feedbackTapGainSlider_->setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
@@ -206,7 +206,7 @@ MainComponent::MainComponent ()
 
     unknown3->setBounds (880, 248, 102, 24);
 
-    drySlider_.reset (new juce::Slider (juce::String()));
+    drySlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (drySlider_.get());
     drySlider_->setRange (0, 10, 0);
     drySlider_->setSliderStyle (juce::Slider::LinearVertical);
@@ -215,7 +215,7 @@ MainComponent::MainComponent ()
 
     drySlider_->setBounds (880, 288, 48, 128);
 
-    wetSlider_.reset (new juce::Slider (juce::String()));
+    wetSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (wetSlider_.get());
     wetSlider_->setRange (0, 10, 0);
     wetSlider_->setSliderStyle (juce::Slider::LinearVertical);
@@ -245,7 +245,7 @@ MainComponent::MainComponent ()
 
     unknown4->setBounds (16, 520, 152, 24);
 
-    hpfCutoffSlider_.reset (new juce::Slider (juce::String()));
+    hpfCutoffSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (hpfCutoffSlider_.get());
     hpfCutoffSlider_->setRange (0, 10, 0);
     hpfCutoffSlider_->setSliderStyle (juce::Slider::LinearBar);
@@ -254,7 +254,7 @@ MainComponent::MainComponent ()
 
     hpfCutoffSlider_->setBounds (176, 544, 80, 24);
 
-    lpfCutoffSlider_.reset (new juce::Slider (juce::String()));
+    lpfCutoffSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (lpfCutoffSlider_.get());
     lpfCutoffSlider_->setRange (0, 10, 0);
     lpfCutoffSlider_->setSliderStyle (juce::Slider::LinearBar);
@@ -285,7 +285,7 @@ MainComponent::MainComponent ()
 
     unknown6->setBounds (264, 520, 80, 24);
 
-    resonanceSlider_.reset (new juce::Slider (juce::String()));
+    resonanceSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (resonanceSlider_.get());
     resonanceSlider_->setRange (0, 10, 0);
     resonanceSlider_->setSliderStyle (juce::Slider::LinearBar);
@@ -305,7 +305,7 @@ MainComponent::MainComponent ()
 
     unknown7->setBounds (352, 520, 80, 24);
 
-    pitchSlider_.reset (new juce::Slider (juce::String()));
+    pitchSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (pitchSlider_.get());
     pitchSlider_->setRange (0, 10, 0);
     pitchSlider_->setSliderStyle (juce::Slider::LinearBar);
@@ -325,7 +325,7 @@ MainComponent::MainComponent ()
 
     unknown8->setBounds (568, 520, 104, 24);
 
-    panSlider_.reset (new juce::Slider (juce::String()));
+    panSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (panSlider_.get());
     panSlider_->setRange (0, 10, 0);
     panSlider_->setSliderStyle (juce::Slider::LinearBar);
@@ -345,7 +345,7 @@ MainComponent::MainComponent ()
 
     unknown9->setBounds (680, 520, 104, 24);
 
-    widthSlider_.reset (new juce::Slider (juce::String()));
+    widthSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (widthSlider_.get());
     widthSlider_->setRange (0, 10, 0);
     widthSlider_->setSliderStyle (juce::Slider::LinearBar);
@@ -365,7 +365,7 @@ MainComponent::MainComponent ()
 
     unknown10->setBounds (792, 520, 80, 24);
 
-    levelSlider_.reset (new juce::Slider (juce::String()));
+    levelSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (levelSlider_.get());
     levelSlider_->setRange (0, 10, 0);
     levelSlider_->setSliderStyle (juce::Slider::LinearBar);
@@ -452,7 +452,7 @@ MainComponent::MainComponent ()
 
     unknown15->setBounds (16, 192, 104, 24);
 
-    swingSlider_.reset (new juce::Slider (juce::String()));
+    swingSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (swingSlider_.get());
     swingSlider_->setRange (0, 10, 0);
     swingSlider_->setSliderStyle (juce::Slider::LinearBar);
@@ -940,7 +940,7 @@ BEGIN_JUCER_METADATA
   <TEXTBUTTON name="" id="66ad3e0b5c14c7ae" memberName="lastTapButton_" virtualName=""
               explicitFocusOrder="0" pos="16 352 104 56" buttonText="Last tap"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
-  <SLIDER name="" id="9f8e11541428b98a" memberName="tapDelaySlider_" virtualName=""
+  <SLIDER name="" id="9f8e11541428b98a" memberName="tapDelaySlider_" virtualName="better::Slider"
           explicitFocusOrder="0" pos="448 544 104 24" min="0.0" max="10.0"
           int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
@@ -961,20 +961,20 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="20.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <SLIDER name="" id="62fe1bfedd2c32eb" memberName="feedbackTapGainSlider_"
-          virtualName="" explicitFocusOrder="0" pos="880 120 104 96" min="0.0"
-          max="10.0" int="0.0" style="RotaryHorizontalVerticalDrag" textBoxPos="TextBoxBelow"
-          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
-          needsCallback="1"/>
+          virtualName="better::Slider" explicitFocusOrder="0" pos="880 120 104 96"
+          min="0.0" max="10.0" int="0.0" style="RotaryHorizontalVerticalDrag"
+          textBoxPos="TextBoxBelow" textBoxEditable="1" textBoxWidth="80"
+          textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
   <LABEL name="" id="9d4616ada30ba75d" memberName="unknown3" virtualName=""
          explicitFocusOrder="0" pos="880 248 102 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Mix" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="20.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
-  <SLIDER name="" id="b2206b062a09ac07" memberName="drySlider_" virtualName=""
+  <SLIDER name="" id="b2206b062a09ac07" memberName="drySlider_" virtualName="better::Slider"
           explicitFocusOrder="0" pos="880 288 48 128" min="0.0" max="10.0"
           int="0.0" style="LinearVertical" textBoxPos="NoTextBox" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
-  <SLIDER name="" id="ee65e871ce784fe1" memberName="wetSlider_" virtualName=""
+  <SLIDER name="" id="ee65e871ce784fe1" memberName="wetSlider_" virtualName="better::Slider"
           explicitFocusOrder="0" pos="936 288 48 128" min="0.0" max="10.0"
           int="0.0" style="LinearVertical" textBoxPos="NoTextBox" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
@@ -986,11 +986,11 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Filter" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
-  <SLIDER name="" id="918797f645a07437" memberName="hpfCutoffSlider_" virtualName=""
+  <SLIDER name="" id="918797f645a07437" memberName="hpfCutoffSlider_" virtualName="better::Slider"
           explicitFocusOrder="0" pos="176 544 80 24" min="0.0" max="10.0"
           int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
-  <SLIDER name="" id="184bee36214dd11a" memberName="lpfCutoffSlider_" virtualName=""
+  <SLIDER name="" id="184bee36214dd11a" memberName="lpfCutoffSlider_" virtualName="better::Slider"
           explicitFocusOrder="0" pos="264 544 80 24" min="0.0" max="10.0"
           int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
@@ -1004,7 +1004,7 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="LPF cutoff" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
-  <SLIDER name="" id="ce01d3af838ea92c" memberName="resonanceSlider_" virtualName=""
+  <SLIDER name="" id="ce01d3af838ea92c" memberName="resonanceSlider_" virtualName="better::Slider"
           explicitFocusOrder="0" pos="352 544 80 24" min="0.0" max="10.0"
           int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
@@ -1013,7 +1013,7 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Resonance" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
-  <SLIDER name="" id="5affa2208e6503a" memberName="pitchSlider_" virtualName=""
+  <SLIDER name="" id="5affa2208e6503a" memberName="pitchSlider_" virtualName="better::Slider"
           explicitFocusOrder="0" pos="592 544 80 24" min="0.0" max="10.0"
           int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
@@ -1022,7 +1022,7 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Tune" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
-  <SLIDER name="" id="9db05a1846c0a580" memberName="panSlider_" virtualName=""
+  <SLIDER name="" id="9db05a1846c0a580" memberName="panSlider_" virtualName="better::Slider"
           explicitFocusOrder="0" pos="704 544 80 24" min="0.0" max="10.0"
           int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
@@ -1031,7 +1031,7 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Pan" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
-  <SLIDER name="" id="fa27f85db75faeb0" memberName="widthSlider_" virtualName=""
+  <SLIDER name="" id="fa27f85db75faeb0" memberName="widthSlider_" virtualName="better::Slider"
           explicitFocusOrder="0" pos="792 544 80 24" min="0.0" max="10.0"
           int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
@@ -1040,7 +1040,7 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Width" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
-  <SLIDER name="" id="5e1a25de948a2f2f" memberName="levelSlider_" virtualName=""
+  <SLIDER name="" id="5e1a25de948a2f2f" memberName="levelSlider_" virtualName="better::Slider"
           explicitFocusOrder="0" pos="904 544 80 24" min="0.0" max="10.0"
           int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
@@ -1078,7 +1078,7 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Swing" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
-  <SLIDER name="" id="da0e42fa3de72498" memberName="swingSlider_" virtualName=""
+  <SLIDER name="" id="da0e42fa3de72498" memberName="swingSlider_" virtualName="better::Slider"
           explicitFocusOrder="0" pos="16 216 104 24" min="0.0" max="10.0"
           int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>

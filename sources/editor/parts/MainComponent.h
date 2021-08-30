@@ -49,6 +49,7 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
+#include "editor/parts/BetterSlider.h"
 #include <GdDefs.h>
 #include <juce_gui_basics/juce_gui_basics.h>
 class TapEditScreen;
@@ -105,30 +106,30 @@ private:
     std::unique_ptr<juce::TextButton> levelButton_;
     std::unique_ptr<juce::TextButton> firstTapButton_;
     std::unique_ptr<juce::TextButton> lastTapButton_;
-    std::unique_ptr<juce::Slider> tapDelaySlider_;
+    std::unique_ptr<better::Slider> tapDelaySlider_;
     std::unique_ptr<juce::Label> unknown;
     std::unique_ptr<juce::TextButton> tapEnabledButton_;
     std::unique_ptr<juce::ComboBox> feedbackTapChoice_;
     std::unique_ptr<juce::Label> unknown2;
-    std::unique_ptr<juce::Slider> feedbackTapGainSlider_;
+    std::unique_ptr<better::Slider> feedbackTapGainSlider_;
     std::unique_ptr<juce::Label> unknown3;
-    std::unique_ptr<juce::Slider> drySlider_;
-    std::unique_ptr<juce::Slider> wetSlider_;
+    std::unique_ptr<better::Slider> drySlider_;
+    std::unique_ptr<better::Slider> wetSlider_;
     std::unique_ptr<juce::ComboBox> filterChoice_;
     std::unique_ptr<juce::Label> unknown4;
-    std::unique_ptr<juce::Slider> hpfCutoffSlider_;
-    std::unique_ptr<juce::Slider> lpfCutoffSlider_;
+    std::unique_ptr<better::Slider> hpfCutoffSlider_;
+    std::unique_ptr<better::Slider> lpfCutoffSlider_;
     std::unique_ptr<juce::Label> unknown5;
     std::unique_ptr<juce::Label> unknown6;
-    std::unique_ptr<juce::Slider> resonanceSlider_;
+    std::unique_ptr<better::Slider> resonanceSlider_;
     std::unique_ptr<juce::Label> unknown7;
-    std::unique_ptr<juce::Slider> pitchSlider_;
+    std::unique_ptr<better::Slider> pitchSlider_;
     std::unique_ptr<juce::Label> unknown8;
-    std::unique_ptr<juce::Slider> panSlider_;
+    std::unique_ptr<better::Slider> panSlider_;
     std::unique_ptr<juce::Label> unknown9;
-    std::unique_ptr<juce::Slider> widthSlider_;
+    std::unique_ptr<better::Slider> widthSlider_;
     std::unique_ptr<juce::Label> unknown10;
-    std::unique_ptr<juce::Slider> levelSlider_;
+    std::unique_ptr<better::Slider> levelSlider_;
     std::unique_ptr<juce::Label> unknown11;
     std::unique_ptr<juce::Label> unknown12;
     std::unique_ptr<juce::Label> unknown13;
@@ -137,7 +138,7 @@ private:
     std::unique_ptr<juce::Label> unknown14;
     std::unique_ptr<juce::TextButton> menuButton_;
     std::unique_ptr<juce::Label> unknown15;
-    std::unique_ptr<juce::Slider> swingSlider_;
+    std::unique_ptr<better::Slider> swingSlider_;
     std::unique_ptr<juce::TextButton> filterEnableButton_;
     std::unique_ptr<juce::TextButton> tuneEnableButton_;
     std::unique_ptr<juce::TextButton> muteButton_;

@@ -26,22 +26,28 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#pragma once
 #include "BetterSlider.h"
-#include <juce_gui_basics/juce_gui_basics.h>
-#include <memory>
 
-class TapSlider : public better::Slider {
-public:
-    TapSlider();
-    virtual ~TapSlider() override;
+namespace better {
 
-    void setBipolarAround(bool isBipolar, float centerValue);
+void Slider::mouseWheelMove(const juce::MouseEvent &e, const juce::MouseWheelDetails &wheel)
+{
+    juce::MouseWheelDetails newWheel = wheel;
 
-protected:
-    virtual void paint(juce::Graphics &g) override;
+    // we want small value increments when ctrl or alt is pressed
+    if (e.mods.testFlags(juce::ModifierKeys::ctrlAltCommandModifiers)) {
+        // XXX check if slider would use the event (according to JUCE Slider.cpp)
+        bool sliderWillUseWheelEvent = isEnabled() && isScrollWheelEnabled() && !isTwoValue();
+        if (sliderWillUseWheelEvent) {
+            // XXX pass a smaller wheel amount; the default increment is 15% of range.
+            //     change this into virtually 1% of total range.
+            float factor = 1.0f / 15.0f;
+            newWheel.deltaX *= factor;
+            newWheel.deltaY *= factor;
+        }
+    }
 
-private:
-    struct Impl;
-    std::unique_ptr<Impl> impl_;
-};
+    juce::Slider::mouseWheelMove(e, newWheel);
+}
+
+} // namespace better

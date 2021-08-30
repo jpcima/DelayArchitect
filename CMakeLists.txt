@@ -75,6 +75,8 @@ target_sources(DelayArchitect
   "sources/editor/parts/TapSlider.cpp"
   "sources/editor/parts/AdvancedTooltipWindow.h"
   "sources/editor/parts/AdvancedTooltipWindow.cpp"
+  "sources/editor/parts/BetterSlider.h"
+  "sources/editor/parts/BetterSlider.cpp"
   "sources/editor/attachments/TapParameterAttachment.h"
   "sources/editor/attachments/TapParameterAttachment.cpp"
   "sources/editor/attachments/GridParameterAttachment.h"

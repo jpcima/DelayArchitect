@@ -27,21 +27,16 @@
  */
 
 #pragma once
-#include "BetterSlider.h"
 #include <juce_gui_basics/juce_gui_basics.h>
-#include <memory>
 
-class TapSlider : public better::Slider {
+namespace better {
+
+class Slider : public juce::Slider {
 public:
-    TapSlider();
-    virtual ~TapSlider() override;
-
-    void setBipolarAround(bool isBipolar, float centerValue);
+    using juce::Slider::Slider;
 
 protected:
-    virtual void paint(juce::Graphics &g) override;
-
-private:
-    struct Impl;
-    std::unique_ptr<Impl> impl_;
+    void mouseWheelMove(const juce::MouseEvent &e, const juce::MouseWheelDetails &wheel) override;
 };
+
+} // namespace better
