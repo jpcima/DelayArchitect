@@ -548,6 +548,15 @@ MainComponent::MainComponent ()
     flipEnableButton_->setButtonText(fontaudio::Diskio);
 
     LookAndFeel::setComboBoxFont(*activeTapChoice_, juce::Font(24.0f));
+
+    juce::ComboBox *comboBoxes[] = {
+        activeTapChoice_.get(),
+        feedbackTapChoice_.get(),
+        gridChoice_.get(),
+        filterChoice_.get(),
+    };
+    for (juce::ComboBox *combo : comboBoxes)
+        combo->setScrollWheelEnabled(true);
     //[/Constructor]
 }
 
