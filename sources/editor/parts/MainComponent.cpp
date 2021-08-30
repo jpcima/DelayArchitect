@@ -537,7 +537,10 @@ MainComponent::MainComponent ()
             textHeight = 24.0f;
         LookAndFeel::setTextButtonFont(*powerButton, juce::Font("Fontaudio", textHeight, juce::Font::plain));
         powerButton->setClickingTogglesState(true);
-        powerButton->setButtonText(fontaudio::Powerswitch);
+        fontaudio::IconName iconName = fontaudio::Powerswitch;
+        if (powerButton == muteButton_.get())
+            iconName = fontaudio::Mute;
+        powerButton->setButtonText(iconName);
     }
 
     LookAndFeel::setTextButtonFont(*flipEnableButton_, juce::Font("Fontaudio", 12.0f, juce::Font::plain));
