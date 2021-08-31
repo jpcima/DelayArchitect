@@ -67,6 +67,8 @@ struct Editor::Impl : public TapEditScreen::Listener,
 
     std::unique_ptr<juce::Timer> idleTimer_;
 
+    std::atomic<int> flagTapEnablementChanged_{0};
+
     juce::RangedAudioParameter *getRangedParameter(int i) const {
         return static_cast<juce::RangedAudioParameter *>(parameters_[i]);
     }
@@ -211,6 +213,10 @@ void Editor::Impl::runIdle()
 {
     double bpm = processor_->getLastKnownBPM();
     mainComponent_->tapEditScreen_->setBPM(bpm);
+
+    int flagValue = 1;
+    if (flagTapEnablementChanged_.compare_exchange_weak(flagValue, 0, std::memory_order_relaxed))
+        updateTapChoiceComboBoxes();
 }
 
 void Editor::Impl::setActiveTap(int tapNumber)
@@ -507,7 +513,7 @@ void Editor::Impl::parameterValueChanged(int parameterIndex, float newValue)
 
     GdParameter decomposedId = GdDecomposeParameter((GdParameter)parameterIndex, nullptr);
     if (decomposedId == GDP_TAP_A_ENABLE)
-        updateTapChoiceComboBoxes();
+        flagTapEnablementChanged_.store(1, std::memory_order_relaxed);
 }
 
 void Editor::Impl::parameterGestureChanged(int parameterIndex, bool gestureIsStarting)
