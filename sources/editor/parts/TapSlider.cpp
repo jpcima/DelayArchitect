@@ -124,8 +124,7 @@ void TapSlider::paint(juce::Graphics &g)
             fillX = sliderPos;
             fillWidth = sliderPos2 - (float)sliderPos;
         }
-        if (fillWidth > 0)
-            filledRect = juce::Rectangle<float>(fillX, (float)y + 0.5f, fillWidth, (float)height - 1.0f);
+        filledRect = juce::Rectangle<float>(fillX, (float)y + 0.5f, fillWidth, (float)height - 1.0f);
     }
     else {
         float fillY{};
@@ -143,9 +142,14 @@ void TapSlider::paint(juce::Graphics &g)
             fillY = sliderPos2;
             fillHeight = sliderPos - fillY;
         }
-        if (fillHeight > 0)
-            filledRect = juce::Rectangle<float>((float)x + 0.5f, fillY, (float)width - 1.0f, fillHeight);
+        filledRect = juce::Rectangle<float>((float)x + 0.5f, fillY, (float)width - 1.0f, fillHeight);
     }
+
+    float minBarLength = 4.0f;
+    if (isHorizontal() && filledRect.getWidth() < minBarLength)
+        filledRect.expand((minBarLength - filledRect.getWidth()) / 2.0f, 0.0f);
+    else if (isVertical() && filledRect.getHeight() < minBarLength)
+        filledRect.expand(0.0f, (minBarLength - filledRect.getHeight()) / 2.0f);
 
     g.setColour(findColour(trackColourId));
     g.fillRect(filledRect);

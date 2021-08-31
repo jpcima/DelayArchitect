@@ -46,7 +46,23 @@ LookAndFeel::LookAndFeel()
     impl.sansTypeface_ = juce::Typeface::createSystemTypefaceFor(BinaryData::LiberationSansRegular_ttf, BinaryData::LiberationSansRegular_ttfSize);
 
     ///
-    setColourScheme(getLightColourScheme());
+    static_assert(BaseLookAndFeel::ColourScheme::numColours == 9, "unexpected number of colors");
+
+    BaseLookAndFeel::ColourScheme cs = {
+        /* windowBackground */  0xff2f2f3a,
+        /* widgetBackground */  0xff262626 /*0xff191926*/,
+        /* menuBackground */    0xffd0d0d0,
+        /* outline */           0xff66667c,
+        /* defaultText */       0xc0ffffff /*0xc8ffffff*/,
+        /* defaultFill */       0xffd8d8d8,
+        /* highlightedText */   0xffffffff,
+        /* highlightedFill */   0xffecb336 /*0xff606073*/,
+        /* menuText */          0xff000000,
+    };
+
+    setColourScheme(cs);
+
+
     setColour(TapEditScreen::lineColourId, juce::Colour(0xff, 0xff, 0xff).withAlpha(0.5f));
     setColour(TapEditScreen::screenContourColourId, juce::Colour(0xff, 0xff, 0xff).withAlpha(0.5f));
     setColour(TapEditScreen::intervalFillColourId, juce::Colour(0xff, 0xff, 0xff).withAlpha(0.25f));
@@ -105,6 +121,43 @@ juce::Slider::SliderLayout LookAndFeel::getSliderLayout(juce::Slider &slider)
     }
 
     return BaseLookAndFeel::getSliderLayout(slider);
+}
+
+void LookAndFeel::drawLinearSlider(juce::Graphics &g, int x, int y, int width, int height, float sliderPos, float minSliderPos, float maxSliderPos, const juce::Slider::SliderStyle style, juce::Slider &slider)
+{
+    if (style == juce::Slider::LinearBar) {
+        float fx = (float)x;
+        float fy = (float)y;
+        float fw = (float)width;
+        float fh = (float)height;
+
+        float bh = 3.0f;
+        float br = 3.0f;
+        juce::Rectangle<float> wholeBar{fx, fy + fh - bh, fw, bh};
+        juce::Rectangle<float> filledBar{sliderPos, fy + fh - bh, fw, bh};
+
+        g.setColour(slider.findColour(juce::Slider::trackColourId));
+        g.fillRoundedRectangle(wholeBar, br);
+        g.setColour(slider.findColour(juce::Slider::backgroundColourId));
+        g.fillRoundedRectangle(filledBar, br);
+
+        return;
+    }
+
+    if (/*style == juce::Slider::LinearBar ||*/ style == juce::Slider::LinearBarVertical) {
+        g.fillAll(slider.findColour(juce::Slider::backgroundColourId));
+        g.setColour(slider.findColour(juce::Slider::trackColourId));
+        g.fillRect(slider.isHorizontal() ? juce::Rectangle<float>((float)x, (float)y, sliderPos - (float)x, (float)height)
+                                          : juce::Rectangle<float>((float)x, sliderPos, (float)width, (float)y + ((float)height - sliderPos)));
+        return;
+    }
+
+    BaseLookAndFeel::drawLinearSlider(g, x, y, width, height, sliderPos, minSliderPos, maxSliderPos, style, slider);
+}
+
+void LookAndFeel::drawLinearSliderBackground(juce::Graphics &g, int x, int y, int width, int height, float sliderPos, float minSliderPos, float maxSliderPos, const juce::Slider::SliderStyle style, juce::Slider &slider)
+{
+    BaseLookAndFeel::drawLinearSliderBackground(g, x, y, width, height, sliderPos, minSliderPos, maxSliderPos, style, slider);
 }
 
 void LookAndFeel::drawComboBox(juce::Graphics& g, int width, int height, bool, int, int, int, int, juce::ComboBox& box)

@@ -555,6 +555,21 @@ MainComponent::MainComponent ()
     feedbackTapChoice_->setScrollWheelEnabled(true);
     gridChoice_->setScrollWheelEnabled(true);
     filterChoice_->setScrollWheelEnabled(true);
+
+    auto setEditButtonColors = [this](juce::TextButton &button, TapEditMode mode) {
+        juce::LookAndFeel &lnf = getLookAndFeel();
+        juce::Colour base = tapEditScreen_->getColourOfEditMode(lnf, mode);
+        juce::Colour text = button.findColour(juce::TextButton::textColourOffId);
+        juce::Colour bg = button.findColour(juce::TextButton::buttonColourId);
+        button.setColour(juce::TextButton::textColourOffId, base.interpolatedWith(text, 0.25f));
+        button.setColour(juce::TextButton::buttonOnColourId, base.interpolatedWith(bg, 0.75f));
+    };
+
+    setEditButtonColors(*cutoffButton_, kTapEditCutoff);
+    setEditButtonColors(*resonanceButton_, kTapEditResonance);
+    setEditButtonColors(*tuneButton_, kTapEditTune);
+    setEditButtonColors(*panButton_, kTapEditPan);
+    setEditButtonColors(*levelButton_, kTapEditLevel);
     //[/Constructor]
 }
 
@@ -623,11 +638,11 @@ void MainComponent::paint (juce::Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (juce::Colour (0xff323e44));
+    g.fillAll (juce::Colour (0xff262626));
 
     {
         float x = 128.0f, y = 40.0f, width = 744.0f, height = 384.0f;
-        juce::Colour fillColour = juce::Colour (0xff2a7ca5);
+        juce::Colour fillColour = juce::Colour (0xff434343);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
         g.setColour (fillColour);
@@ -636,47 +651,47 @@ void MainComponent::paint (juce::Graphics& g)
 
     {
         float x = 8.0f, y = 432.0f, width = 984.0f, height = 112.0f;
-        juce::Colour fillColour = juce::Colour (0xffc86d4f);
+        juce::Colour fillColour = juce::Colour (0xff333333);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
         g.setColour (fillColour);
-        g.fillRoundedRectangle (x, y, width, height, 5.000f);
+        g.fillRoundedRectangle (x, y, width, height, 1.000f);
     }
 
     {
         float x = 880.0f, y = 40.0f, width = 112.0f, height = 192.0f;
-        juce::Colour fillColour = juce::Colour (0xfffff080);
+        juce::Colour fillColour = juce::Colour (0xff333333);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
         g.setColour (fillColour);
-        g.fillRoundedRectangle (x, y, width, height, 5.000f);
+        g.fillRoundedRectangle (x, y, width, height, 1.000f);
     }
 
     {
         float x = 880.0f, y = 240.0f, width = 112.0f, height = 184.0f;
-        juce::Colour fillColour = juce::Colour (0xfffff080);
+        juce::Colour fillColour = juce::Colour (0xff333333);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
         g.setColour (fillColour);
-        g.fillRoundedRectangle (x, y, width, height, 5.000f);
+        g.fillRoundedRectangle (x, y, width, height, 1.000f);
     }
 
     {
         float x = 8.0f, y = 263.0f, width = 112.0f, height = 161.0f;
-        juce::Colour fillColour = juce::Colour (0xfffff080);
+        juce::Colour fillColour = juce::Colour (0xff333333);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
         g.setColour (fillColour);
-        g.fillRoundedRectangle (x, y, width, height, 5.000f);
+        g.fillRoundedRectangle (x, y, width, height, 1.000f);
     }
 
     {
         float x = 8.0f, y = 40.0f, width = 112.0f, height = 216.0f;
-        juce::Colour fillColour = juce::Colour (0xfffff080);
+        juce::Colour fillColour = juce::Colour (0xff333333);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
         g.setColour (fillColour);
-        g.fillRoundedRectangle (x, y, width, height, 5.000f);
+        g.fillRoundedRectangle (x, y, width, height, 1.000f);
     }
 
     //[UserPaint] Add your own custom painting code here..
@@ -909,16 +924,16 @@ BEGIN_JUCER_METADATA
                  parentClasses="public juce::Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="1" initialWidth="1000" initialHeight="552">
-  <BACKGROUND backgroundColour="ff323e44">
-    <ROUNDRECT pos="128 40 744 384" cornerSize="5.0" fill="solid: ff2a7ca5"
+  <BACKGROUND backgroundColour="ff262626">
+    <ROUNDRECT pos="128 40 744 384" cornerSize="5.0" fill="solid: ff434343"
                hasStroke="0"/>
-    <ROUNDRECT pos="8 432 984 112" cornerSize="5.0" fill="solid: ffc86d4f" hasStroke="0"/>
-    <ROUNDRECT pos="880 40 112 192" cornerSize="5.0" fill="solid: fffff080"
+    <ROUNDRECT pos="8 432 984 112" cornerSize="1.0" fill="solid: ff333333" hasStroke="0"/>
+    <ROUNDRECT pos="880 40 112 192" cornerSize="1.0" fill="solid: ff333333"
                hasStroke="0"/>
-    <ROUNDRECT pos="880 240 112 184" cornerSize="5.0" fill="solid: fffff080"
+    <ROUNDRECT pos="880 240 112 184" cornerSize="1.0" fill="solid: ff333333"
                hasStroke="0"/>
-    <ROUNDRECT pos="8 263 112 161" cornerSize="5.0" fill="solid: fffff080" hasStroke="0"/>
-    <ROUNDRECT pos="8 40 112 216" cornerSize="5.0" fill="solid: fffff080" hasStroke="0"/>
+    <ROUNDRECT pos="8 263 112 161" cornerSize="1.0" fill="solid: ff333333" hasStroke="0"/>
+    <ROUNDRECT pos="8 40 112 216" cornerSize="1.0" fill="solid: ff333333" hasStroke="0"/>
   </BACKGROUND>
   <GENERICCOMPONENT name="" id="c36eda615afd52ad" memberName="tapEditScreen_" virtualName=""
                     explicitFocusOrder="0" pos="128 40 744 384" class="TapEditScreen"
