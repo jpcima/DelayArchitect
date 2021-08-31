@@ -145,6 +145,7 @@ add_library(Gd STATIC
   "sources/gd/utility/NextPowerOfTwo.h"
   "sources/gd/utility/Volume.h"
   "sources/gd/utility/CubicNL.h"
+  "sources/gd/utility/RsqrtNL.h"
   "sources/gd/utility/StdcLocale.cpp"
   "sources/gd/utility/StdcLocale.h"
   "sources/gd/utility/StdcLocale.hpp")

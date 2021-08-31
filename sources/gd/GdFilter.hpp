@@ -18,7 +18,7 @@
  */
 
 #include "GdFilter.h"
-#include "utility/CubicNL.h"
+#include "utility/RsqrtNL.h"
 #include <cmath>
 
 inline void GdFilter::clear()
@@ -83,8 +83,8 @@ inline GdFilter::Real GdFilter::processOne(Real input)
         const Coeff2 c = coeff2_;
         Mem2 m = mem2_;
         output = m.s1 + c.b0 * input;
-        m.s1 = cubicNL(m.s2 + c.b1 * input - c.a1 * output);
-        m.s2 = cubicNL(c.b2 * input - c.a2 * output);
+        m.s1 = rsqrtNL(m.s2 + c.b1 * input - c.a1 * output);
+        m.s2 = rsqrtNL(c.b2 * input - c.a2 * output);
         mem2_ = m;
     }
 
