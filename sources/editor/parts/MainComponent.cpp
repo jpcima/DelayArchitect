@@ -146,7 +146,7 @@ MainComponent::MainComponent ()
     tapDelaySlider_->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
     tapDelaySlider_->addListener (this);
 
-    tapDelaySlider_->setBounds (448, 544, 104, 24);
+    tapDelaySlider_->setBounds (448, 508, 104, 24);
 
     unknown.reset (new juce::Label (juce::String(),
                                     TRANS("Delay")));
@@ -157,14 +157,14 @@ MainComponent::MainComponent ()
     unknown->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     unknown->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    unknown->setBounds (448, 520, 104, 24);
+    unknown->setBounds (448, 484, 104, 24);
 
     tapEnabledButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (tapEnabledButton_.get());
     tapEnabledButton_->setConnectedEdges (juce::Button::ConnectedOnRight);
     tapEnabledButton_->addListener (this);
 
-    tapEnabledButton_->setBounds (408, 440, 40, 32);
+    tapEnabledButton_->setBounds (408, 444, 40, 32);
 
     feedbackTapChoice_.reset (new juce::ComboBox (juce::String()));
     addAndMakeVisible (feedbackTapChoice_.get());
@@ -233,7 +233,7 @@ MainComponent::MainComponent ()
     filterChoice_->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     filterChoice_->addListener (this);
 
-    filterChoice_->setBounds (40, 544, 128, 24);
+    filterChoice_->setBounds (40, 508, 128, 24);
 
     unknown4.reset (new juce::Label (juce::String(),
                                      TRANS("Filter")));
@@ -244,7 +244,7 @@ MainComponent::MainComponent ()
     unknown4->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     unknown4->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    unknown4->setBounds (16, 520, 152, 24);
+    unknown4->setBounds (16, 484, 152, 24);
 
     hpfCutoffSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (hpfCutoffSlider_.get());
@@ -253,7 +253,7 @@ MainComponent::MainComponent ()
     hpfCutoffSlider_->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
     hpfCutoffSlider_->addListener (this);
 
-    hpfCutoffSlider_->setBounds (176, 544, 80, 24);
+    hpfCutoffSlider_->setBounds (176, 508, 80, 24);
 
     lpfCutoffSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (lpfCutoffSlider_.get());
@@ -262,7 +262,7 @@ MainComponent::MainComponent ()
     lpfCutoffSlider_->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
     lpfCutoffSlider_->addListener (this);
 
-    lpfCutoffSlider_->setBounds (264, 544, 80, 24);
+    lpfCutoffSlider_->setBounds (264, 508, 80, 24);
 
     unknown5.reset (new juce::Label (juce::String(),
                                      TRANS("HPF cutoff")));
@@ -273,7 +273,7 @@ MainComponent::MainComponent ()
     unknown5->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     unknown5->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    unknown5->setBounds (176, 520, 80, 24);
+    unknown5->setBounds (176, 484, 80, 24);
 
     unknown6.reset (new juce::Label (juce::String(),
                                      TRANS("LPF cutoff")));
@@ -284,7 +284,7 @@ MainComponent::MainComponent ()
     unknown6->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     unknown6->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    unknown6->setBounds (264, 520, 80, 24);
+    unknown6->setBounds (264, 484, 80, 24);
 
     resonanceSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (resonanceSlider_.get());
@@ -293,7 +293,7 @@ MainComponent::MainComponent ()
     resonanceSlider_->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
     resonanceSlider_->addListener (this);
 
-    resonanceSlider_->setBounds (352, 544, 80, 24);
+    resonanceSlider_->setBounds (352, 508, 80, 24);
 
     unknown7.reset (new juce::Label (juce::String(),
                                      TRANS("Resonance")));
@@ -304,7 +304,7 @@ MainComponent::MainComponent ()
     unknown7->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     unknown7->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    unknown7->setBounds (352, 520, 80, 24);
+    unknown7->setBounds (352, 484, 80, 24);
 
     pitchSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (pitchSlider_.get());
@@ -313,7 +313,7 @@ MainComponent::MainComponent ()
     pitchSlider_->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
     pitchSlider_->addListener (this);
 
-    pitchSlider_->setBounds (592, 544, 80, 24);
+    pitchSlider_->setBounds (592, 508, 80, 24);
 
     unknown8.reset (new juce::Label (juce::String(),
                                      TRANS("Tune")));
@@ -324,7 +324,7 @@ MainComponent::MainComponent ()
     unknown8->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     unknown8->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    unknown8->setBounds (568, 520, 104, 24);
+    unknown8->setBounds (568, 484, 104, 24);
 
     panSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (panSlider_.get());
@@ -333,7 +333,7 @@ MainComponent::MainComponent ()
     panSlider_->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
     panSlider_->addListener (this);
 
-    panSlider_->setBounds (704, 544, 80, 24);
+    panSlider_->setBounds (704, 508, 80, 24);
 
     unknown9.reset (new juce::Label (juce::String(),
                                      TRANS("Pan")));
@@ -344,7 +344,7 @@ MainComponent::MainComponent ()
     unknown9->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     unknown9->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    unknown9->setBounds (680, 520, 104, 24);
+    unknown9->setBounds (680, 484, 104, 24);
 
     widthSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (widthSlider_.get());
@@ -353,7 +353,7 @@ MainComponent::MainComponent ()
     widthSlider_->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
     widthSlider_->addListener (this);
 
-    widthSlider_->setBounds (792, 544, 80, 24);
+    widthSlider_->setBounds (792, 508, 80, 24);
 
     unknown10.reset (new juce::Label (juce::String(),
                                       TRANS("Width")));
@@ -364,7 +364,7 @@ MainComponent::MainComponent ()
     unknown10->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     unknown10->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    unknown10->setBounds (792, 520, 80, 24);
+    unknown10->setBounds (792, 484, 80, 24);
 
     levelSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (levelSlider_.get());
@@ -373,7 +373,7 @@ MainComponent::MainComponent ()
     levelSlider_->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
     levelSlider_->addListener (this);
 
-    levelSlider_->setBounds (904, 544, 80, 24);
+    levelSlider_->setBounds (904, 508, 80, 24);
 
     unknown11.reset (new juce::Label (juce::String(),
                                       TRANS("Level")));
@@ -384,7 +384,7 @@ MainComponent::MainComponent ()
     unknown11->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     unknown11->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    unknown11->setBounds (880, 520, 104, 24);
+    unknown11->setBounds (880, 484, 104, 24);
 
     unknown12.reset (new juce::Label (juce::String(),
                                       TRANS("Dry")));
@@ -467,21 +467,21 @@ MainComponent::MainComponent ()
     filterEnableButton_->setConnectedEdges (juce::Button::ConnectedOnRight);
     filterEnableButton_->addListener (this);
 
-    filterEnableButton_->setBounds (16, 544, 24, 24);
+    filterEnableButton_->setBounds (16, 508, 24, 24);
 
     tuneEnableButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (tuneEnableButton_.get());
     tuneEnableButton_->setConnectedEdges (juce::Button::ConnectedOnRight);
     tuneEnableButton_->addListener (this);
 
-    tuneEnableButton_->setBounds (568, 544, 24, 24);
+    tuneEnableButton_->setBounds (568, 508, 24, 24);
 
     muteButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (muteButton_.get());
     muteButton_->setConnectedEdges (juce::Button::ConnectedOnRight);
     muteButton_->addListener (this);
 
-    muteButton_->setBounds (880, 544, 24, 24);
+    muteButton_->setBounds (880, 508, 24, 24);
 
     feedbackEnableButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (feedbackEnableButton_.get());
@@ -495,7 +495,7 @@ MainComponent::MainComponent ()
     flipEnableButton_->setConnectedEdges (juce::Button::ConnectedOnRight);
     flipEnableButton_->addListener (this);
 
-    flipEnableButton_->setBounds (680, 544, 24, 24);
+    flipEnableButton_->setBounds (680, 508, 24, 24);
 
     activeTapChoice_.reset (new juce::ComboBox (juce::String()));
     addAndMakeVisible (activeTapChoice_.get());
@@ -505,20 +505,20 @@ MainComponent::MainComponent ()
     activeTapChoice_->setTextWhenNoChoicesAvailable (juce::String());
     activeTapChoice_->addListener (this);
 
-    activeTapChoice_->setBounds (448, 440, 104, 32);
+    activeTapChoice_->setBounds (448, 444, 104, 32);
 
     tapMenuButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (tapMenuButton_.get());
     tapMenuButton_->setConnectedEdges (juce::Button::ConnectedOnLeft);
     tapMenuButton_->addListener (this);
 
-    tapMenuButton_->setBounds (552, 440, 40, 32);
+    tapMenuButton_->setBounds (552, 444, 40, 32);
 
 
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (1000, 600);
+    setSize (1000, 552);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -635,7 +635,7 @@ void MainComponent::paint (juce::Graphics& g)
     }
 
     {
-        float x = 8.0f, y = 431.0f, width = 984.0f, height = 161.0f;
+        float x = 8.0f, y = 432.0f, width = 984.0f, height = 112.0f;
         juce::Colour fillColour = juce::Colour (0xffc86d4f);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
@@ -908,11 +908,11 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="MainComponent" componentName=""
                  parentClasses="public juce::Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="1" initialWidth="1000" initialHeight="600">
+                 fixedSize="1" initialWidth="1000" initialHeight="552">
   <BACKGROUND backgroundColour="ff323e44">
     <ROUNDRECT pos="136 40 728 384" cornerSize="5.0" fill="solid: ff2a7ca5"
                hasStroke="0"/>
-    <ROUNDRECT pos="8 431 984 161" cornerSize="5.0" fill="solid: ffc86d4f" hasStroke="0"/>
+    <ROUNDRECT pos="8 432 984 112" cornerSize="5.0" fill="solid: ffc86d4f" hasStroke="0"/>
     <ROUNDRECT pos="872 40 120 192" cornerSize="5.0" fill="solid: fffff080"
                hasStroke="0"/>
     <ROUNDRECT pos="872 240 120 184" cornerSize="5.0" fill="solid: fffff080"
@@ -945,16 +945,16 @@ BEGIN_JUCER_METADATA
               explicitFocusOrder="0" pos="16 352 104 56" buttonText="Last tap"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <SLIDER name="" id="9f8e11541428b98a" memberName="tapDelaySlider_" virtualName="better::Slider"
-          explicitFocusOrder="0" pos="448 544 104 24" min="0.0" max="10.0"
+          explicitFocusOrder="0" pos="448 508 104 24" min="0.0" max="10.0"
           int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
   <LABEL name="" id="c604cf3d3c3ee5b1" memberName="unknown" virtualName=""
-         explicitFocusOrder="0" pos="448 520 104 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="448 484 104 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Delay" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <TEXTBUTTON name="" id="7240b06205c10e61" memberName="tapEnabledButton_"
-              virtualName="" explicitFocusOrder="0" pos="408 440 40 32" buttonText=""
+              virtualName="" explicitFocusOrder="0" pos="408 444 40 32" buttonText=""
               connectedEdges="2" needsCallback="1" radioGroupId="0"/>
   <COMBOBOX name="" id="4376ef98cd0f798e" memberName="feedbackTapChoice_"
             virtualName="" explicitFocusOrder="0" pos="904 88 80 24" editable="0"
@@ -983,73 +983,73 @@ BEGIN_JUCER_METADATA
           int="0.0" style="LinearVertical" textBoxPos="NoTextBox" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
   <COMBOBOX name="" id="a5bfb32dfcd0d098" memberName="filterChoice_" virtualName=""
-            explicitFocusOrder="0" pos="40 544 128 24" editable="0" layout="33"
+            explicitFocusOrder="0" pos="40 508 128 24" editable="0" layout="33"
             items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="" id="906ee5da5ccfb0f6" memberName="unknown4" virtualName=""
-         explicitFocusOrder="0" pos="16 520 152 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="16 484 152 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Filter" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <SLIDER name="" id="918797f645a07437" memberName="hpfCutoffSlider_" virtualName="better::Slider"
-          explicitFocusOrder="0" pos="176 544 80 24" min="0.0" max="10.0"
+          explicitFocusOrder="0" pos="176 508 80 24" min="0.0" max="10.0"
           int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
   <SLIDER name="" id="184bee36214dd11a" memberName="lpfCutoffSlider_" virtualName="better::Slider"
-          explicitFocusOrder="0" pos="264 544 80 24" min="0.0" max="10.0"
+          explicitFocusOrder="0" pos="264 508 80 24" min="0.0" max="10.0"
           int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
   <LABEL name="" id="5f3ddd07c93c41a6" memberName="unknown5" virtualName=""
-         explicitFocusOrder="0" pos="176 520 80 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="176 484 80 24" edTextCol="ff000000"
          edBkgCol="0" labelText="HPF cutoff" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <LABEL name="" id="8aeb3c214b9a746b" memberName="unknown6" virtualName=""
-         explicitFocusOrder="0" pos="264 520 80 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="264 484 80 24" edTextCol="ff000000"
          edBkgCol="0" labelText="LPF cutoff" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <SLIDER name="" id="ce01d3af838ea92c" memberName="resonanceSlider_" virtualName="better::Slider"
-          explicitFocusOrder="0" pos="352 544 80 24" min="0.0" max="10.0"
+          explicitFocusOrder="0" pos="352 508 80 24" min="0.0" max="10.0"
           int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
   <LABEL name="" id="59b052aceabca3e7" memberName="unknown7" virtualName=""
-         explicitFocusOrder="0" pos="352 520 80 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="352 484 80 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Resonance" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <SLIDER name="" id="5affa2208e6503a" memberName="pitchSlider_" virtualName="better::Slider"
-          explicitFocusOrder="0" pos="592 544 80 24" min="0.0" max="10.0"
+          explicitFocusOrder="0" pos="592 508 80 24" min="0.0" max="10.0"
           int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
   <LABEL name="" id="16005f9095f804c0" memberName="unknown8" virtualName=""
-         explicitFocusOrder="0" pos="568 520 104 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="568 484 104 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Tune" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <SLIDER name="" id="9db05a1846c0a580" memberName="panSlider_" virtualName="better::Slider"
-          explicitFocusOrder="0" pos="704 544 80 24" min="0.0" max="10.0"
+          explicitFocusOrder="0" pos="704 508 80 24" min="0.0" max="10.0"
           int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
   <LABEL name="" id="f049bece2c57a0b0" memberName="unknown9" virtualName=""
-         explicitFocusOrder="0" pos="680 520 104 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="680 484 104 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Pan" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <SLIDER name="" id="fa27f85db75faeb0" memberName="widthSlider_" virtualName="better::Slider"
-          explicitFocusOrder="0" pos="792 544 80 24" min="0.0" max="10.0"
+          explicitFocusOrder="0" pos="792 508 80 24" min="0.0" max="10.0"
           int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
   <LABEL name="" id="903c9f3b27211a0c" memberName="unknown10" virtualName=""
-         explicitFocusOrder="0" pos="792 520 80 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="792 484 80 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Width" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <SLIDER name="" id="5e1a25de948a2f2f" memberName="levelSlider_" virtualName="better::Slider"
-          explicitFocusOrder="0" pos="904 544 80 24" min="0.0" max="10.0"
+          explicitFocusOrder="0" pos="904 508 80 24" min="0.0" max="10.0"
           int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
   <LABEL name="" id="11492731a8f7e406" memberName="unknown11" virtualName=""
-         explicitFocusOrder="0" pos="880 520 104 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="880 484 104 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Level" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
@@ -1087,25 +1087,25 @@ BEGIN_JUCER_METADATA
           int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
   <TEXTBUTTON name="" id="7bcc36a07c5c42ff" memberName="filterEnableButton_"
-              virtualName="" explicitFocusOrder="0" pos="16 544 24 24" buttonText=""
+              virtualName="" explicitFocusOrder="0" pos="16 508 24 24" buttonText=""
               connectedEdges="2" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="7496b3b0f072ed02" memberName="tuneEnableButton_"
-              virtualName="" explicitFocusOrder="0" pos="568 544 24 24" buttonText=""
+              virtualName="" explicitFocusOrder="0" pos="568 508 24 24" buttonText=""
               connectedEdges="2" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="2f55e1ddbe6ca060" memberName="muteButton_" virtualName=""
-              explicitFocusOrder="0" pos="880 544 24 24" buttonText="" connectedEdges="2"
+              explicitFocusOrder="0" pos="880 508 24 24" buttonText="" connectedEdges="2"
               needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="e43adf889edc780a" memberName="feedbackEnableButton_"
               virtualName="" explicitFocusOrder="0" pos="880 88 24 24" buttonText=""
               connectedEdges="2" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="26aa605edc3b0e21" memberName="flipEnableButton_"
-              virtualName="" explicitFocusOrder="0" pos="680 544 24 24" buttonText=""
+              virtualName="" explicitFocusOrder="0" pos="680 508 24 24" buttonText=""
               connectedEdges="2" needsCallback="1" radioGroupId="0"/>
   <COMBOBOX name="" id="61cd9161ffe3a708" memberName="activeTapChoice_" virtualName=""
-            explicitFocusOrder="0" pos="448 440 104 32" editable="0" layout="36"
+            explicitFocusOrder="0" pos="448 444 104 32" editable="0" layout="36"
             items="" textWhenNonSelected="" textWhenNoItems=""/>
   <TEXTBUTTON name="" id="923d76d9239ffb8" memberName="tapMenuButton_" virtualName=""
-              explicitFocusOrder="0" pos="552 440 40 32" buttonText="" connectedEdges="1"
+              explicitFocusOrder="0" pos="552 444 40 32" buttonText="" connectedEdges="1"
               needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
