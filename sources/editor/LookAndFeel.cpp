@@ -162,7 +162,8 @@ juce::Font LookAndFeel::getComboBoxFont(juce::ComboBox &combo)
     return BaseLookAndFeel::getComboBoxFont(combo);
 }
 
-juce::Font LookAndFeel::getPopupMenuFont()
+juce::PopupMenu::Options LookAndFeel::getOptionsForComboBoxPopupMenu(juce::ComboBox &combo, juce::Label &label)
 {
-    return juce::Font(15.0f);
+    return BaseLookAndFeel::getOptionsForComboBoxPopupMenu(combo, label)
+        .withStandardItemHeight(0);
 }

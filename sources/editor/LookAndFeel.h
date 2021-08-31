@@ -50,7 +50,7 @@ public:
     static void setComboBoxFont(juce::ComboBox &combo, const juce::Font &font);
     juce::Font getComboBoxFont(juce::ComboBox &combo) override;
 
-    juce::Font getPopupMenuFont() override;
+    juce::PopupMenu::Options getOptionsForComboBoxPopupMenu(juce::ComboBox &combo, juce::Label &label) override;
 
 private:
     struct Impl;
