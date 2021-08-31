@@ -37,6 +37,7 @@
 #include "editor/attachments/AutomaticComboBoxParameterAttachment.h"
 #include "editor/attachments/InvertedButtonParameterAttachment.h"
 #include "editor/attachments/SliderParameterAttachmentWithTooltip.h"
+#include "editor/attachments/ComboBoxParameterAttachmentByID.h"
 #include "editor/utility/FunctionalTimer.h"
 #include "processor/Processor.h"
 #include "processor/PresetFile.h"
@@ -46,7 +47,8 @@
 #include <vector>
 
 //==============================================================================
-struct Editor::Impl : public TapEditScreen::Listener {
+struct Editor::Impl : public TapEditScreen::Listener,
+                      public juce::AudioProcessorParameter::Listener {
     Editor *self_ = nullptr;
     Processor *processor_ = nullptr;
     std::unique_ptr<AdvancedTooltipWindow> tooltipWindow_;
@@ -74,6 +76,9 @@ struct Editor::Impl : public TapEditScreen::Listener {
     void setActiveTap(int tapNumber);
     void createActiveTapParameterAttachments();
 
+    void updateTapChoiceComboBoxes();
+    void updateTapChoiceComboBox(juce::ComboBox &combo);
+
     void choosePresetFileToLoad();
     void choosePresetFileToSave();
     void choosePresetFileToImport();
@@ -90,6 +95,9 @@ struct Editor::Impl : public TapEditScreen::Listener {
     void tapEditStarted(TapEditScreen *, GdParameter id) override;
     void tapEditEnded(TapEditScreen *, GdParameter id) override;
     void tapValueChanged(TapEditScreen *, GdParameter id, float value) override;
+
+    void parameterValueChanged(int parameterIndex, float newValue) override;
+    void parameterGestureChanged(int parameterIndex, bool gestureIsStarting) override;
 };
 
 //==============================================================================
@@ -148,6 +156,9 @@ Editor::Editor(Processor &p)
     tapEdit.addListener(&impl);
 
     //
+    impl.updateTapChoiceComboBoxes();
+
+    //
     AutoDeletePool &att = impl.globalAttachments_;
 
     for (int i = 0; i < GD_PARAMETER_COUNT; ++i) {
@@ -158,19 +169,19 @@ Editor::Editor(Processor &p)
     att.makeNew<juce::ButtonParameterAttachment>(*impl.getRangedParameter((int)GDP_SYNC), *mainComponent->syncButton_, nullptr);
     att.makeNew<juce::ButtonParameterAttachment>(*impl.getRangedParameter((int)GDP_FEEDBACK_ENABLE), *mainComponent->feedbackEnableButton_, nullptr);
     att.makeNew<juce::SliderParameterAttachment>(*impl.getRangedParameter((int)GDP_FEEDBACK_GAIN), *mainComponent->feedbackTapGainSlider_, nullptr);
-    att.makeNew<AutomaticComboBoxParameterAttachment>(*impl.getRangedParameter((int)GDP_FEEDBACK_TAP), *mainComponent->feedbackTapChoice_, nullptr);
+    att.makeNew<ComboBoxParameterAttachmentByID>(*impl.getRangedParameter((int)GDP_FEEDBACK_TAP), *mainComponent->feedbackTapChoice_, nullptr);
     att.makeNew<juce::SliderParameterAttachment>(*impl.getRangedParameter((int)GDP_SWING), *mainComponent->swingSlider_, nullptr);
     att.makeNew<SliderParameterAttachmentWithTooltip>(*impl.getRangedParameter((int)GDP_MIX_WET), *mainComponent->wetSlider_, *impl.tooltipWindow_, nullptr);
     att.makeNew<SliderParameterAttachmentWithTooltip>(*impl.getRangedParameter((int)GDP_MIX_DRY), *mainComponent->drySlider_, *impl.tooltipWindow_, nullptr);
     att.makeNew<GridParameterAttachment>(*impl.getRangedParameter((int)GDP_GRID), *mainComponent->gridChoice_);
 
     //
-    for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber) {
-        char tapChar = (char)('A' + tapNumber);
-        juce::String tapFormat = TRANS("Tap %s");
-        juce::String tapText = tapFormat.replaceFirstOccurrenceOf("%s", juce::String(&tapChar, 1));
-        mainComponent->activeTapChoice_->addItem(tapText, tapNumber + 1);
+    for (int i = 0; i < GD_PARAMETER_COUNT; ++i) {
+        juce::RangedAudioParameter &parameter = *impl.getRangedParameter(i);
+        parameter.addListener(&impl);
     }
+
+    //
     mainComponent->activeTapChoice_->onChange = [&impl]() {
         int id = impl.mainComponent_->activeTapChoice_->getSelectedId();
         if (id > 0)
@@ -188,6 +199,12 @@ Editor::Editor(Processor &p)
 
 Editor::~Editor()
 {
+    Impl &impl = *impl_;
+
+    for (int i = 0; i < GD_PARAMETER_COUNT; ++i) {
+        juce::RangedAudioParameter &parameter = *impl.getRangedParameter(i);
+        parameter.removeListener(&impl);
+    }
 }
 
 void Editor::Impl::runIdle()
@@ -237,6 +254,52 @@ void Editor::Impl::createActiveTapParameterAttachments()
     att.makeNew<juce::ButtonParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_FLIP, tapNumber)), *mainComponent->flipEnableButton_, nullptr);
     att.makeNew<juce::SliderParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_LEVEL, tapNumber)), *mainComponent->levelSlider_, nullptr);
     att.makeNew<juce::ButtonParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_MUTE, tapNumber)), *mainComponent->muteButton_, nullptr);
+}
+
+void Editor::Impl::updateTapChoiceComboBoxes()
+{
+    updateTapChoiceComboBox(*mainComponent_->activeTapChoice_);
+    updateTapChoiceComboBox(*mainComponent_->feedbackTapChoice_);
+}
+
+void Editor::Impl::updateTapChoiceComboBox(juce::ComboBox &combo)
+{
+    bool tapEnabled[GdMaxLines];
+    bool anyTapEnabled = false;
+
+    for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber) {
+        GdParameter id = GdRecomposeParameter(GDP_TAP_A_ENABLE, tapNumber);
+        bool enabled = tapEnabled[tapNumber] = (bool)getRangedParameter((int)id)->getValue();
+        anyTapEnabled |= enabled;
+    }
+
+    int selectedId = combo.getSelectedId();
+    combo.clear(juce::dontSendNotification);
+
+    juce::PopupMenu *menu = combo.getRootMenu();
+
+    auto getTapText = [](int tapNumber) {
+        char tapChar = (char)('A' + tapNumber);
+        juce::String tapFormat = TRANS("Tap %s");
+        return tapFormat.replaceFirstOccurrenceOf("%s", juce::String(&tapChar, 1));
+    };
+
+    for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber) {
+        if (tapEnabled[tapNumber])
+            menu->addItem(tapNumber + 1, getTapText(tapNumber));
+    }
+
+    if (anyTapEnabled)
+        menu->addSeparator();
+
+    juce::PopupMenu subMenu;
+    for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber) {
+        if (!tapEnabled[tapNumber])
+            subMenu.addItem(tapNumber + 1, getTapText(tapNumber));
+    }
+    menu->addSubMenu(TRANS("Not used"), subMenu, true);
+
+    combo.setSelectedId(selectedId, juce::dontSendNotification);
 }
 
 void Editor::Impl::choosePresetFileToLoad()
@@ -436,4 +499,19 @@ void Editor::Impl::tapValueChanged(TapEditScreen *, GdParameter id, float)
     int tapNumber;
     GdDecomposeParameter(id, &tapNumber);
     setActiveTap(tapNumber);
+}
+
+void Editor::Impl::parameterValueChanged(int parameterIndex, float newValue)
+{
+    (void)newValue;
+
+    GdParameter decomposedId = GdDecomposeParameter((GdParameter)parameterIndex, nullptr);
+    if (decomposedId == GDP_TAP_A_ENABLE)
+        updateTapChoiceComboBoxes();
+}
+
+void Editor::Impl::parameterGestureChanged(int parameterIndex, bool gestureIsStarting)
+{
+    (void)parameterIndex;
+    (void)gestureIsStarting;
 }

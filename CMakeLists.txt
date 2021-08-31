@@ -87,6 +87,8 @@ target_sources(DelayArchitect
   "sources/editor/attachments/InvertedButtonParameterAttachment.cpp"
   "sources/editor/attachments/SliderParameterAttachmentWithTooltip.h"
   "sources/editor/attachments/SliderParameterAttachmentWithTooltip.cpp"
+  "sources/editor/attachments/ComboBoxParameterAttachmentByID.h"
+  "sources/editor/attachments/ComboBoxParameterAttachmentByID.cpp"
   "sources/editor/importer/Importer.cpp"
   "sources/editor/importer/Importer.h"
   "sources/editor/importer/ImporterPST.cpp"
