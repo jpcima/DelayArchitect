@@ -50,6 +50,8 @@ public:
     static void setComboBoxFont(juce::ComboBox &combo, const juce::Font &font);
     juce::Font getComboBoxFont(juce::ComboBox &combo) override;
 
+    juce::Font getPopupMenuFont() override;
+
 private:
     struct Impl;
     std::unique_ptr<Impl> impl_;
