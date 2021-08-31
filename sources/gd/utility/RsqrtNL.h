@@ -27,10 +27,9 @@
  */
 
 #pragma once
-
-#if 0
 #include <cmath>
 
+#if 0
 template <class Real>
 inline Real rsqrtNL(Real x)
 {
@@ -46,7 +45,7 @@ Real rsqrtNL(Real x);
 template <>
 inline float rsqrtNL<float>(float x)
 {
-    return x * simde__m128_to_private(simde_mm_rsqrt_ss(_mm_set_ss(1 + x * x))).f32[0];
+    return x * simde__m128_to_private(simde_mm_rsqrt_ss(simde_mm_set_ss(1 + x * x))).f32[0];
 }
 
 template <class Real>
