@@ -132,6 +132,12 @@ struct TapEditData {
 };
 
 //------------------------------------------------------------------------------
+struct TapMiniMapValue {
+    float delay;
+    juce::Range<float> range;
+};
+
+//------------------------------------------------------------------------------
 class TapEditItem final : public juce::Component {
 public:
     explicit TapEditItem(TapEditScreen *screen, int itemNumber);
@@ -147,6 +153,8 @@ public:
 
     float getTapValue(GdParameter id) const;
     void setTapValue(GdParameter id, float value, juce::NotificationType nt = juce::sendNotificationSync);
+
+    TapMiniMapValue getMinimapValues() const;
 
     bool isTapSelected() const;
     void setTapSelected(bool selected);
@@ -182,6 +190,7 @@ public:
     TapMiniMap();
     ~TapMiniMap() override;
     void setTimeRange(juce::Range<float> timeRange, juce::NotificationType nt = juce::sendNotificationSync);
+    void displayValues(const TapMiniMapValue values[], int count);
 
     class Listener {
     public:

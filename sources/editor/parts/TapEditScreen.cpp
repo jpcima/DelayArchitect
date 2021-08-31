@@ -32,6 +32,7 @@
 #include <GdJuce.h>
 #include <Gd.h>
 #include <chrono>
+#include <utility>
 namespace kro = std::chrono;
 
 struct TapEditScreen::Impl : public TapEditItem::Listener,
@@ -66,6 +67,9 @@ struct TapEditScreen::Impl : public TapEditItem::Listener,
 
     ///
     std::unique_ptr<juce::Label> timeRangeLabel_[2];
+
+    ///
+    std::unique_ptr<juce::Timer> miniMapUpdateTimer_;
 
     ///
     class TapLassoSource : public juce::LassoSource<TapEditItem *> {
@@ -105,6 +109,8 @@ struct TapEditScreen::Impl : public TapEditItem::Listener,
     void updateAllItemSizesAndPositions();
     void relayoutSubcomponents();
     void updateTimeRangeLabels();
+    void scheduleUpdateMiniMap();
+    void updateMiniMap();
 
     ///
     void tapEditStarted(TapEditItem *item, GdParameter id) override;
@@ -159,9 +165,11 @@ TapEditScreen::TapEditScreen()
     impl.timeRangeLabel_[1]->setJustificationType(juce::Justification::right);
 
     impl.tapCaptureTimer_.reset(FunctionalTimer::create([&impl]() { impl.tickTapCapture(); }));
+    impl.miniMapUpdateTimer_.reset(FunctionalTimer::create([&impl]() { impl.updateMiniMap(); }));
 
     impl.updateTimeRangeLabels();
     impl.relayoutSubcomponents();
+    impl.scheduleUpdateMiniMap();
 }
 
 TapEditScreen::~TapEditScreen()
@@ -190,6 +198,7 @@ void TapEditScreen::setEditMode(TapEditMode mode)
         item.setEditMode(data.enabled ? mode : kTapEditOff);
     }
 
+    impl.scheduleUpdateMiniMap();
     repaint();
 }
 
@@ -267,6 +276,8 @@ void TapEditScreen::setTapValue(GdParameter id, float value, juce::NotificationT
         repaint();
         break;
     }
+
+    impl.scheduleUpdateMiniMap();
 }
 
 bool TapEditScreen::isTapSelected(int tapNumber) const
@@ -745,6 +756,28 @@ void TapEditScreen::Impl::updateTimeRangeLabels()
     timeRangeLabel_[1]->setText(juce::String(t2ms) + " ms", juce::dontSendNotification);
 }
 
+void TapEditScreen::Impl::scheduleUpdateMiniMap()
+{
+    miniMapUpdateTimer_->startTimer(1);
+}
+
+void TapEditScreen::Impl::updateMiniMap()
+{
+    TapMiniMapValue miniMapValues[GdMaxLines];
+    int numMiniMapValues = 0;
+
+    for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber) {
+        TapEditItem &item = *items_[tapNumber];
+        if ((bool)item.getTapValue(GdRecomposeParameter(GDP_TAP_A_ENABLE, tapNumber)))
+            miniMapValues[numMiniMapValues++] = item.getMinimapValues();
+    }
+
+    TapMiniMap &miniMap = *miniMap_;
+    miniMap.displayValues(miniMapValues, numMiniMapValues);
+
+    miniMapUpdateTimer_->stopTimer();
+}
+
 void TapEditScreen::Impl::tapEditStarted(TapEditItem *, GdParameter id)
 {
     TapEditScreen *self = self_;
@@ -1088,6 +1121,57 @@ void TapEditItem::setTapValue(GdParameter id, float value, juce::NotificationTyp
     }
 }
 
+TapMiniMapValue TapEditItem::getMinimapValues() const
+{
+    Impl &impl = *impl_;
+    TapEditMode editMode = impl.editMode_;
+    float start = 0;
+    float end = 0;
+
+    switch (editMode) {
+    default:
+    case kTapEditOff:
+    fail:
+        return {};
+    // one-value sliders
+    case kTapEditResonance:
+    case kTapEditLevel:
+        if (TapSlider *slider = impl.getSliderForEditMode(editMode)) {
+            start = (float)slider->valueToProportionOfLength(slider->getMinimum());
+            end = (float)slider->valueToProportionOfLength(slider->getValue());
+            break;
+        }
+        goto fail;
+    // two-value sliders
+    case kTapEditCutoff:
+        if (TapSlider *slider = impl.getSliderForEditMode(editMode)) {
+            start = (float)slider->valueToProportionOfLength(slider->getMinValue());
+            end = (float)slider->valueToProportionOfLength(slider->getMaxValue());
+            break;
+        }
+        goto fail;
+    // bipolar around zero
+    case kTapEditTune:
+    case kTapEditPan:
+        if (TapSlider *slider = impl.getSliderForEditMode(editMode)) {
+            start = 0.0f;
+            end = (float)slider->getValue();
+            if (end < start)
+                std::swap(start, end);
+            start = (float)slider->valueToProportionOfLength(start);
+            end = (float)slider->valueToProportionOfLength(end);
+            break;
+        }
+        goto fail;
+    }
+
+    TapMiniMapValue mmv;
+    mmv.delay = getTapValue(GdRecomposeParameter(GDP_TAP_A_DELAY, impl.itemNumber_));
+    mmv.range = juce::Range<float>{start, end};
+
+    return mmv;
+}
+
 bool TapEditItem::isTapSelected() const
 {
     Impl &impl = *impl_;
@@ -1348,6 +1432,7 @@ struct TapMiniMap::Impl {
     juce::ListenerList<Listener> listeners_;
     juce::Range<float> timeRange_{0, GdMaxDelay};
     juce::Range<float> timeRangeBeforeMove_;
+    std::vector<TapMiniMapValue> displayValues_;
 
     enum {
         kStatusNormal,
@@ -1394,6 +1479,13 @@ void TapMiniMap::setTimeRange(juce::Range<float> timeRange, juce::NotificationTy
 
     if (nt != juce::dontSendNotification)
         impl.listeners_.call([this](Listener &l) { l.miniMapRangeChanged(this, impl_->timeRange_); });
+}
+
+void TapMiniMap::displayValues(const TapMiniMapValue values[], int count)
+{
+    Impl &impl = *impl_;
+    impl.displayValues_.assign(values, values + count);
+    repaint();
 }
 
 void TapMiniMap::addListener(Listener *listener)
@@ -1500,18 +1592,33 @@ void TapMiniMap::mouseDrag(const juce::MouseEvent &event)
 void TapMiniMap::paint(juce::Graphics &g)
 {
     juce::Rectangle<int> bounds = getLocalBounds();
+    juce::Rectangle<int> innerBounds = bounds.reduced(1, 1);
 
     juce::Colour backColour{0x40000000};
     juce::Colour rangeColour{0x60ffffff};
     juce::Colour contourColour{0x40ffffff};
+    juce::Colour barColour{0x80ffffff};
 
     g.setColour(backColour);
     g.fillRect(bounds);
     g.setColour(contourColour);
     g.drawRect(bounds);
 
+    g.reduceClipRegion(innerBounds);
+
     Impl &impl = *impl_;
-    juce::Rectangle<float> rangeBounds = impl.getRangeBounds().reduced(0.0f, 1.0f);
+
+    for (TapMiniMapValue mmv : impl.displayValues_) {
+        float x = impl.getXForDelay(mmv.delay);
+        float y1 = (float)innerBounds.getY() + (1.0f - mmv.range.getEnd()) * (float)innerBounds.getHeight();
+        float y2 = (float)innerBounds.getY() + (1.0f - mmv.range.getStart()) * (float)innerBounds.getHeight();
+        float barWidth = 2.0f;
+        juce::Rectangle<float> barBounds = juce::Rectangle<float>::leftTopRightBottom(x - barWidth / 2, y1, x + barWidth / 2, y2);
+        g.setColour(barColour);
+        g.fillRect(barBounds);
+    }
+
+    juce::Rectangle<float> rangeBounds = impl.getRangeBounds();
     g.setColour(rangeColour);
     g.fillRect(rangeBounds);
     g.setColour(contourColour);
@@ -1546,14 +1653,14 @@ void TapMiniMap::Impl::updateCursor(juce::Point<float> position)
 float TapMiniMap::Impl::getXForDelay(float t) const
 {
     TapMiniMap *self = self_;
-    juce::Rectangle<float> rc = self->getLocalBounds().toFloat();
+    juce::Rectangle<float> rc = self->getLocalBounds().reduced(1, 1).toFloat();
     return rc.getX() + rc.getWidth() * (t / (float)GdMaxDelay);
 }
 
 float TapMiniMap::Impl::getDelayForX(float x) const
 {
     TapMiniMap *self = self_;
-    juce::Rectangle<float> rc = self->getLocalBounds().toFloat();
+    juce::Rectangle<float> rc = self->getLocalBounds().reduced(1, 1).toFloat();
     return (float)GdMaxDelay * ((x - rc.getX()) / rc.getWidth());
 }
 
@@ -1561,7 +1668,7 @@ juce::Rectangle<float> TapMiniMap::Impl::getRangeBounds() const
 {
     TapMiniMap *self = self_;
     juce::Range<float> tr = timeRange_;
-    return self->getLocalBounds().toFloat()
+    return self->getLocalBounds().reduced(1, 1).toFloat()
         .withLeft(getXForDelay(tr.getStart()))
         .withRight(getXForDelay(tr.getEnd()));
 }
