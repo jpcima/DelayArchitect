@@ -50,17 +50,19 @@ public:
         intervalFillColourId,
         intervalContourColourId,
         tapLineColourId,
-        tapLabelBackgroundColourId,
-        tapLabelSelectedBackgroundColourId,
         tapLabelTextColourId,
         tapSliderBackgroundColourId,
-        tapSliderFillColourId,
         minorIntervalTickColourId,
         majorIntervalTickColourId,
         superMajorIntervalTickColourId,
         lassoFillColourId,
         lassoOutlineColourId,
         textColourId,
+        editCutoffBaseColourId,
+        editResonanceBaseColourId,
+        editTuneBaseColourId,
+        editPanBaseColourId,
+        editLevelBaseColourId,
     };
 
     TapEditScreen();
@@ -96,6 +98,8 @@ public:
     juce::Rectangle<int> getScreenArea() const;
     juce::Rectangle<int> getIntervalsRow() const;
     juce::Rectangle<int> getSlidersRow() const;
+
+    static juce::Colour getColourOfEditMode(const juce::LookAndFeel &lnf, TapEditMode mode);
 
     class Listener {
     public:

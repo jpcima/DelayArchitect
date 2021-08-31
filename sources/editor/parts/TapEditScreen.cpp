@@ -538,6 +538,34 @@ juce::Rectangle<int> TapEditScreen::getSlidersRow() const
     return getLocalBoundsNoMargin().withTrimmedBottom(intervalsHeight);
 }
 
+juce::Colour TapEditScreen::getColourOfEditMode(const juce::LookAndFeel &lnf, TapEditMode mode)
+{
+    juce::Colour modeColour;
+
+    switch (mode) {
+    default:
+    case kTapEditOff:
+        break;
+    case kTapEditCutoff:
+        modeColour = lnf.findColour(TapEditScreen::editCutoffBaseColourId);
+        break;
+    case kTapEditResonance:
+        modeColour = lnf.findColour(TapEditScreen::editResonanceBaseColourId);
+        break;
+    case kTapEditTune:
+        modeColour = lnf.findColour(TapEditScreen::editTuneBaseColourId);
+        break;
+    case kTapEditPan:
+        modeColour = lnf.findColour(TapEditScreen::editPanBaseColourId);
+        break;
+    case kTapEditLevel:
+        modeColour = lnf.findColour(TapEditScreen::editLevelBaseColourId);
+        break;
+    }
+
+    return modeColour;
+}
+
 void TapEditScreen::addListener(Listener *listener)
 {
     Impl &impl = *impl_;
@@ -909,8 +937,9 @@ TapEditItem::TapEditItem(TapEditScreen *screen, int itemNumber)
             properties.set("X-Change-ID-1", (int)id);
             properties.set("X-Change-ID-2", (int)id2);
         }
+        juce::Colour modeColour = TapEditScreen::getColourOfEditMode(getLookAndFeel(), mode);
         slider->setColour(juce::Slider::backgroundColourId, findColour(TapEditScreen::tapSliderBackgroundColourId));
-        slider->setColour(juce::Slider::trackColourId, findColour(TapEditScreen::tapSliderFillColourId));
+        slider->setColour(juce::Slider::trackColourId, modeColour.withAlpha(0.75f));
         addChildComponent(slider);
     };
 
@@ -1208,7 +1237,11 @@ void TapEditItem::paint(juce::Graphics &g)
 
     juce::Component::paint(g);
 
-    juce::Colour tapLabelBackgroundColour = findColour(impl.tapSelected_ ? TapEditScreen::tapLabelSelectedBackgroundColourId : TapEditScreen::tapLabelBackgroundColourId);
+    juce::Colour tapLabelBackgroundColour =
+        TapEditScreen::getColourOfEditMode(getLookAndFeel(), impl.editMode_);
+    if (impl.tapSelected_)
+        tapLabelBackgroundColour = tapLabelBackgroundColour.brighter(1.0f);
+
     juce::Colour tapLabelTextColour = findColour(TapEditScreen::tapLabelTextColourId);
 
     char labelTextCstr[2];

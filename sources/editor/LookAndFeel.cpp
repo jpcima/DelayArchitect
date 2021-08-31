@@ -52,17 +52,21 @@ LookAndFeel::LookAndFeel()
     setColour(TapEditScreen::intervalFillColourId, juce::Colour(0xff, 0xff, 0xff).withAlpha(0.25f));
     setColour(TapEditScreen::intervalContourColourId, juce::Colour(0xff, 0xff, 0xff).withAlpha(0.5f));
     setColour(TapEditScreen::tapLineColourId, juce::Colour(0xff, 0xff, 0x80));
-    setColour(TapEditScreen::tapLabelBackgroundColourId, juce::Colour(0xff, 0xff, 0xff));
-    setColour(TapEditScreen::tapLabelSelectedBackgroundColourId, juce::Colour(0xff, 0xff, 0x80));
     setColour(TapEditScreen::tapLabelTextColourId, juce::Colour(0x00, 0x00, 0x00));
     setColour(TapEditScreen::tapSliderBackgroundColourId, juce::Colour(0xff, 0xff, 0xff).withAlpha(0.25f));
-    setColour(TapEditScreen::tapSliderFillColourId, juce::Colour(0xff, 0xff, 0xff).withAlpha(0.75f));
     setColour(TapEditScreen::minorIntervalTickColourId, juce::Colour(0x00, 0x00, 0x00).withAlpha(0.5f));
     setColour(TapEditScreen::majorIntervalTickColourId, juce::Colour(0xff, 0xff, 0xff).withAlpha(0.5f));
     setColour(TapEditScreen::superMajorIntervalTickColourId, juce::Colour(0xff, 0xff, 0xff));
     setColour(TapEditScreen::lassoFillColourId, juce::Colour(0x00, 0x00, 0x00).withAlpha(0.25f));
     setColour(TapEditScreen::lassoOutlineColourId, juce::Colour(0xff, 0xff, 0xff).withAlpha(0.25f));
     setColour(TapEditScreen::textColourId, juce::Colour(0xff, 0xff, 0xff).withAlpha(0.75f));
+    setColour(TapEditScreen::editCutoffBaseColourId, juce::Colour(0xd8, 0x76, 0x7b));
+    setColour(TapEditScreen::editResonanceBaseColourId, juce::Colour(0xd4, 0xe0, 0x7d));
+    setColour(TapEditScreen::editTuneBaseColourId, juce::Colour(0x7a, 0xe1, 0x84));
+    setColour(TapEditScreen::editPanBaseColourId, juce::Colour(0xd8, 0x70, 0xde));
+    setColour(TapEditScreen::editLevelBaseColourId, juce::Colour(0x7a, 0xdd, 0xdf));
+    // left pan #138EBC
+    // right pan #179F64
 }
 
 LookAndFeel::~LookAndFeel()
