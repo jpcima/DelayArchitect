@@ -170,6 +170,8 @@ TapEditScreen::TapEditScreen()
     impl.updateTimeRangeLabels();
     impl.relayoutSubcomponents();
     impl.scheduleUpdateMiniMap();
+
+    miniMap->toFront(false);
 }
 
 TapEditScreen::~TapEditScreen()
@@ -305,6 +307,9 @@ void TapEditScreen::setOnlyTapSelected(int selectedTapNumber)
         if (selected)
             item.toFront(false);
     }
+
+    TapMiniMap &miniMap = *impl.miniMap_;
+    miniMap.toFront(false);
 }
 
 double TapEditScreen::getBPM() const
