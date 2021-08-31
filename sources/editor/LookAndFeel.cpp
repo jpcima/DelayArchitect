@@ -113,26 +113,13 @@ void LookAndFeel::drawComboBox(juce::Graphics& g, int width, int height, bool, i
 
     g.setColour(box.findColour(juce::ComboBox::outlineColourId));
     g.drawRoundedRectangle(boxBounds.toFloat().reduced(0.5f, 0.5f), cornerSize, 1.0f);
-
-    // NOTE(jpc) reduce the size of the arrow zone
-    juce::Rectangle<int> arrowZone(width - 20/*30*/, 0, 14/*20*/, height);
-    juce::Path path;
-    path.startNewSubPath((float)arrowZone.getX() + 3.0f, (float)arrowZone.getCentreY() - 2.0f);
-    path.lineTo((float)arrowZone.getCentreX(), (float)arrowZone.getCentreY() + 3.0f);
-    path.lineTo((float)arrowZone.getRight() - 3.0f, (float)arrowZone.getCentreY() - 2.0f);
-
-    g.setColour(box.findColour(juce::ComboBox::arrowColourId).withAlpha((box.isEnabled() ? 0.9f : 0.2f)));
-    g.strokePath(path, juce::PathStrokeType(2.0f));
 }
 
 void LookAndFeel::positionComboBoxText(juce::ComboBox &box, juce::Label &label)
 {
-    // NOTE(jpc) reduce the size of the arrow zone
-    label.setBounds(1, 1,
-                    box.getWidth() - 20/*30*/,
-                    box.getHeight() - 2);
-
+    label.setBounds(1, 1, box.getWidth() - 2, box.getHeight() - 2);
     label.setFont(getComboBoxFont(box));
+    label.setJustificationType(juce::Justification::horizontallyCentred);
 }
 
 void LookAndFeel::setTextButtonFont(juce::TextButton &button, const juce::Font &font)
