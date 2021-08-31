@@ -410,10 +410,10 @@ MainComponent::MainComponent ()
 
     syncButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (syncButton_.get());
-    syncButton_->setButtonText (TRANS("Sync"));
+    syncButton_->setConnectedEdges (juce::Button::ConnectedOnRight);
     syncButton_->addListener (this);
 
-    syncButton_->setBounds (16, 56, 96, 56);
+    syncButton_->setBounds (16, 112, 24, 24);
 
     gridChoice_.reset (new juce::ComboBox (juce::String()));
     addAndMakeVisible (gridChoice_.get());
@@ -423,7 +423,7 @@ MainComponent::MainComponent ()
     gridChoice_->setTextWhenNoChoicesAvailable (juce::String());
     gridChoice_->addListener (this);
 
-    gridChoice_->setBounds (16, 152, 96, 24);
+    gridChoice_->setBounds (40, 112, 72, 24);
 
     unknown14.reset (new juce::Label (juce::String(),
                                       TRANS("Grid")));
@@ -434,7 +434,7 @@ MainComponent::MainComponent ()
     unknown14->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     unknown14->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    unknown14->setBounds (16, 128, 96, 24);
+    unknown14->setBounds (16, 88, 96, 24);
 
     menuButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (menuButton_.get());
@@ -451,7 +451,7 @@ MainComponent::MainComponent ()
     unknown15->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     unknown15->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    unknown15->setBounds (16, 192, 96, 24);
+    unknown15->setBounds (16, 152, 96, 24);
 
     swingSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (swingSlider_.get());
@@ -460,7 +460,7 @@ MainComponent::MainComponent ()
     swingSlider_->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
     swingSlider_->addListener (this);
 
-    swingSlider_->setBounds (16, 216, 96, 24);
+    swingSlider_->setBounds (16, 176, 96, 24);
 
     filterEnableButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (filterEnableButton_.get());
@@ -471,14 +471,12 @@ MainComponent::MainComponent ()
 
     tuneEnableButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (tuneEnableButton_.get());
-    tuneEnableButton_->setConnectedEdges (juce::Button::ConnectedOnRight);
     tuneEnableButton_->addListener (this);
 
     tuneEnableButton_->setBounds (568, 508, 24, 24);
 
     muteButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (muteButton_.get());
-    muteButton_->setConnectedEdges (juce::Button::ConnectedOnRight);
     muteButton_->addListener (this);
 
     muteButton_->setBounds (880, 508, 24, 24);
@@ -492,7 +490,6 @@ MainComponent::MainComponent ()
 
     flipEnableButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (flipEnableButton_.get());
-    flipEnableButton_->setConnectedEdges (juce::Button::ConnectedOnRight);
     flipEnableButton_->addListener (this);
 
     flipEnableButton_->setBounds (680, 508, 24, 24);
@@ -513,6 +510,28 @@ MainComponent::MainComponent ()
     tapMenuButton_->addListener (this);
 
     tapMenuButton_->setBounds (552, 444, 40, 32);
+
+    unknown16.reset (new juce::Label (juce::String(),
+                                      TRANS("Sync")));
+    addAndMakeVisible (unknown16.get());
+    unknown16->setFont (juce::Font (20.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    unknown16->setJustificationType (juce::Justification::centred);
+    unknown16->setEditable (false, false, false);
+    unknown16->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    unknown16->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    unknown16->setBounds (16, 48, 94, 24);
+
+    unknown17.reset (new juce::Label (juce::String(),
+                                      TRANS("Tap")));
+    addAndMakeVisible (unknown17.get());
+    unknown17->setFont (juce::Font (20.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    unknown17->setJustificationType (juce::Justification::centred);
+    unknown17->setEditable (false, false, false);
+    unknown17->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    unknown17->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    unknown17->setBounds (16, 240, 94, 24);
 
 
     //[UserPreSize]
@@ -541,6 +560,7 @@ MainComponent::MainComponent ()
         button.setButtonText(iconName);
     };
     setupFontAudioButton(*menuButton_, 12.0f, fontaudio::HExpand);
+    setupFontAudioButton(*syncButton_, 12.0f, fontaudio::Powerswitch);
     setupFontAudioButton(*feedbackEnableButton_, 12.0f, fontaudio::Powerswitch);
     setupFontAudioButton(*tapEnabledButton_, 24.0f, fontaudio::Powerswitch);
     setupFontAudioButton(*tapMenuButton_, 24.0f, fontaudio::HExpand);
@@ -555,6 +575,21 @@ MainComponent::MainComponent ()
     feedbackTapChoice_->setScrollWheelEnabled(true);
     gridChoice_->setScrollWheelEnabled(true);
     filterChoice_->setScrollWheelEnabled(true);
+
+    auto setEditButtonColors = [this](juce::TextButton &button, TapEditMode mode) {
+        juce::LookAndFeel &lnf = getLookAndFeel();
+        juce::Colour base = tapEditScreen_->getColourOfEditMode(lnf, mode);
+        juce::Colour text = button.findColour(juce::TextButton::textColourOffId);
+        juce::Colour bg = button.findColour(juce::TextButton::buttonColourId);
+        button.setColour(juce::TextButton::textColourOffId, base.interpolatedWith(text, 0.25f));
+        button.setColour(juce::TextButton::buttonOnColourId, base.interpolatedWith(bg, 0.75f));
+    };
+
+    setEditButtonColors(*cutoffButton_, kTapEditCutoff);
+    setEditButtonColors(*resonanceButton_, kTapEditResonance);
+    setEditButtonColors(*tuneButton_, kTapEditTune);
+    setEditButtonColors(*panButton_, kTapEditPan);
+    setEditButtonColors(*levelButton_, kTapEditLevel);
     //[/Constructor]
 }
 
@@ -611,6 +646,8 @@ MainComponent::~MainComponent()
     flipEnableButton_ = nullptr;
     activeTapChoice_ = nullptr;
     tapMenuButton_ = nullptr;
+    unknown16 = nullptr;
+    unknown17 = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -623,11 +660,11 @@ void MainComponent::paint (juce::Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (juce::Colour (0xff323e44));
+    g.fillAll (juce::Colour (0xff262626));
 
     {
         float x = 128.0f, y = 40.0f, width = 744.0f, height = 384.0f;
-        juce::Colour fillColour = juce::Colour (0xff2a7ca5);
+        juce::Colour fillColour = juce::Colour (0xff434343);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
         g.setColour (fillColour);
@@ -636,47 +673,47 @@ void MainComponent::paint (juce::Graphics& g)
 
     {
         float x = 8.0f, y = 432.0f, width = 984.0f, height = 112.0f;
-        juce::Colour fillColour = juce::Colour (0xffc86d4f);
+        juce::Colour fillColour = juce::Colour (0xff333333);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
         g.setColour (fillColour);
-        g.fillRoundedRectangle (x, y, width, height, 5.000f);
+        g.fillRoundedRectangle (x, y, width, height, 1.000f);
     }
 
     {
         float x = 880.0f, y = 40.0f, width = 112.0f, height = 192.0f;
-        juce::Colour fillColour = juce::Colour (0xfffff080);
+        juce::Colour fillColour = juce::Colour (0xff333333);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
         g.setColour (fillColour);
-        g.fillRoundedRectangle (x, y, width, height, 5.000f);
+        g.fillRoundedRectangle (x, y, width, height, 1.000f);
     }
 
     {
         float x = 880.0f, y = 240.0f, width = 112.0f, height = 184.0f;
-        juce::Colour fillColour = juce::Colour (0xfffff080);
+        juce::Colour fillColour = juce::Colour (0xff333333);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
         g.setColour (fillColour);
-        g.fillRoundedRectangle (x, y, width, height, 5.000f);
+        g.fillRoundedRectangle (x, y, width, height, 1.000f);
     }
 
     {
-        float x = 8.0f, y = 263.0f, width = 112.0f, height = 161.0f;
-        juce::Colour fillColour = juce::Colour (0xfffff080);
+        float x = 8.0f, y = 232.0f, width = 112.0f, height = 192.0f;
+        juce::Colour fillColour = juce::Colour (0xff333333);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
         g.setColour (fillColour);
-        g.fillRoundedRectangle (x, y, width, height, 5.000f);
+        g.fillRoundedRectangle (x, y, width, height, 1.000f);
     }
 
     {
-        float x = 8.0f, y = 40.0f, width = 112.0f, height = 216.0f;
-        juce::Colour fillColour = juce::Colour (0xfffff080);
+        float x = 8.0f, y = 40.0f, width = 112.0f, height = 176.0f;
+        juce::Colour fillColour = juce::Colour (0xff333333);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
         g.setColour (fillColour);
-        g.fillRoundedRectangle (x, y, width, height, 5.000f);
+        g.fillRoundedRectangle (x, y, width, height, 1.000f);
     }
 
     //[UserPaint] Add your own custom painting code here..
@@ -909,16 +946,16 @@ BEGIN_JUCER_METADATA
                  parentClasses="public juce::Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="1" initialWidth="1000" initialHeight="552">
-  <BACKGROUND backgroundColour="ff323e44">
-    <ROUNDRECT pos="128 40 744 384" cornerSize="5.0" fill="solid: ff2a7ca5"
+  <BACKGROUND backgroundColour="ff262626">
+    <ROUNDRECT pos="128 40 744 384" cornerSize="5.0" fill="solid: ff434343"
                hasStroke="0"/>
-    <ROUNDRECT pos="8 432 984 112" cornerSize="5.0" fill="solid: ffc86d4f" hasStroke="0"/>
-    <ROUNDRECT pos="880 40 112 192" cornerSize="5.0" fill="solid: fffff080"
+    <ROUNDRECT pos="8 432 984 112" cornerSize="1.0" fill="solid: ff333333" hasStroke="0"/>
+    <ROUNDRECT pos="880 40 112 192" cornerSize="1.0" fill="solid: ff333333"
                hasStroke="0"/>
-    <ROUNDRECT pos="880 240 112 184" cornerSize="5.0" fill="solid: fffff080"
+    <ROUNDRECT pos="880 240 112 184" cornerSize="1.0" fill="solid: ff333333"
                hasStroke="0"/>
-    <ROUNDRECT pos="8 263 112 161" cornerSize="5.0" fill="solid: fffff080" hasStroke="0"/>
-    <ROUNDRECT pos="8 40 112 216" cornerSize="5.0" fill="solid: fffff080" hasStroke="0"/>
+    <ROUNDRECT pos="8 232 112 192" cornerSize="1.0" fill="solid: ff333333" hasStroke="0"/>
+    <ROUNDRECT pos="8 40 112 176" cornerSize="1.0" fill="solid: ff333333" hasStroke="0"/>
   </BACKGROUND>
   <GENERICCOMPONENT name="" id="c36eda615afd52ad" memberName="tapEditScreen_" virtualName=""
                     explicitFocusOrder="0" pos="128 40 744 384" class="TapEditScreen"
@@ -1064,13 +1101,13 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <TEXTBUTTON name="" id="7ac12be0bb27f229" memberName="syncButton_" virtualName=""
-              explicitFocusOrder="0" pos="16 56 96 56" buttonText="Sync" connectedEdges="0"
+              explicitFocusOrder="0" pos="16 112 24 24" buttonText="" connectedEdges="2"
               needsCallback="1" radioGroupId="0"/>
   <COMBOBOX name="" id="16cd36a80d420093" memberName="gridChoice_" virtualName=""
-            explicitFocusOrder="0" pos="16 152 96 24" editable="0" layout="33"
+            explicitFocusOrder="0" pos="40 112 72 24" editable="0" layout="33"
             items="" textWhenNonSelected="" textWhenNoItems=""/>
   <LABEL name="" id="ca6f4632ff8df183" memberName="unknown14" virtualName=""
-         explicitFocusOrder="0" pos="16 128 96 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="16 88 96 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Grid" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
@@ -1078,12 +1115,12 @@ BEGIN_JUCER_METADATA
               explicitFocusOrder="0" pos="40 8 24 24" buttonText="" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
   <LABEL name="" id="be77851fc14d8ba" memberName="unknown15" virtualName=""
-         explicitFocusOrder="0" pos="16 192 96 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="16 152 96 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Swing" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <SLIDER name="" id="da0e42fa3de72498" memberName="swingSlider_" virtualName="better::Slider"
-          explicitFocusOrder="0" pos="16 216 96 24" min="0.0" max="10.0"
+          explicitFocusOrder="0" pos="16 176 96 24" min="0.0" max="10.0"
           int="0.0" style="LinearBar" textBoxPos="TextBoxLeft" textBoxEditable="1"
           textBoxWidth="80" textBoxHeight="20" skewFactor="1.0" needsCallback="1"/>
   <TEXTBUTTON name="" id="7bcc36a07c5c42ff" memberName="filterEnableButton_"
@@ -1091,22 +1128,32 @@ BEGIN_JUCER_METADATA
               connectedEdges="2" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="7496b3b0f072ed02" memberName="tuneEnableButton_"
               virtualName="" explicitFocusOrder="0" pos="568 508 24 24" buttonText=""
-              connectedEdges="2" needsCallback="1" radioGroupId="0"/>
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="2f55e1ddbe6ca060" memberName="muteButton_" virtualName=""
-              explicitFocusOrder="0" pos="880 508 24 24" buttonText="" connectedEdges="2"
+              explicitFocusOrder="0" pos="880 508 24 24" buttonText="" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="e43adf889edc780a" memberName="feedbackEnableButton_"
               virtualName="" explicitFocusOrder="0" pos="888 88 24 24" buttonText=""
               connectedEdges="2" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="26aa605edc3b0e21" memberName="flipEnableButton_"
               virtualName="" explicitFocusOrder="0" pos="680 508 24 24" buttonText=""
-              connectedEdges="2" needsCallback="1" radioGroupId="0"/>
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <COMBOBOX name="" id="61cd9161ffe3a708" memberName="activeTapChoice_" virtualName=""
             explicitFocusOrder="0" pos="448 444 104 32" editable="0" layout="36"
             items="" textWhenNonSelected="" textWhenNoItems=""/>
   <TEXTBUTTON name="" id="923d76d9239ffb8" memberName="tapMenuButton_" virtualName=""
               explicitFocusOrder="0" pos="552 444 40 32" buttonText="" connectedEdges="1"
               needsCallback="1" radioGroupId="0"/>
+  <LABEL name="" id="25e83144e25df24d" memberName="unknown16" virtualName=""
+         explicitFocusOrder="0" pos="16 48 94 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Sync" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="20.0"
+         kerning="0.0" bold="0" italic="0" justification="36"/>
+  <LABEL name="" id="a863161c796ae24c" memberName="unknown17" virtualName=""
+         explicitFocusOrder="0" pos="16 240 94 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Tap" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="20.0"
+         kerning="0.0" bold="0" italic="0" justification="36"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
