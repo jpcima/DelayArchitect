@@ -590,6 +590,31 @@ MainComponent::MainComponent ()
     setEditButtonColors(*tuneButton_, kTapEditTune);
     setEditButtonColors(*panButton_, kTapEditPan);
     setEditButtonColors(*levelButton_, kTapEditLevel);
+
+    // stretch components which attach to the connected edge of a text button
+    // by 1px towards the button, so it fuses into a single line
+    juce::Component *leftExpandedComponents[] = {
+        resonanceButton_.get(),
+        tuneButton_.get(),
+        gridChoice_.get(),
+        feedbackTapChoice_.get(),
+        activeTapChoice_.get(),
+        filterChoice_.get(),
+    };
+    juce::Component *rightExpandedComponents[] = {
+        tuneButton_.get(),
+        panButton_.get(),
+        activeTapChoice_.get(),
+    };
+    for (juce::Component *comp : leftExpandedComponents) {
+        juce::Rectangle<int> bounds = comp->getBounds();
+        comp->setBounds(bounds.withLeft(bounds.getX() - 1));
+    }
+    for (juce::Component *comp : rightExpandedComponents) {
+        juce::Rectangle<int> bounds = comp->getBounds();
+        comp->setBounds(bounds.withRight(bounds.getRight() + 1));
+    }
+
     //[/Constructor]
 }
 
