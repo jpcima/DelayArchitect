@@ -37,6 +37,7 @@ static const juce::StringRef kSansSerifTypefaceName = "Liberation Sans";
 
 struct LookAndFeel::Impl {
     juce::Typeface::Ptr sansTypeface_;
+    juce::Typeface::Ptr sansBoldTypeface_;
     juce::SharedResourcePointer<fontaudio::IconHelper> fontAudio_;
 };
 
@@ -45,6 +46,7 @@ LookAndFeel::LookAndFeel()
 {
     Impl &impl = *impl_;
     impl.sansTypeface_ = juce::Typeface::createSystemTypefaceFor(BinaryData::LiberationSansRegular_ttf, BinaryData::LiberationSansRegular_ttfSize);
+    impl.sansBoldTypeface_ = juce::Typeface::createSystemTypefaceFor(BinaryData::LiberationSansBold_ttf, BinaryData::LiberationSansBold_ttfSize);
 
     ///
     static_assert(BaseLookAndFeel::ColourScheme::numColours == 9, "unexpected number of colors");
@@ -102,10 +104,14 @@ juce::Typeface::Ptr LookAndFeel::getTypefaceForFont(const juce::Font &font)
     juce::Typeface::Ptr tf;
 
     const juce::String &typefaceName = font.getTypefaceName();
-    if (typefaceName == juce::Font::getDefaultSansSerifFontName())
-        tf = impl.sansTypeface_;
-    else if (typefaceName == kSansSerifTypefaceName)
-        tf = impl.sansTypeface_;
+    if (typefaceName == juce::Font::getDefaultSansSerifFontName() ||
+        typefaceName == kSansSerifTypefaceName)
+    {
+        if (font.isBold())
+            tf = impl.sansBoldTypeface_;
+        else
+            tf = impl.sansTypeface_;
+    }
     else if (typefaceName == "Fontaudio")
         tf = impl.fontAudio_->getFont().getTypeface();
 

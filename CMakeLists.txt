@@ -99,7 +99,8 @@ target_sources(DelayArchitect
 
 juce_add_binary_data(DelayArchitectResources
   SOURCES
-  "resources/fonts/LiberationSans-Regular.ttf")
+  "resources/fonts/LiberationSans-Regular.ttf"
+  "resources/fonts/LiberationSans-Bold.ttf")
 
 target_link_libraries(DelayArchitect
   PRIVATE

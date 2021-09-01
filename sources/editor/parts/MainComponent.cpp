@@ -179,7 +179,7 @@ MainComponent::MainComponent ()
     unknown2.reset (new juce::Label (juce::String(),
                                      TRANS("Feedback")));
     addAndMakeVisible (unknown2.get());
-    unknown2->setFont (juce::Font (20.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    unknown2->setFont (juce::Font (17.00f, juce::Font::plain).withTypefaceStyle ("Bold"));
     unknown2->setJustificationType (juce::Justification::centred);
     unknown2->setEditable (false, false, false);
     unknown2->setColour (juce::TextEditor::textColourId, juce::Colours::black);
@@ -199,7 +199,7 @@ MainComponent::MainComponent ()
     unknown3.reset (new juce::Label (juce::String(),
                                      TRANS("Mix")));
     addAndMakeVisible (unknown3.get());
-    unknown3->setFont (juce::Font (20.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    unknown3->setFont (juce::Font (17.00f, juce::Font::plain).withTypefaceStyle ("Bold"));
     unknown3->setJustificationType (juce::Justification::centred);
     unknown3->setEditable (false, false, false);
     unknown3->setColour (juce::TextEditor::textColourId, juce::Colours::black);
@@ -514,7 +514,7 @@ MainComponent::MainComponent ()
     unknown16.reset (new juce::Label (juce::String(),
                                       TRANS("Sync")));
     addAndMakeVisible (unknown16.get());
-    unknown16->setFont (juce::Font (20.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    unknown16->setFont (juce::Font (17.00f, juce::Font::plain).withTypefaceStyle ("Bold"));
     unknown16->setJustificationType (juce::Justification::centred);
     unknown16->setEditable (false, false, false);
     unknown16->setColour (juce::TextEditor::textColourId, juce::Colours::black);
@@ -525,7 +525,7 @@ MainComponent::MainComponent ()
     unknown17.reset (new juce::Label (juce::String(),
                                       TRANS("Tap")));
     addAndMakeVisible (unknown17.get());
-    unknown17->setFont (juce::Font (20.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    unknown17->setFont (juce::Font (17.00f, juce::Font::plain).withTypefaceStyle ("Bold"));
     unknown17->setJustificationType (juce::Justification::centred);
     unknown17->setEditable (false, false, false);
     unknown17->setColour (juce::TextEditor::textColourId, juce::Colours::black);
@@ -1025,8 +1025,8 @@ BEGIN_JUCER_METADATA
   <LABEL name="" id="db4d1c75cd692557" memberName="unknown2" virtualName=""
          explicitFocusOrder="0" pos="888 48 94 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Feedback" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="20.0"
-         kerning="0.0" bold="0" italic="0" justification="36"/>
+         focusDiscardsChanges="0" fontname="Default font" fontsize="17.0"
+         kerning="0.0" bold="1" italic="0" justification="36" typefaceStyle="Bold"/>
   <SLIDER name="" id="62fe1bfedd2c32eb" memberName="feedbackTapGainSlider_"
           virtualName="better::Slider" explicitFocusOrder="0" pos="888 120 96 96"
           min="0.0" max="10.0" int="0.0" style="RotaryHorizontalVerticalDrag"
@@ -1035,8 +1035,8 @@ BEGIN_JUCER_METADATA
   <LABEL name="" id="9d4616ada30ba75d" memberName="unknown3" virtualName=""
          explicitFocusOrder="0" pos="888 248 94 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Mix" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="20.0"
-         kerning="0.0" bold="0" italic="0" justification="36"/>
+         focusDiscardsChanges="0" fontname="Default font" fontsize="17.0"
+         kerning="0.0" bold="1" italic="0" justification="36" typefaceStyle="Bold"/>
   <SLIDER name="" id="b2206b062a09ac07" memberName="drySlider_" virtualName="better::Slider"
           explicitFocusOrder="0" pos="896 288 40 128" min="0.0" max="10.0"
           int="0.0" style="LinearVertical" textBoxPos="NoTextBox" textBoxEditable="1"
@@ -1173,13 +1173,13 @@ BEGIN_JUCER_METADATA
   <LABEL name="" id="25e83144e25df24d" memberName="unknown16" virtualName=""
          explicitFocusOrder="0" pos="16 48 94 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Sync" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="20.0"
-         kerning="0.0" bold="0" italic="0" justification="36"/>
+         focusDiscardsChanges="0" fontname="Default font" fontsize="17.0"
+         kerning="0.0" bold="1" italic="0" justification="36" typefaceStyle="Bold"/>
   <LABEL name="" id="a863161c796ae24c" memberName="unknown17" virtualName=""
          explicitFocusOrder="0" pos="16 240 94 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Tap" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="20.0"
-         kerning="0.0" bold="0" italic="0" justification="36"/>
+         focusDiscardsChanges="0" fontname="Default font" fontsize="17.0"
+         kerning="0.0" bold="1" italic="0" justification="36" typefaceStyle="Bold"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
