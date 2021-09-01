@@ -636,7 +636,7 @@ void TapEditScreen::paint(juce::Graphics &g)
         float tapLineX = impl.delayToX(impl.currentTapTime());
 
         g.setColour(tapLineColour);
-        g.drawLine(tapLineX, 0.0f, tapLineX, (float)bounds.getBottom());
+        g.drawLine(tapLineX, (float)screenBounds.getY() + 1, tapLineX, (float)screenBounds.getBottom() - 1);
     }
 }
 
