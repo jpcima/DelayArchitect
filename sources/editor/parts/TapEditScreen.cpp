@@ -589,7 +589,6 @@ void TapEditScreen::paint(juce::Graphics &g)
     juce::Component::paint(g);
 
     Impl &impl = *impl_;
-    juce::Rectangle<int> bounds = getLocalBounds();
     juce::Rectangle<int> screenBounds = getScreenArea();
     juce::Rectangle<int> intervalsRow = getIntervalsRow();
 
