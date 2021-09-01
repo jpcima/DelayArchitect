@@ -343,7 +343,8 @@ void Processor::Impl::updateBPM(double newBpm)
     lastKnownBpm_ = newBpm;
 
     Gd *gd = gd_.get();
-    GdSetTempo(gd, (float)newBpm);
+    if (gd)
+        GdSetTempo(gd, (float)newBpm);
 
     if (oldBpm != -1.0) {
         float scaleRatio = (float)(oldBpm / newBpm);
