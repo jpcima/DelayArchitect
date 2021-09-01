@@ -31,6 +31,7 @@
 #include "editor/parts/TapSlider.h"
 #include "BinaryData.h"
 #include <fontaudio/fontaudio.h>
+#include <cmath>
 
 static const juce::StringRef kSansSerifTypefaceName = "Liberation Sans";
 
@@ -164,6 +165,64 @@ void LookAndFeel::drawLinearSlider(juce::Graphics &g, int x, int y, int width, i
 void LookAndFeel::drawLinearSliderBackground(juce::Graphics &g, int x, int y, int width, int height, float sliderPos, float minSliderPos, float maxSliderPos, const juce::Slider::SliderStyle style, juce::Slider &slider)
 {
     BaseLookAndFeel::drawLinearSliderBackground(g, x, y, width, height, sliderPos, minSliderPos, maxSliderPos, style, slider);
+}
+
+void LookAndFeel::drawRotarySlider(juce::Graphics &g, int x, int y, int width, int height, float sliderPos, float rotaryStartAngle, float rotaryEndAngle, juce::Slider &slider)
+{
+    juce::Colour outline = slider.findColour(juce::Slider::rotarySliderOutlineColourId);
+    juce::Colour fill = slider.findColour(juce::Slider::rotarySliderFillColourId);
+    juce::Colour thumb = slider.findColour(juce::Slider::thumbColourId);
+
+    juce::Rectangle<float> bounds = juce::Rectangle<int>(x, y, width, height).toFloat().reduced(10);
+
+    float radius = juce::jmin(bounds.getWidth(), bounds.getHeight()) / 2.0f;
+    float toAngle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
+    float lineW = juce::jmin(4.0f, radius * 0.5f);
+    float arcRadius = radius - lineW * 0.5f;
+
+    ///
+    float bodyRadius = (1.5f * radius - lineW);
+    g.setColour(thumb.darker());
+    g.fillEllipse(bounds.withSizeKeepingCentre(bodyRadius, bodyRadius));
+    g.setColour(thumb.withAlpha(0.5f));
+    g.drawEllipse(bounds.withSizeKeepingCentre(bodyRadius, bodyRadius), 2.0f);
+
+    ///
+    juce::Path backgroundArc;
+    backgroundArc.addCentredArc(bounds.getCentreX(),
+                                bounds.getCentreY(),
+                                arcRadius,
+                                arcRadius,
+                                0.0f,
+                                rotaryStartAngle,
+                                rotaryEndAngle,
+                                true);
+
+    g.setColour(outline);
+    g.strokePath(backgroundArc, juce::PathStrokeType(lineW, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+
+    if (slider.isEnabled())
+    {
+        juce::Path valueArc;
+        valueArc.addCentredArc(bounds.getCentreX(),
+                               bounds.getCentreY(),
+                               arcRadius,
+                               arcRadius,
+                               0.0f,
+                               rotaryStartAngle,
+                               toAngle,
+                               true);
+
+        g.setColour(fill);
+        g.strokePath(valueArc, juce::PathStrokeType(lineW, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+    }
+
+    auto thumbWidth = lineW * 2.0f;
+    juce::Point<float> thumbPoint(bounds.getCentreX() + arcRadius * std::cos(toAngle - juce::MathConstants<float>::halfPi),
+                                  bounds.getCentreY() + arcRadius * std::sin(toAngle - juce::MathConstants<float>::halfPi));
+
+    g.setColour(thumb);
+    g.fillEllipse(juce::Rectangle<float>(thumbWidth, thumbWidth).withCentre(thumbPoint));
 }
 
 juce::Label *LookAndFeel::createSliderTextBox(juce::Slider &slider)
