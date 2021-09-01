@@ -541,7 +541,7 @@ MainComponent::MainComponent ()
     logoButton_.reset (new juce::DrawableButton (juce::String{}, juce::DrawableButton::ImageFitted));
     addAndMakeVisible (logoButton_.get());
 
-    logoButton_->setBounds (4, 4, 32, 32);
+    logoButton_->setBounds (8, 4, 32, 32);
 
 
     //[UserPreSize]
@@ -1216,7 +1216,7 @@ BEGIN_JUCER_METADATA
                     explicitFocusOrder="0" pos="136 440 728 32" class="TapMiniMap"
                     params=""/>
   <GENERICCOMPONENT name="" id="b9ee741e0a71c52b" memberName="logoButton_" virtualName=""
-                    explicitFocusOrder="0" pos="4 4 32 32" class="juce::DrawableButton"
+                    explicitFocusOrder="0" pos="8 4 32 32" class="juce::DrawableButton"
                     params="juce::String{}, juce::DrawableButton::ImageFitted"/>
 </JUCER_COMPONENT>
 
