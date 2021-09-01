@@ -123,6 +123,8 @@ Editor::Editor(Processor &p)
     MainComponent *mainComponent = new MainComponent;
     impl.mainComponent_.reset(mainComponent);
 
+    mainComponent->logoButton_->onClick = [&impl]() { impl.showAbout(); };
+
     juce::PopupMenu *mainMenu = new juce::PopupMenu;
     impl.mainMenu_.reset(mainMenu);
     mainMenu->addItem(TRANS("Load preset"), [&impl]() { impl.choosePresetFileToLoad(); });
