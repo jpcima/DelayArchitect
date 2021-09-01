@@ -62,7 +62,12 @@ LookAndFeel::LookAndFeel()
 
     setColourScheme(cs);
 
+    // colour scheme overrides
+    setColour(juce::TextButton::textColourOnId, juce::Colour(0x00, 0x00, 0x00));
+    setColour(juce::TooltipWindow::textColourId, juce::Colour(0x00, 0x00, 0x00));
+    setColour(juce::TooltipWindow::outlineColourId, juce::Colour(0x00, 0x00, 0x00));
 
+    ///
     setColour(TapEditScreen::lineColourId, juce::Colour(0xff, 0xff, 0xff).withAlpha(0.5f));
     setColour(TapEditScreen::screenContourColourId, juce::Colour(0xff, 0xff, 0xff).withAlpha(0.5f));
     setColour(TapEditScreen::intervalFillColourId, juce::Colour(0xff, 0xff, 0xff).withAlpha(0.25f));
@@ -235,4 +240,32 @@ juce::PopupMenu::Options LookAndFeel::getOptionsForComboBoxPopupMenu(juce::Combo
 {
     return BaseLookAndFeel::getOptionsForComboBoxPopupMenu(combo, label)
         .withStandardItemHeight(0);
+}
+
+static juce::TextLayout layoutTooltipText(const juce::String &text, juce::Colour colour)
+{
+    const float tooltipFontSize = 13.0f;
+    const int maxToolTipWidth = 400;
+
+    juce::AttributedString s;
+    s.setJustification(juce::Justification::centred);
+    s.append(text, juce::Font(tooltipFontSize, juce::Font::bold), colour);
+
+    juce::TextLayout tl;
+    tl.createLayoutWithBalancedLineLengths(s, (float)maxToolTipWidth);
+    return tl;
+}
+
+void LookAndFeel::drawTooltip(juce::Graphics &g, const juce::String &text, int width, int height)
+{
+    juce::Rectangle<int> bounds(width, height);
+
+    g.setColour(findColour(juce::TooltipWindow::backgroundColourId));
+    g.fillRect(bounds.toFloat());
+
+    g.setColour(findColour(juce::TooltipWindow::outlineColourId));
+    g.drawRect(bounds.toFloat());
+
+    layoutTooltipText(text, findColour(juce::TooltipWindow::textColourId))
+        .draw(g, { (float)width, (float)height });
 }

@@ -581,6 +581,7 @@ MainComponent::MainComponent ()
         juce::Colour base = tapEditScreen_->getColourOfEditMode(lnf, mode);
         juce::Colour text = button.findColour(juce::TextButton::textColourOffId);
         juce::Colour bg = button.findColour(juce::TextButton::buttonColourId);
+        button.setColour(juce::TextButton::textColourOnId, findColour(juce::TextButton::textColourOffId));
         button.setColour(juce::TextButton::textColourOffId, base.interpolatedWith(text, 0.25f));
         button.setColour(juce::TextButton::buttonOnColourId, base.interpolatedWith(bg, 0.75f));
     };

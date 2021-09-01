@@ -55,6 +55,8 @@ public:
 
     juce::PopupMenu::Options getOptionsForComboBoxPopupMenu(juce::ComboBox &combo, juce::Label &label) override;
 
+    void drawTooltip(juce::Graphics &g, const juce::String &text, int width, int height) override;
+
 private:
     struct Impl;
     std::unique_ptr<Impl> impl_;
