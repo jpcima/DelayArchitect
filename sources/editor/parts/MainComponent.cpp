@@ -440,7 +440,7 @@ MainComponent::MainComponent ()
     addAndMakeVisible (menuButton_.get());
     menuButton_->addListener (this);
 
-    menuButton_->setBounds (40, 8, 24, 24);
+    menuButton_->setBounds (48, 8, 32, 24);
 
     unknown15.reset (new juce::Label (juce::String(),
                                       TRANS("Swing")));
@@ -538,6 +538,11 @@ MainComponent::MainComponent ()
 
     tapMiniMap_->setBounds (136, 440, 728, 32);
 
+    logoButton_.reset (new juce::DrawableButton (juce::String{}, juce::DrawableButton::ImageFitted));
+    addAndMakeVisible (logoButton_.get());
+
+    logoButton_->setBounds (4, 4, 32, 32);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -564,7 +569,7 @@ MainComponent::MainComponent ()
         LookAndFeel::setTextButtonFont(button, juce::Font("Fontaudio", textHeight, juce::Font::plain));
         button.setButtonText(iconName);
     };
-    setupFontAudioButton(*menuButton_, 12.0f, fontaudio::HExpand);
+    setupFontAudioButton(*menuButton_, 16.0f, fontaudio::HExpand);
     setupFontAudioButton(*syncButton_, 12.0f, fontaudio::Powerswitch);
     setupFontAudioButton(*feedbackEnableButton_, 12.0f, fontaudio::Powerswitch);
     setupFontAudioButton(*tapEnabledButton_, 24.0f, fontaudio::Powerswitch);
@@ -618,6 +623,13 @@ MainComponent::MainComponent ()
         juce::Rectangle<int> bounds = comp->getBounds();
         comp->setBounds(bounds.withRight(bounds.getRight() + 1));
     }
+
+    //
+    juce::Path logoPath = juce::Drawable::parseSVGPath("M 397.05078 64.132812 C 378.80078 64.132812 359.79935 64.799479 346.66602 66.132812 C 292.79935 71.332812 243.46667 84.933854 202 105.86719 C 172.26667 121.06719 158.39987 131.06602 134.5332 154.66602 C 104.79987 184.26602 91.733073 205.46732 87.066406 231.33398 C 79.333073 275.20065 113.06576 322.40078 159.73242 332.80078 C 173.46576 335.86745 201.33372 334.80026 212.40039 330.93359 C 225.86706 326.00026 236.26732 319.59987 245.33398 310.5332 C 265.06732 290.66654 273.4668 266 269.4668 240 C 267.33346 226.66667 263.73398 219.20065 251.33398 203.33398 C 234.93398 182.13398 231.73255 172.53268 237.19922 160.66602 C 241.46589 151.33268 262.13411 135.86667 280.80078 128 C 298.53411 120.66667 312.53268 118.26641 334.66602 119.06641 C 357.33268 119.86641 365.06602 121.73372 382.66602 130.40039 C 410.53268 144.13372 422.66602 164.26719 426.66602 203.86719 C 427.46602 212.80052 428 295.2 428 438 C 428 678.53333 427.59961 665.99922 435.59961 691.19922 C 445.06628 721.33255 462.26732 740.93411 491.33398 754.80078 C 510.53398 763.86745 523.06615 766.66628 548.13281 767.59961 C 572.39948 768.53294 585.46589 766.93255 603.19922 761.19922 C 633.99922 751.06589 665.06641 730.00078 695.06641 698.80078 C 707.99974 685.33411 711.86667 678.53255 712 669.19922 C 712 662.53255 708.13255 657.33398 703.19922 657.33398 C 701.86589 657.33398 695.06758 661.20052 688.26758 665.86719 C 669.46758 678.80052 659.19922 681.46576 649.19922 675.73242 C 641.59922 671.46576 636.26641 662.39909 633.06641 647.73242 C 630.26641 635.59909 630.26732 631.73398 629.33398 443.33398 C 628.66732 328.13398 627.73359 244.4 626.93359 234 C 624.40026 203.46667 615.73333 178.13346 600 155.4668 C 591.6 143.33346 564.53385 116.80039 549.86719 106.40039 C 520.66719 85.600391 482.40026 71.199479 442.93359 66.132812 C 432.80026 64.799479 415.30078 64.132813 397.05078 64.132812 z M 247.61719 361.9043 C 240.9834 361.83516 234.4 362.12578 228 362.80078 C 184.53333 367.20078 146.80078 387.06706 118.80078 420.40039 C 82.800781 463.06706 64.933073 518.13333 67.066406 580 C 67.866406 603.2 69.733984 616.26602 75.333984 636.66602 C 89.867318 690.39935 124.26641 734.26667 167.06641 754 C 194.26641 766.53333 228.13424 770.93333 260.26758 766 C 307.46758 758.93333 352.40078 727.73242 378.80078 683.73242 C 386.26745 671.46576 387.06667 666.53255 382 663.19922 C 377.73333 660.39922 373.99935 661.73268 366.66602 668.66602 C 358.66602 676.26602 339.59961 690.13424 331.59961 694.26758 C 302.26628 709.06758 261.60065 703.59961 237.33398 681.59961 C 202.13398 649.86628 179.99909 588.53398 177.73242 517.33398 C 176.39909 474.53398 180.93346 446.79961 193.4668 421.59961 C 203.20013 401.59961 213.33359 392.93307 228.93359 391.06641 C 237.20026 390.13307 243.99948 392.26628 250.13281 397.59961 C 259.86615 406.13294 263.73255 416.66745 267.19922 444.80078 C 271.73255 479.46745 280.66576 495.06602 301.73242 504.66602 C 334.26576 519.59935 369.86615 502.53359 376.13281 468.93359 C 378.66615 455.06693 374.66576 436.4 365.73242 420 C 359.19909 408.26667 339.86667 389.33307 326 381.06641 C 306.06667 369.25807 276.36361 362.20391 247.61719 361.9043 z ");
+    juce::DrawablePath logoDrawable;
+    logoDrawable.setPath(logoPath);
+    logoDrawable.setFill(juce::FillType(juce::Colours::white));
+    logoButton_->setImages(&logoDrawable);
 
     //
     tapEditScreen_->connectMiniMap(*tapMiniMap_);
@@ -682,6 +694,7 @@ MainComponent::~MainComponent()
     unknown16 = nullptr;
     unknown17 = nullptr;
     tapMiniMap_ = nullptr;
+    logoButton_ = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -1157,7 +1170,7 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <TEXTBUTTON name="" id="3bd4ee7bb83de442" memberName="menuButton_" virtualName=""
-              explicitFocusOrder="0" pos="40 8 24 24" buttonText="" connectedEdges="0"
+              explicitFocusOrder="0" pos="48 8 32 24" buttonText="" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
   <LABEL name="" id="be77851fc14d8ba" memberName="unknown15" virtualName=""
          explicitFocusOrder="0" pos="16 152 96 24" edTextCol="ff000000"
@@ -1202,6 +1215,9 @@ BEGIN_JUCER_METADATA
   <GENERICCOMPONENT name="" id="d6577bae70b2754d" memberName="tapMiniMap_" virtualName=""
                     explicitFocusOrder="0" pos="136 440 728 32" class="TapMiniMap"
                     params=""/>
+  <GENERICCOMPONENT name="" id="b9ee741e0a71c52b" memberName="logoButton_" virtualName=""
+                    explicitFocusOrder="0" pos="4 4 32 32" class="juce::DrawableButton"
+                    params="juce::String{}, juce::DrawableButton::ImageFitted"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

@@ -150,6 +150,7 @@ private:
     std::unique_ptr<juce::Label> unknown16;
     std::unique_ptr<juce::Label> unknown17;
     std::unique_ptr<TapMiniMap> tapMiniMap_;
+    std::unique_ptr<juce::DrawableButton> logoButton_;
 
 
     //==============================================================================
