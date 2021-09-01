@@ -37,6 +37,8 @@ public:
 
     //==========================================================================
     double getLastKnownBPM() const;
+    void setCurrentPresetName(const juce::String &newName);
+    juce::String getCurrentPresetName() const;
 
     //==========================================================================
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
@@ -58,6 +60,8 @@ public:
     double getTailLengthSeconds() const override;
 
     //==========================================================================
+    // NOTE(jpc) not using program management to keep the current preset name
+    //           I've not figured out how to properly sync it dsp/editor/host
     int getNumPrograms() override;
     int getCurrentProgram() override;
     void setCurrentProgram(int index) override;

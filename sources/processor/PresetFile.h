@@ -29,10 +29,17 @@
 #pragma once
 #include <juce_core/juce_core.h>
 #include "GdDefs.h"
+#include <array>
 
 struct PresetFile {
+    using NameBuffer = std::array<char, 64>;
+
     bool valid = false;
+    NameBuffer name{};
     float values[GD_PARAMETER_COUNT] = {};
+
+    static NameBuffer nameFromString(const juce::String &string);
+    static juce::String nameToString(const NameBuffer &buffer);
 
     explicit operator bool() const noexcept { return valid; }
     static PresetFile makeDefault();

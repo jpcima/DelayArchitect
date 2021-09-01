@@ -193,12 +193,21 @@ Editor::Editor(Processor &p)
     };
 
     //
+    mainComponent->patchNameEditor_->onTextChange = [&impl]() {
+        juce::String presetName = impl.mainComponent_->patchNameEditor_->getText();
+        impl.processor_->setCurrentPresetName(presetName);
+    };
+
+    //
     impl.setActiveTap(0);
 
     //
     juce::Timer *idleTimer = FunctionalTimer::create([&impl]() { impl.runIdle(); });
     impl.idleTimer_.reset(idleTimer);
     idleTimer->startTimer(50);
+
+    //
+    syncStateFromProcessor();
 }
 
 Editor::~Editor()
@@ -209,6 +218,14 @@ Editor::~Editor()
         juce::RangedAudioParameter &parameter = *impl.getRangedParameter(i);
         parameter.removeListener(&impl);
     }
+}
+
+void Editor::syncStateFromProcessor()
+{
+    Impl &impl = *impl_;
+
+    juce::String presetName = impl.processor_->getCurrentPresetName();
+    impl.mainComponent_->patchNameEditor_->setText(presetName, false);
 }
 
 void Editor::Impl::runIdle()
@@ -399,6 +416,7 @@ void Editor::Impl::savePresetFile(const juce::File &file)
 {
     PresetFile pst;
     pst.valid = true;
+    pst.name = PresetFile::nameFromString(processor_->getCurrentPresetName());
 
     for (int i = 0; i < GD_PARAMETER_COUNT; ++i) {
         juce::RangedAudioParameter *parameter = getRangedParameter(i);
@@ -432,8 +450,15 @@ void Editor::Impl::loadPreset(const PresetFile &pst)
 
     ///
     MainComponent *mainComponent = mainComponent_.get();
+
     TapEditScreen *tapEdit = mainComponent->tapEditScreen_.get();
     tapEdit->autoZoomTimeRange();
+
+    juce::String presetName = PresetFile::nameToString(pst.name);
+    mainComponent->patchNameEditor_->setText(presetName, juce::dontSendNotification);
+
+    ///
+    processor_->setCurrentPresetName(presetName);
 }
 
 void Editor::Impl::copyActiveTap()

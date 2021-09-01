@@ -83,47 +83,42 @@ MainComponent::MainComponent ()
     tapEditScreen_.reset (new TapEditScreen());
     addAndMakeVisible (tapEditScreen_.get());
 
-    tapEditScreen_->setBounds (128, 40, 744, 384);
+    tapEditScreen_->setBounds (128, 72, 744, 352);
 
     cutoffButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (cutoffButton_.get());
     cutoffButton_->setButtonText (TRANS("Cutoff"));
-    cutoffButton_->setConnectedEdges (juce::Button::ConnectedOnRight);
     cutoffButton_->addListener (this);
 
-    cutoffButton_->setBounds (160, 8, 136, 24);
+    cutoffButton_->setBounds (144, 48, 136, 24);
 
     resonanceButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (resonanceButton_.get());
     resonanceButton_->setButtonText (TRANS("Resonance"));
-    resonanceButton_->setConnectedEdges (juce::Button::ConnectedOnLeft | juce::Button::ConnectedOnRight);
     resonanceButton_->addListener (this);
 
-    resonanceButton_->setBounds (296, 8, 136, 24);
+    resonanceButton_->setBounds (288, 48, 136, 24);
 
     tuneButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (tuneButton_.get());
     tuneButton_->setButtonText (TRANS("Tune"));
-    tuneButton_->setConnectedEdges (juce::Button::ConnectedOnLeft | juce::Button::ConnectedOnRight);
     tuneButton_->addListener (this);
 
-    tuneButton_->setBounds (432, 8, 136, 24);
+    tuneButton_->setBounds (432, 48, 136, 24);
 
     panButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (panButton_.get());
     panButton_->setButtonText (TRANS("Pan"));
-    panButton_->setConnectedEdges (juce::Button::ConnectedOnLeft | juce::Button::ConnectedOnRight);
     panButton_->addListener (this);
 
-    panButton_->setBounds (568, 8, 136, 24);
+    panButton_->setBounds (576, 48, 136, 24);
 
     levelButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (levelButton_.get());
     levelButton_->setButtonText (TRANS("Level"));
-    levelButton_->setConnectedEdges (juce::Button::ConnectedOnLeft);
     levelButton_->addListener (this);
 
-    levelButton_->setBounds (704, 8, 136, 24);
+    levelButton_->setBounds (720, 48, 136, 24);
 
     firstTapButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (firstTapButton_.get());
@@ -543,6 +538,18 @@ MainComponent::MainComponent ()
 
     logoButton_->setBounds (8, 4, 32, 32);
 
+    patchNameEditor_.reset (new juce::TextEditor (juce::String()));
+    addAndMakeVisible (patchNameEditor_.get());
+    patchNameEditor_->setMultiLine (false);
+    patchNameEditor_->setReturnKeyStartsNewLine (false);
+    patchNameEditor_->setReadOnly (false);
+    patchNameEditor_->setScrollbarsShown (true);
+    patchNameEditor_->setCaretVisible (true);
+    patchNameEditor_->setPopupMenuEnabled (true);
+    patchNameEditor_->setText (juce::String());
+
+    patchNameEditor_->setBounds (92, 8, 400, 24);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -589,11 +596,11 @@ MainComponent::MainComponent ()
     auto setEditButtonColors = [this](juce::TextButton &button, TapEditMode mode) {
         juce::LookAndFeel &lnf = getLookAndFeel();
         juce::Colour base = tapEditScreen_->getColourOfEditMode(lnf, mode);
-        juce::Colour text = button.findColour(juce::TextButton::textColourOffId);
-        juce::Colour bg = button.findColour(juce::TextButton::buttonColourId);
-        button.setColour(juce::TextButton::textColourOnId, findColour(juce::TextButton::textColourOffId));
-        button.setColour(juce::TextButton::textColourOffId, base.interpolatedWith(text, 0.25f));
-        button.setColour(juce::TextButton::buttonOnColourId, base.interpolatedWith(bg, 0.75f));
+        button.setColour(juce::TextButton::buttonColourId, juce::Colour{});
+        button.setColour(juce::TextButton::buttonOnColourId, juce::Colours::white.withAlpha(0.125f));
+        button.setColour(juce::TextButton::textColourOffId, base);
+        button.setColour(juce::TextButton::textColourOnId, base.brighter());
+        button.setColour(juce::ComboBox::outlineColourId, tapEditScreen_->findColour(TapEditScreen::lineColourId));
     };
 
     setEditButtonColors(*cutoffButton_, kTapEditCutoff);
@@ -605,23 +612,13 @@ MainComponent::MainComponent ()
     // stretch components which attach to the connected edge of a text button
     // by 1px towards the button, so it fuses into a single line
     juce::Component *leftExpandedComponents[] = {
-        resonanceButton_.get(),
-        tuneButton_.get(),
         gridChoice_.get(),
         feedbackTapChoice_.get(),
         filterChoice_.get(),
     };
-    juce::Component *rightExpandedComponents[] = {
-        tuneButton_.get(),
-        panButton_.get(),
-    };
     for (juce::Component *comp : leftExpandedComponents) {
         juce::Rectangle<int> bounds = comp->getBounds();
         comp->setBounds(bounds.withLeft(bounds.getX() - 1));
-    }
-    for (juce::Component *comp : rightExpandedComponents) {
-        juce::Rectangle<int> bounds = comp->getBounds();
-        comp->setBounds(bounds.withRight(bounds.getRight() + 1));
     }
 
     //
@@ -630,6 +627,9 @@ MainComponent::MainComponent ()
     logoDrawable.setPath(logoPath);
     logoDrawable.setFill(juce::FillType(juce::Colours::white));
     logoButton_->setImages(&logoDrawable);
+
+    //
+    patchNameEditor_->setTextToShowWhenEmpty(TRANS("Untitled patch"), patchNameEditor_->findColour(juce::TextEditor::textColourId).darker());
 
     //
     tapEditScreen_->connectMiniMap(*tapMiniMap_);
@@ -695,6 +695,7 @@ MainComponent::~MainComponent()
     unknown17 = nullptr;
     tapMiniMap_ = nullptr;
     logoButton_ = nullptr;
+    patchNameEditor_ = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -1016,23 +1017,23 @@ BEGIN_JUCER_METADATA
                hasStroke="0"/>
   </BACKGROUND>
   <GENERICCOMPONENT name="" id="c36eda615afd52ad" memberName="tapEditScreen_" virtualName=""
-                    explicitFocusOrder="0" pos="128 40 744 384" class="TapEditScreen"
+                    explicitFocusOrder="0" pos="128 72 744 352" class="TapEditScreen"
                     params=""/>
   <TEXTBUTTON name="" id="fbe209bdcd7b5a8f" memberName="cutoffButton_" virtualName=""
-              explicitFocusOrder="0" pos="160 8 136 24" buttonText="Cutoff"
-              connectedEdges="2" needsCallback="1" radioGroupId="0"/>
+              explicitFocusOrder="0" pos="144 48 136 24" buttonText="Cutoff"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="b57b7360ebc749d9" memberName="resonanceButton_" virtualName=""
-              explicitFocusOrder="0" pos="296 8 136 24" buttonText="Resonance"
-              connectedEdges="3" needsCallback="1" radioGroupId="0"/>
+              explicitFocusOrder="0" pos="288 48 136 24" buttonText="Resonance"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="53c3c11e2e3cc96f" memberName="tuneButton_" virtualName=""
-              explicitFocusOrder="0" pos="432 8 136 24" buttonText="Tune" connectedEdges="3"
-              needsCallback="1" radioGroupId="0"/>
+              explicitFocusOrder="0" pos="432 48 136 24" buttonText="Tune"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="c12936716811e246" memberName="panButton_" virtualName=""
-              explicitFocusOrder="0" pos="568 8 136 24" buttonText="Pan" connectedEdges="3"
+              explicitFocusOrder="0" pos="576 48 136 24" buttonText="Pan" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="7558d040ff50b9ed" memberName="levelButton_" virtualName=""
-              explicitFocusOrder="0" pos="704 8 136 24" buttonText="Level"
-              connectedEdges="1" needsCallback="1" radioGroupId="0"/>
+              explicitFocusOrder="0" pos="720 48 136 24" buttonText="Level"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="43aa27172b96c021" memberName="firstTapButton_" virtualName=""
               explicitFocusOrder="0" pos="16 272 96 56" buttonText="Start tap"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
@@ -1218,6 +1219,9 @@ BEGIN_JUCER_METADATA
   <GENERICCOMPONENT name="" id="b9ee741e0a71c52b" memberName="logoButton_" virtualName=""
                     explicitFocusOrder="0" pos="8 4 32 32" class="juce::DrawableButton"
                     params="juce::String{}, juce::DrawableButton::ImageFitted"/>
+  <TEXTEDITOR name="" id="f5168c8f248320c4" memberName="patchNameEditor_" virtualName=""
+              explicitFocusOrder="0" pos="92 8 400 24" initialText="" multiline="0"
+              retKeyStartsLine="0" readonly="0" scrollbars="1" caret="1" popupmenu="1"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

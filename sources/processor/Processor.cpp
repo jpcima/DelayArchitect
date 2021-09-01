@@ -31,9 +31,11 @@
 #include "editor/Editor.h"
 #include "GdJuce.h"
 #include "Gd.h"
+#include <algorithm>
+#include <mutex>
 
 struct Processor::Impl : public juce::AudioProcessorListener {
-    explicit Impl(Processor *self) : self_(self) {}
+    explicit Impl(Processor *self);
     void setupParameters();
 
     //==========================================================================
@@ -41,12 +43,27 @@ struct Processor::Impl : public juce::AudioProcessorListener {
 
     //==========================================================================
     void audioProcessorParameterChanged(AudioProcessor *processor, int parameterIndex, float newValue) override;
-    void audioProcessorChanged (AudioProcessor *processor, const ChangeDetails &details) override;
+    void audioProcessorChanged(AudioProcessor *processor, const ChangeDetails &details) override;
 
     //==========================================================================
     Processor *self_ = nullptr;
     GdPtr gd_;
     double lastKnownBpm_ = -1.0;
+
+    //==========================================================================
+    using NameBuffer = PresetFile::NameBuffer;
+    NameBuffer presetNameBuf_{};
+    mutable std::mutex presetNameMutex_;
+
+    //==========================================================================
+    class EditorStateUpdater : public juce::AsyncUpdater {
+    public:
+        explicit EditorStateUpdater(Impl &impl);
+        void handleAsyncUpdate() override;
+    private:
+        Impl &impl_;
+    };
+    EditorStateUpdater editorStateUpdater_;
 };
 
 //==============================================================================
@@ -70,6 +87,22 @@ double Processor::getLastKnownBPM() const
     Impl &impl = *impl_;
     double bpm = impl.lastKnownBpm_;
     return (bpm != 1.0) ? bpm : 120.0;
+}
+
+void Processor::setCurrentPresetName(const juce::String &newName)
+{
+    Impl &impl = *impl_;
+    std::lock_guard<std::mutex> lock(impl.presetNameMutex_);
+    impl.presetNameBuf_ = PresetFile::nameFromString(newName);
+}
+
+juce::String Processor::getCurrentPresetName() const
+{
+    Impl &impl = *impl_;
+    std::unique_lock<std::mutex> lock(impl.presetNameMutex_);
+    Impl::NameBuffer nameBuf = impl.presetNameBuf_;
+    lock.unlock();
+    return PresetFile::nameToString(nameBuf);
 }
 
 //==============================================================================
@@ -167,7 +200,8 @@ void Processor::processBlock(juce::AudioBuffer<double> &buffer, juce::MidiBuffer
 //==============================================================================
 juce::AudioProcessorEditor *Processor::createEditor()
 {
-    return new Editor(*this);
+    Editor *editor = new Editor(*this);
+    return editor;
 }
 
 bool Processor::hasEditor() const
@@ -235,6 +269,11 @@ void Processor::getStateInformation(juce::MemoryBlock &destData)
     PresetFile pst;
     pst.valid = true;
 
+    const Impl &impl = *impl_;
+    std::unique_lock<std::mutex> lock(impl.presetNameMutex_);
+    pst.name = impl.presetNameBuf_;
+    lock.unlock();
+
     for (unsigned i = 0; i < GD_PARAMETER_COUNT; ++i) {
         const auto &parameter = static_cast<const juce::RangedAudioParameter &>(*getParameters()[(int)i]);
         pst.values[i] = parameter.convertFrom0to1(parameter.getValue());
@@ -251,13 +290,26 @@ void Processor::setStateInformation(const void *data, int sizeInBytes)
     if (!pst)
         pst = PresetFile::makeDefault();
 
+    Impl &impl = *impl_;
+    std::unique_lock<std::mutex> lock(impl.presetNameMutex_);
+    impl.presetNameBuf_ = pst.name;
+    lock.unlock();
+
     for (unsigned i = 0; i < GD_PARAMETER_COUNT; ++i) {
         auto &parameter = static_cast<juce::RangedAudioParameter &>(*getParameters()[(int)i]);
         parameter.setValueNotifyingHost(parameter.convertTo0to1(pst.values[i]));
     }
+
+    impl.editorStateUpdater_.triggerAsyncUpdate();
 }
 
 //==============================================================================
+Processor::Impl::Impl(Processor *self)
+    : self_(self),
+      editorStateUpdater_(*this)
+{
+}
+
 void Processor::Impl::setupParameters()
 {
     Processor *self = self_;
@@ -378,6 +430,21 @@ void Processor::Impl::audioProcessorChanged(AudioProcessor *processor, const Cha
 {
     (void)processor;
     (void)details;
+}
+
+//==============================================================================
+Processor::Impl::EditorStateUpdater::EditorStateUpdater(Impl &impl)
+    : impl_(impl)
+{
+}
+
+void Processor::Impl::EditorStateUpdater::handleAsyncUpdate()
+{
+    Impl &impl = impl_;
+    Processor *self = impl.self_;
+
+    if (Editor *editor = static_cast<Editor *>(self->getActiveEditor()))
+        editor->syncStateFromProcessor();
 }
 
 //==============================================================================

@@ -36,6 +36,8 @@ public:
     ~Editor() override;
 
     //==========================================================================
+    void syncStateFromProcessor();
+
 private:
     struct Impl;
     std::unique_ptr<Impl> impl_;

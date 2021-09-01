@@ -29,8 +29,22 @@
 #include "PresetFile.h"
 #include "Gd.h"
 #include <juce_data_structures/juce_data_structures.h>
+#include <algorithm>
+#include <cstring>
 
 static const char StateIdentifier_v1[] = "DelayArchitectV1";
+
+PresetFile::NameBuffer PresetFile::nameFromString(const juce::String &string)
+{
+    PresetFile::NameBuffer buffer{};
+    std::memcpy(buffer.data(), string.toRawUTF8(), std::min(buffer.size(), string.getNumBytesAsUTF8()));
+    return buffer;
+}
+
+juce::String PresetFile::nameToString(const NameBuffer &buffer)
+{
+    return juce::String(juce::CharPointer_UTF8(buffer.data()), buffer.size());
+}
 
 PresetFile PresetFile::makeDefault()
 {
@@ -52,6 +66,8 @@ PresetFile PresetFile::loadFromStream(juce::InputStream &stream)
     juce::ValueTree tree = juce::ValueTree::readFromStream(gzipStream);
     if (!tree.isValid() || tree.getType() != juce::StringRef(StateIdentifier_v1))
         return pst;
+
+    pst.name = nameFromString(tree.getProperty("NAME").toString());
 
     for (unsigned i = 0; i < GD_PARAMETER_COUNT; ++i) {
         const char *name = GdParameterName((GdParameter)i);
@@ -88,6 +104,8 @@ bool PresetFile::saveToStream(const PresetFile &pst, juce::OutputStream &stream)
         return false;
 
     juce::ValueTree tree(StateIdentifier_v1);
+
+    tree.setProperty("NAME", nameToString(pst.name), nullptr);
 
     for (unsigned i = 0; i < GD_PARAMETER_COUNT; ++i) {
         const char *name = GdParameterName((GdParameter)i);

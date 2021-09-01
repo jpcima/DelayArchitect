@@ -207,5 +207,8 @@ bool ImporterPST::importFile(const juce::File &file, ImportData &idata)
         pst.values[p] = juce::jlimit(min, max, pst.values[p]);
     }
 
+    ///
+    pst.name = PresetFile::nameFromString(file.getFileNameWithoutExtension());
+
     return true;
 }
