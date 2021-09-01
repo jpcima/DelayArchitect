@@ -409,6 +409,7 @@ void TapEditScreen::Impl::beginTapCapture()
     tapBeginTime_ = kro::steady_clock::now();
     tapCaptureTimer_->startTimerHz(60);
     listeners_.call([self](Listener &l) { l.tappingHasStarted(self); });
+    self->grabKeyboardFocus();
 }
 
 void TapEditScreen::Impl::nextTapCapture()
@@ -693,6 +694,8 @@ void TapEditScreen::mouseDrag(const juce::MouseEvent &e)
 
 bool TapEditScreen::keyPressed(const juce::KeyPress &e)
 {
+    Impl &impl = *impl_;
+
     if (e.isKeyCode(juce::KeyPress::deleteKey)) {
         bool selected[GdMaxLines];
 
@@ -707,6 +710,12 @@ bool TapEditScreen::keyPressed(const juce::KeyPress &e)
         }
 
         setAllTapsSelected(false);
+        return true;
+    }
+    else if (e.isKeyCode(juce::KeyPress::escapeKey)) {
+        if (impl.tapHasBegun_)
+            impl.endTapCapture();
+        return true;
     }
     return false;
 }
