@@ -273,12 +273,7 @@ void LookAndFeel::drawRotarySlider(juce::Graphics &g, int x, int y, int width, i
 juce::Label *LookAndFeel::createSliderTextBox(juce::Slider &slider)
 {
     std::unique_ptr<juce::Label> label{BaseLookAndFeel::createSliderTextBox(slider)};
-
-    juce::Slider::SliderStyle style = slider.getSliderStyle();
-    if (style == juce::Slider::LinearBar) {
-        label->setColour(juce::Label::outlineColourId, juce::Colour{});
-    }
-
+    label->setColour(juce::Label::outlineColourId, juce::Colour{});
     return label.release();
 }
 
