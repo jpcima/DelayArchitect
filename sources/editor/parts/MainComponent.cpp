@@ -164,7 +164,7 @@ MainComponent::MainComponent ()
     tapEnabledButton_->setConnectedEdges (juce::Button::ConnectedOnRight);
     tapEnabledButton_->addListener (this);
 
-    tapEnabledButton_->setBounds (408, 444, 40, 32);
+    tapEnabledButton_->setBounds (408, 440, 40, 32);
 
     feedbackTapChoice_.reset (new juce::ComboBox (juce::String()));
     addAndMakeVisible (feedbackTapChoice_.get());
@@ -502,14 +502,14 @@ MainComponent::MainComponent ()
     activeTapChoice_->setTextWhenNoChoicesAvailable (juce::String());
     activeTapChoice_->addListener (this);
 
-    activeTapChoice_->setBounds (448, 444, 104, 32);
+    activeTapChoice_->setBounds (448, 440, 104, 32);
 
     tapMenuButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (tapMenuButton_.get());
     tapMenuButton_->setConnectedEdges (juce::Button::ConnectedOnLeft);
     tapMenuButton_->addListener (this);
 
-    tapMenuButton_->setBounds (552, 444, 40, 32);
+    tapMenuButton_->setBounds (552, 440, 40, 32);
 
     unknown16.reset (new juce::Label (juce::String(),
                                       TRANS("Sync")));
@@ -1017,7 +1017,7 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <TEXTBUTTON name="" id="7240b06205c10e61" memberName="tapEnabledButton_"
-              virtualName="" explicitFocusOrder="0" pos="408 444 40 32" buttonText=""
+              virtualName="" explicitFocusOrder="0" pos="408 440 40 32" buttonText=""
               connectedEdges="2" needsCallback="1" radioGroupId="0"/>
   <COMBOBOX name="" id="4376ef98cd0f798e" memberName="feedbackTapChoice_"
             virtualName="" explicitFocusOrder="0" pos="912 88 72 24" editable="0"
@@ -1165,10 +1165,10 @@ BEGIN_JUCER_METADATA
               virtualName="" explicitFocusOrder="0" pos="680 508 24 24" buttonText=""
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <COMBOBOX name="" id="61cd9161ffe3a708" memberName="activeTapChoice_" virtualName=""
-            explicitFocusOrder="0" pos="448 444 104 32" editable="0" layout="36"
+            explicitFocusOrder="0" pos="448 440 104 32" editable="0" layout="36"
             items="" textWhenNonSelected="" textWhenNoItems=""/>
   <TEXTBUTTON name="" id="923d76d9239ffb8" memberName="tapMenuButton_" virtualName=""
-              explicitFocusOrder="0" pos="552 444 40 32" buttonText="" connectedEdges="1"
+              explicitFocusOrder="0" pos="552 440 40 32" buttonText="" connectedEdges="1"
               needsCallback="1" radioGroupId="0"/>
   <LABEL name="" id="25e83144e25df24d" memberName="unknown16" virtualName=""
          explicitFocusOrder="0" pos="16 48 94 24" edTextCol="ff000000"
