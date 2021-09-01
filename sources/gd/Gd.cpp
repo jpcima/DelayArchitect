@@ -414,9 +414,9 @@ void GdFormatParameterValue(GdParameter p, float value, char *text, unsigned tex
         break;
     case GDP_TAP_A_PAN:
         if (value < 0)
-            snprintf(text, textsize, "%.2f %%L", -value);
+            snprintf(text, textsize, "%+.2f %%L", value);
         else if (value > 0)
-            snprintf(text, textsize, "%.2f %%R", value);
+            snprintf(text, textsize, "%+.2f %%R", value);
         else
             strncpy(text, "Center", textsize);
         if (textsize > 0)
