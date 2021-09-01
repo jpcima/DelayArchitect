@@ -159,7 +159,52 @@ void LookAndFeel::drawLinearSlider(juce::Graphics &g, int x, int y, int width, i
         return;
     }
 
+    if (style == juce::Slider::LinearHorizontal || style == juce::Slider::LinearVertical) {
+        float trackWidth = juce::jmin(4.0f, slider.isHorizontal() ? (float)height * 0.25f : (float)width * 0.25f);
+
+        juce::Point<float> startPoint(slider.isHorizontal() ? (float)x : (float)x + (float)width * 0.5f,
+                                      slider.isHorizontal() ? (float)y + (float)height * 0.5f : (float)(height + y));
+
+        juce::Point<float> endPoint(slider.isHorizontal() ? (float)(width + x) : startPoint.x,
+                                    slider.isHorizontal() ? startPoint.y : (float)y);
+
+        juce::Path backgroundTrack;
+        backgroundTrack.startNewSubPath(startPoint);
+        backgroundTrack.lineTo(endPoint);
+        g.setColour(slider.findColour(juce::Slider::backgroundColourId));
+        g.strokePath(backgroundTrack, { trackWidth, juce::PathStrokeType::curved, juce::PathStrokeType::rounded });
+
+        juce::Path valueTrack;
+        juce::Point<float> minPoint, maxPoint;
+
+        float kx = slider.isHorizontal() ? sliderPos : ((float) x + (float) width * 0.5f);
+        float ky = slider.isHorizontal() ? ((float) y + (float) height * 0.5f) : sliderPos;
+
+        minPoint = startPoint;
+        maxPoint = { kx, ky };
+
+        int thumbWidth = getSliderThumbRadius(slider);
+
+        valueTrack.startNewSubPath(minPoint);
+        valueTrack.lineTo(maxPoint);
+        g.setColour(slider.findColour(juce::Slider::trackColourId));
+        g.strokePath(valueTrack, { trackWidth, juce::PathStrokeType::curved, juce::PathStrokeType::rounded });
+
+        g.setColour(slider.findColour(juce::Slider::thumbColourId));
+        g.fillEllipse(juce::Rectangle<float>((float)thumbWidth, (float)thumbWidth).withCentre(maxPoint));
+
+        return;
+    }
+
     BaseLookAndFeel::drawLinearSlider(g, x, y, width, height, sliderPos, minSliderPos, maxSliderPos, style, slider);
+}
+
+int LookAndFeel::getSliderThumbRadius(juce::Slider &slider)
+{
+    return juce::jmin(
+        8, slider.isHorizontal() ?
+        (int)((float)slider.getHeight() * 0.5f) :
+        (int)((float)slider.getWidth()  * 0.5f));
 }
 
 void LookAndFeel::drawLinearSliderBackground(juce::Graphics &g, int x, int y, int width, int height, float sliderPos, float minSliderPos, float maxSliderPos, const juce::Slider::SliderStyle style, juce::Slider &slider)
