@@ -132,11 +132,11 @@ void AboutComponent::paint (juce::Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (juce::Colour (0xffefefef));
+    g.fillAll (juce::Colour (0xff262626));
 
     {
         int x = 16, y = 64, width = 568, height = 1;
-        juce::Colour fillColour = juce::Colours::black;
+        juce::Colour fillColour = juce::Colour (0x80ffffff);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
         g.setColour (fillColour);
@@ -175,8 +175,8 @@ BEGIN_JUCER_METADATA
                  parentClasses="public juce::Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="1" initialWidth="600" initialHeight="300">
-  <BACKGROUND backgroundColour="ffefefef">
-    <RECT pos="16 64 568 1" fill="solid: ff000000" hasStroke="0"/>
+  <BACKGROUND backgroundColour="ff262626">
+    <RECT pos="16 64 568 1" fill="solid: 80ffffff" hasStroke="0"/>
   </BACKGROUND>
   <LABEL name="" id="10bfc22b44c92168" memberName="juce__label" virtualName=""
          explicitFocusOrder="0" pos="16 16 216 32" edTextCol="ff000000"
