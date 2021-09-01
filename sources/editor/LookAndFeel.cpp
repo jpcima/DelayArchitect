@@ -53,7 +53,7 @@ LookAndFeel::LookAndFeel()
         /* windowBackground */  0xff2f2f3a,
         /* widgetBackground */  0xff262626 /*0xff191926*/,
         /* menuBackground */    0xffd0d0d0,
-        /* outline */           0xff66667c,
+        /* outline */           0x4066667c /*0xff66667c*/,
         /* defaultText */       0xc0ffffff /*0xc8ffffff*/,
         /* defaultFill */       0xffd8d8d8,
         /* highlightedText */   0xffffffff,
