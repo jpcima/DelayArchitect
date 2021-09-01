@@ -164,7 +164,7 @@ MainComponent::MainComponent ()
     tapEnabledButton_->setConnectedEdges (juce::Button::ConnectedOnRight);
     tapEnabledButton_->addListener (this);
 
-    tapEnabledButton_->setBounds (408, 440, 40, 32);
+    tapEnabledButton_->setBounds (904, 440, 40, 32);
 
     feedbackTapChoice_.reset (new juce::ComboBox (juce::String()));
     addAndMakeVisible (feedbackTapChoice_.get());
@@ -502,14 +502,14 @@ MainComponent::MainComponent ()
     activeTapChoice_->setTextWhenNoChoicesAvailable (juce::String());
     activeTapChoice_->addListener (this);
 
-    activeTapChoice_->setBounds (448, 440, 104, 32);
+    activeTapChoice_->setBounds (16, 440, 104, 32);
 
     tapMenuButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (tapMenuButton_.get());
     tapMenuButton_->setConnectedEdges (juce::Button::ConnectedOnLeft);
     tapMenuButton_->addListener (this);
 
-    tapMenuButton_->setBounds (552, 440, 40, 32);
+    tapMenuButton_->setBounds (944, 440, 40, 32);
 
     unknown16.reset (new juce::Label (juce::String(),
                                       TRANS("Sync")));
@@ -532,6 +532,11 @@ MainComponent::MainComponent ()
     unknown17->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
     unknown17->setBounds (16, 240, 94, 24);
+
+    tapMiniMap_.reset (new TapMiniMap());
+    addAndMakeVisible (tapMiniMap_.get());
+
+    tapMiniMap_->setBounds (136, 440, 728, 32);
 
 
     //[UserPreSize]
@@ -599,13 +604,11 @@ MainComponent::MainComponent ()
         tuneButton_.get(),
         gridChoice_.get(),
         feedbackTapChoice_.get(),
-        activeTapChoice_.get(),
         filterChoice_.get(),
     };
     juce::Component *rightExpandedComponents[] = {
         tuneButton_.get(),
         panButton_.get(),
-        activeTapChoice_.get(),
     };
     for (juce::Component *comp : leftExpandedComponents) {
         juce::Rectangle<int> bounds = comp->getBounds();
@@ -616,12 +619,16 @@ MainComponent::MainComponent ()
         comp->setBounds(bounds.withRight(bounds.getRight() + 1));
     }
 
+    //
+    tapEditScreen_->connectMiniMap(*tapMiniMap_);
+
     //[/Constructor]
 }
 
 MainComponent::~MainComponent()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
+    tapEditScreen_->disconnectMiniMap();
     //[/Destructor_pre]
 
     tapEditScreen_ = nullptr;
@@ -674,6 +681,7 @@ MainComponent::~MainComponent()
     tapMenuButton_ = nullptr;
     unknown16 = nullptr;
     unknown17 = nullptr;
+    tapMiniMap_ = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -740,6 +748,15 @@ void MainComponent::paint (juce::Graphics& g)
         //[/UserPaintCustomArguments]
         g.setColour (fillColour);
         g.fillRoundedRectangle (x, y, width, height, 1.000f);
+    }
+
+    {
+        float x = 128.0f, y = 432.0f, width = 744.0f, height = 48.0f;
+        juce::Colour fillColour = juce::Colour (0xff434343);
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 5.000f);
     }
 
     //[UserPaint] Add your own custom painting code here..
@@ -982,6 +999,8 @@ BEGIN_JUCER_METADATA
                hasStroke="0"/>
     <ROUNDRECT pos="8 232 112 192" cornerSize="1.0" fill="solid: ff333333" hasStroke="0"/>
     <ROUNDRECT pos="8 40 112 176" cornerSize="1.0" fill="solid: ff333333" hasStroke="0"/>
+    <ROUNDRECT pos="128 432 744 48" cornerSize="5.0" fill="solid: ff434343"
+               hasStroke="0"/>
   </BACKGROUND>
   <GENERICCOMPONENT name="" id="c36eda615afd52ad" memberName="tapEditScreen_" virtualName=""
                     explicitFocusOrder="0" pos="128 40 744 384" class="TapEditScreen"
@@ -1017,7 +1036,7 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <TEXTBUTTON name="" id="7240b06205c10e61" memberName="tapEnabledButton_"
-              virtualName="" explicitFocusOrder="0" pos="408 440 40 32" buttonText=""
+              virtualName="" explicitFocusOrder="0" pos="904 440 40 32" buttonText=""
               connectedEdges="2" needsCallback="1" radioGroupId="0"/>
   <COMBOBOX name="" id="4376ef98cd0f798e" memberName="feedbackTapChoice_"
             virtualName="" explicitFocusOrder="0" pos="912 88 72 24" editable="0"
@@ -1165,10 +1184,10 @@ BEGIN_JUCER_METADATA
               virtualName="" explicitFocusOrder="0" pos="680 508 24 24" buttonText=""
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <COMBOBOX name="" id="61cd9161ffe3a708" memberName="activeTapChoice_" virtualName=""
-            explicitFocusOrder="0" pos="448 440 104 32" editable="0" layout="36"
+            explicitFocusOrder="0" pos="16 440 104 32" editable="0" layout="36"
             items="" textWhenNonSelected="" textWhenNoItems=""/>
   <TEXTBUTTON name="" id="923d76d9239ffb8" memberName="tapMenuButton_" virtualName=""
-              explicitFocusOrder="0" pos="552 440 40 32" buttonText="" connectedEdges="1"
+              explicitFocusOrder="0" pos="944 440 40 32" buttonText="" connectedEdges="1"
               needsCallback="1" radioGroupId="0"/>
   <LABEL name="" id="25e83144e25df24d" memberName="unknown16" virtualName=""
          explicitFocusOrder="0" pos="16 48 94 24" edTextCol="ff000000"
@@ -1180,6 +1199,9 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Tap" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="17.0"
          kerning="0.0" bold="1" italic="0" justification="36" typefaceStyle="Bold"/>
+  <GENERICCOMPONENT name="" id="d6577bae70b2754d" memberName="tapMiniMap_" virtualName=""
+                    explicitFocusOrder="0" pos="136 440 728 32" class="TapMiniMap"
+                    params=""/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

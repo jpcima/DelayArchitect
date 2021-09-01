@@ -53,6 +53,7 @@
 #include <GdDefs.h>
 #include <juce_gui_basics/juce_gui_basics.h>
 class TapEditScreen;
+class TapMiniMap;
 //[/Headers]
 
 
@@ -148,6 +149,7 @@ private:
     std::unique_ptr<juce::TextButton> tapMenuButton_;
     std::unique_ptr<juce::Label> unknown16;
     std::unique_ptr<juce::Label> unknown17;
+    std::unique_ptr<TapMiniMap> tapMiniMap_;
 
 
     //==============================================================================

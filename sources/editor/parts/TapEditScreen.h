@@ -30,6 +30,7 @@
 #include "GdDefs.h"
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <memory>
+class TapMiniMap;
 
 //------------------------------------------------------------------------------
 enum TapEditMode {
@@ -67,6 +68,9 @@ public:
 
     TapEditScreen();
     ~TapEditScreen() override;
+
+    void connectMiniMap(TapMiniMap &miniMap);
+    void disconnectMiniMap();
 
     TapEditMode getEditMode() const noexcept;
     void setEditMode(TapEditMode mode);

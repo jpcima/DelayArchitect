@@ -45,7 +45,7 @@ struct TapEditScreen::Impl : public TapEditItem::Listener,
 
     ///
     std::unique_ptr<TapEditItem> items_[GdMaxLines];
-    std::unique_ptr<TapMiniMap> miniMap_;
+    TapMiniMap *miniMap_ = nullptr;
     juce::Range<float> timeRange_{0, 5};
     TapEditMode editMode_ = kTapEditOff;
 
@@ -139,12 +139,6 @@ TapEditScreen::TapEditScreen()
         addChildComponent(item);
     }
 
-    TapMiniMap *miniMap = new TapMiniMap;
-    impl.miniMap_.reset(miniMap);
-    miniMap->setTimeRange(impl.timeRange_, juce::dontSendNotification);
-    miniMap->addListener(&impl);
-    addAndMakeVisible(miniMap);
-
     Impl::TapLassoComponent *lasso = new Impl::TapLassoComponent;
     impl.lasso_.reset(lasso);
     addChildComponent(lasso);
@@ -165,20 +159,45 @@ TapEditScreen::TapEditScreen()
     impl.timeRangeLabel_[1]->setJustificationType(juce::Justification::right);
 
     impl.tapCaptureTimer_.reset(FunctionalTimer::create([&impl]() { impl.tickTapCapture(); }));
-    impl.miniMapUpdateTimer_.reset(FunctionalTimer::create([&impl]() { impl.updateMiniMap(); }));
 
     impl.updateTimeRangeLabels();
     impl.relayoutSubcomponents();
-    impl.scheduleUpdateMiniMap();
-
-    miniMap->toFront(false);
 }
 
 TapEditScreen::~TapEditScreen()
 {
+    disconnectMiniMap();
+
     Impl &impl = *impl_;
-    impl.miniMap_->removeListener(&impl);
     impl.lassoSelection_.removeChangeListener(&impl);
+}
+
+void TapEditScreen::connectMiniMap(TapMiniMap &miniMap)
+{
+    Impl &impl = *impl_;
+
+    if (impl.miniMap_ && impl.miniMap_ != &miniMap)
+        disconnectMiniMap();
+
+    impl.miniMap_ = &miniMap;
+
+    miniMap.setTimeRange(impl.timeRange_, juce::dontSendNotification);
+    miniMap.addListener(&impl);
+    impl.miniMapUpdateTimer_.reset(FunctionalTimer::create([&impl]() { impl.updateMiniMap(); }));
+    impl.scheduleUpdateMiniMap();
+}
+
+void TapEditScreen::disconnectMiniMap()
+{
+    Impl &impl = *impl_;
+    TapMiniMap *miniMap = impl.miniMap_;
+
+    if (!miniMap)
+        return;
+
+    impl.miniMapUpdateTimer_.reset();
+    miniMap->removeListener(&impl);
+    impl.miniMap_ = nullptr;
 }
 
 TapEditMode TapEditScreen::getEditMode() const noexcept
@@ -219,7 +238,8 @@ void TapEditScreen::setTimeRange(juce::Range<float> newTimeRange)
     impl.timeRange_ = newTimeRange;
     impl.updateAllItemSizesAndPositions();
 
-    impl.miniMap_->setTimeRange(impl.timeRange_, juce::dontSendNotification);
+    if (TapMiniMap *miniMap = impl.miniMap_)
+        miniMap->setTimeRange(impl.timeRange_, juce::dontSendNotification);
 
     impl.updateTimeRangeLabels();
     repaint();
@@ -307,9 +327,6 @@ void TapEditScreen::setOnlyTapSelected(int selectedTapNumber)
         if (selected)
             item.toFront(false);
     }
-
-    TapMiniMap &miniMap = *impl.miniMap_;
-    miniMap.toFront(false);
 }
 
 double TapEditScreen::getBPM() const
@@ -774,12 +791,7 @@ void TapEditScreen::Impl::relayoutSubcomponents()
     updateAllItemSizesAndPositions();
 
     TapEditScreen *self = self_;
-    juce::Rectangle<int> screenBounds = self->getScreenArea();
     juce::Rectangle<int> intervalsRow = self->getIntervalsRow();
-
-    TapMiniMap &miniMap = *miniMap_;
-    juce::Point<int> miniMapPosition = screenBounds.getTopRight().translated(-5, 5);
-    miniMap.setTopRightPosition(miniMapPosition.getX(), miniMapPosition.getY());
 
     juce::Point<int> timeRangeLabelPos[2] = {
         intervalsRow.getTopLeft().translated(0.0f, -timeRangeLabel_[0]->getHeight()),
@@ -799,11 +811,14 @@ void TapEditScreen::Impl::updateTimeRangeLabels()
 
 void TapEditScreen::Impl::scheduleUpdateMiniMap()
 {
-    miniMapUpdateTimer_->startTimer(1);
+    if (miniMapUpdateTimer_)
+        miniMapUpdateTimer_->startTimer(1);
 }
 
 void TapEditScreen::Impl::updateMiniMap()
 {
+    jassert(miniMap_);
+
     TapMiniMapValue miniMapValues[GdMaxLines];
     int numMiniMapValues = 0;
 
