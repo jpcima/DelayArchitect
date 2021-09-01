@@ -66,6 +66,7 @@ LookAndFeel::LookAndFeel()
     setColour(juce::TextButton::textColourOnId, juce::Colour(0x00, 0x00, 0x00));
     setColour(juce::TooltipWindow::textColourId, juce::Colour(0x00, 0x00, 0x00));
     setColour(juce::TooltipWindow::outlineColourId, juce::Colour(0x00, 0x00, 0x00));
+    setColour(juce::PopupMenu::highlightedTextColourId, juce::Colour(0x00, 0x00, 0x00));
 
     ///
     setColour(TapEditScreen::lineColourId, juce::Colour(0xff, 0xff, 0xff).withAlpha(0.5f));
