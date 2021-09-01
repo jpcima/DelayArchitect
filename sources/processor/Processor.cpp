@@ -364,11 +364,13 @@ void Processor::Impl::audioProcessorParameterChanged(AudioProcessor *processor, 
     (void)processor;
 
     Processor *self = self_;
-    const auto &parameter = static_cast<const juce::RangedAudioParameter &>(*self->getParameters()[(int)parameterIndex]);
-    newValue = parameter.convertFrom0to1(newValue);
-
     Gd *gd = gd_.get();
-    GdSetParameter(gd, (GdParameter)parameterIndex, newValue);
+
+    if (gd) {
+        const auto &parameter = static_cast<const juce::RangedAudioParameter &>(*self->getParameters()[(int)parameterIndex]);
+        newValue = parameter.convertFrom0to1(newValue);
+        GdSetParameter(gd, (GdParameter)parameterIndex, newValue);
+    }
 }
 
 void Processor::Impl::audioProcessorChanged(AudioProcessor *processor, const ChangeDetails &details)
