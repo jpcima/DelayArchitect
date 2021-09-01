@@ -71,11 +71,6 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
-    - uses: apple-actions/import-codesign-certs@v1
-      if: github.event_name != 'pull_request'
-      with:
-        p12-file-base64: ${{ secrets.CERTIFICATES_P12 }}
-        p12-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
     - name: Create Build Environment
       working-directory: ${{runner.workspace}}
       run: cmake -E make_directory build
@@ -86,10 +81,16 @@ jobs:
     - name: Build
       working-directory: ${{runner.workspace}}/build
       run: cmake --build . --config "${BUILD_TYPE}" -j 2
+    - uses: apple-actions/import-codesign-certs@v1
+      if: github.event_name != 'pull_request'
+      with:
+        p12-file-base64: ${{ secrets.CERTIFICATES_P12 }}
+        p12-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
     - name: Sign
+      if: github.event_name != 'pull_request'
       working-directory: ${{runner.workspace}}/build
       run: |
-        codesign --sign "${CODESIGN_IDENTITY}" --deep --force --verbose *_artefacts/"${BUILD_TYPE}"/VST3/*.vst3 *_artefacts/"${BUILD_TYPE}"/AU/*.component
+        codesign --sign "${CODESIGN_IDENTITY}" --keychain signing_temp.keychain --deep --force --verbose *_artefacts/"${BUILD_TYPE}"/VST3/*.vst3 *_artefacts/"${BUILD_TYPE}"/AU/*.component
     - name: Print file list
       working-directory: ${{runner.workspace}}/build
       run: ls -lR
