@@ -130,7 +130,7 @@ MainComponent::MainComponent ()
     firstTapButton_->setButtonText (TRANS("Start tap"));
     firstTapButton_->addListener (this);
 
-    firstTapButton_->setBounds (16, 280, 96, 56);
+    firstTapButton_->setBounds (16, 272, 96, 56);
 
     lastTapButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (lastTapButton_.get());
@@ -531,7 +531,7 @@ MainComponent::MainComponent ()
     unknown17->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     unknown17->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    unknown17->setBounds (16, 240, 94, 24);
+    unknown17->setBounds (16, 232, 94, 24);
 
     tapMiniMap_.reset (new TapMiniMap());
     addAndMakeVisible (tapMiniMap_.get());
@@ -746,7 +746,7 @@ void MainComponent::paint (juce::Graphics& g)
     }
 
     {
-        float x = 8.0f, y = 232.0f, width = 112.0f, height = 192.0f;
+        float x = 8.0f, y = 224.0f, width = 112.0f, height = 200.0f;
         juce::Colour fillColour = juce::Colour (0xff333333);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
@@ -1010,7 +1010,7 @@ BEGIN_JUCER_METADATA
                hasStroke="0"/>
     <ROUNDRECT pos="880 240 112 184" cornerSize="1.0" fill="solid: ff333333"
                hasStroke="0"/>
-    <ROUNDRECT pos="8 232 112 192" cornerSize="1.0" fill="solid: ff333333" hasStroke="0"/>
+    <ROUNDRECT pos="8 224 112 200" cornerSize="1.0" fill="solid: ff333333" hasStroke="0"/>
     <ROUNDRECT pos="8 40 112 176" cornerSize="1.0" fill="solid: ff333333" hasStroke="0"/>
     <ROUNDRECT pos="128 432 744 48" cornerSize="5.0" fill="solid: ff434343"
                hasStroke="0"/>
@@ -1034,7 +1034,7 @@ BEGIN_JUCER_METADATA
               explicitFocusOrder="0" pos="704 8 136 24" buttonText="Level"
               connectedEdges="1" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="43aa27172b96c021" memberName="firstTapButton_" virtualName=""
-              explicitFocusOrder="0" pos="16 280 96 56" buttonText="Start tap"
+              explicitFocusOrder="0" pos="16 272 96 56" buttonText="Start tap"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="66ad3e0b5c14c7ae" memberName="lastTapButton_" virtualName=""
               explicitFocusOrder="0" pos="16 352 96 56" buttonText="Last tap"
@@ -1208,7 +1208,7 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="17.0"
          kerning="0.0" bold="1" italic="0" justification="36" typefaceStyle="Bold"/>
   <LABEL name="" id="a863161c796ae24c" memberName="unknown17" virtualName=""
-         explicitFocusOrder="0" pos="16 240 94 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="16 232 94 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Tap" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="17.0"
          kerning="0.0" bold="1" italic="0" justification="36" typefaceStyle="Bold"/>
