@@ -1674,7 +1674,10 @@ void TapMiniMap::paint(juce::Graphics &g)
         float y1 = (float)innerBounds.getY() + (1.0f - mmv.range.getEnd()) * (float)innerBounds.getHeight();
         float y2 = (float)innerBounds.getY() + (1.0f - mmv.range.getStart()) * (float)innerBounds.getHeight();
         float barWidth = 2.0f;
+        float minBarHeight = 2.0f;
         juce::Rectangle<float> barBounds = juce::Rectangle<float>::leftTopRightBottom(x - barWidth / 2, y1, x + barWidth / 2, y2);
+        if (barBounds.getHeight() < minBarHeight)
+            barBounds.expand(0.0f, (minBarHeight - barBounds.getHeight()) / 2.0f);
         g.setColour(barColour);
         g.fillRect(barBounds);
     }
