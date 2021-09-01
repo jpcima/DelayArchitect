@@ -164,7 +164,7 @@ MainComponent::MainComponent ()
     tapEnabledButton_->setConnectedEdges (juce::Button::ConnectedOnRight);
     tapEnabledButton_->addListener (this);
 
-    tapEnabledButton_->setBounds (904, 440, 40, 32);
+    tapEnabledButton_->setBounds (880, 440, 52, 32);
 
     feedbackTapChoice_.reset (new juce::ComboBox (juce::String()));
     addAndMakeVisible (feedbackTapChoice_.get());
@@ -509,7 +509,7 @@ MainComponent::MainComponent ()
     tapMenuButton_->setConnectedEdges (juce::Button::ConnectedOnLeft);
     tapMenuButton_->addListener (this);
 
-    tapMenuButton_->setBounds (944, 440, 40, 32);
+    tapMenuButton_->setBounds (932, 440, 52, 32);
 
     unknown16.reset (new juce::Label (juce::String(),
                                       TRANS("Sync")));
@@ -987,7 +987,7 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MainComponent" componentName=""
                  parentClasses="public juce::Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 snapPixels="4" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="1" initialWidth="1000" initialHeight="552">
   <BACKGROUND backgroundColour="ff262626">
     <ROUNDRECT pos="128 40 744 384" cornerSize="5.0" fill="solid: ff434343"
@@ -1036,7 +1036,7 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <TEXTBUTTON name="" id="7240b06205c10e61" memberName="tapEnabledButton_"
-              virtualName="" explicitFocusOrder="0" pos="904 440 40 32" buttonText=""
+              virtualName="" explicitFocusOrder="0" pos="880 440 52 32" buttonText=""
               connectedEdges="2" needsCallback="1" radioGroupId="0"/>
   <COMBOBOX name="" id="4376ef98cd0f798e" memberName="feedbackTapChoice_"
             virtualName="" explicitFocusOrder="0" pos="912 88 72 24" editable="0"
@@ -1187,7 +1187,7 @@ BEGIN_JUCER_METADATA
             explicitFocusOrder="0" pos="16 440 104 32" editable="0" layout="36"
             items="" textWhenNonSelected="" textWhenNoItems=""/>
   <TEXTBUTTON name="" id="923d76d9239ffb8" memberName="tapMenuButton_" virtualName=""
-              explicitFocusOrder="0" pos="944 440 40 32" buttonText="" connectedEdges="1"
+              explicitFocusOrder="0" pos="932 440 52 32" buttonText="" connectedEdges="1"
               needsCallback="1" radioGroupId="0"/>
   <LABEL name="" id="25e83144e25df24d" memberName="unknown16" virtualName=""
          explicitFocusOrder="0" pos="16 48 94 24" edTextCol="ff000000"
