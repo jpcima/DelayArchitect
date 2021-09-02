@@ -86,7 +86,7 @@ double Processor::getLastKnownBPM() const
 {
     Impl &impl = *impl_;
     double bpm = impl.lastKnownBpm_;
-    return (bpm != 1.0) ? bpm : 120.0;
+    return (bpm != -1.0) ? bpm : 120.0;
 }
 
 void Processor::setCurrentPresetName(const juce::String &newName)
