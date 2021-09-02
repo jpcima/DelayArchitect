@@ -42,6 +42,8 @@ private:
     float sampleRate_ = 0;
     float cutoff_ = 0;
     const float *coeffs_ = GdFilterDataAA::BA;
+
+    static const float *neutralCoeffs_;
 };
 
 #include "GdFilterAA.hpp"

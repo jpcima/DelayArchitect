@@ -18,6 +18,19 @@
  */
 
 #include "GdFilterAA.h"
+#include <array>
+
+const float *GdFilterAA::neutralCoeffs_ = []() -> const float * {
+    static std::array<float, 5 * NS + 1> coeffs;
+    float *cptr = coeffs.data();
+    for (unsigned nthSection = 0; nthSection < NS; ++nthSection) {
+        *cptr++ = 1.0f; *cptr++ = 0.0f; *cptr++ = 0.0f;
+        *cptr++ = 0.0f; *cptr++ = 0.0f;
+    }
+    *cptr++ = 1.0f;
+    return coeffs.data();
+}();
+
 
 void GdFilterAA::setSampleRate(float newSampleRate)
 {
@@ -40,10 +53,15 @@ void GdFilterAA::setCutoff(float newCutoff)
 void GdFilterAA::updateCoeffs()
 {
     float F = cutoff_ / sampleRate_;
-    int index = (int)(0.5f + (NF - 1) * ((F - F0) / (F1 - F0)));
-    index = (index < 0) ? 0 : index;
-    index = (index > NF - 1) ? (NF - 1) : index;
-    coeffs_ = GdFilterDataAA::BA + (unsigned)index * (5 * NS + 1);
+    if (F >= 0.5f) {
+        coeffs_ = neutralCoeffs_;
+    }
+    else {
+        int index = (int)(0.5f + (NF - 1) * ((F - F0) / (F1 - F0)));
+        index = (index < 0) ? 0 : index;
+        index = (index > NF - 1) ? (NF - 1) : index;
+        coeffs_ = GdFilterDataAA::BA + (unsigned)index * (5 * NS + 1);
+    }
 }
 
 void GdFilterAA::process(const float *input, float *output, unsigned count)
