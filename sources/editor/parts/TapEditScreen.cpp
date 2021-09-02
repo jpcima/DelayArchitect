@@ -629,6 +629,7 @@ void TapEditScreen::paint(juce::Graphics &g)
         for (int i = 0; ; ++i) {
             float d = GdGetGridTick(i, div, swing, bpm);
             float x = getXForDelay(d);
+            if (x < (float)screenBounds.getX()) continue;
             if (x > (float)intervalsRow.getRight()) break;
             g.setColour((i % superMajorDiv == 0) ? superMajorIntervalTickColour :
                         (i % majorDiv == 0) ? majorIntervalTickColour :
