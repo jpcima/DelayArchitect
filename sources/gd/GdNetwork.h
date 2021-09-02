@@ -114,7 +114,7 @@ private:
         LinearSmoother smoothHpfCutoff_;
         LinearSmoother smoothResonanceLinear_;
         LinearSmoother smoothShiftLinear_;
-        LinearSmoother smoothPan_;
+        LinearSmoother smoothPanNormalized_;
         LinearSmoother smoothWidth_;
         enum { kNumSmoothers = 8 };
         std::array<LinearSmoother *, kNumSmoothers> getSmoothers();

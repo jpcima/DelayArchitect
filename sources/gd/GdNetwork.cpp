@@ -179,7 +179,10 @@ void GdNetwork::setParameter(unsigned parameter, float value)
         case GDP_TAP_A_PAN:
             tapControl.pan_ = value / 100.0f;
         tap_pan:
-            tapControl.smoothPan_.setTarget(tapControl.flip_ ? -tapControl.pan_ : tapControl.pan_);
+            {
+                float flipped = tapControl.flip_ ? -tapControl.pan_ : tapControl.pan_;
+                tapControl.smoothPanNormalized_.setTarget((flipped + 1) / 2);
+            }
             break;
         case GDP_TAP_A_WIDTH:
             tapControl.width_ = value / 100.0f;
@@ -270,7 +273,7 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
             tapControl.smoothLevelLinear_.nextBlock(level, count);
 
             // calculate pan
-            tapControl.smoothPan_.nextBlock(pan, count);
+            tapControl.smoothPanNormalized_.nextBlock(pan, count);
 
             // calculate width (stereo only)
             if (numInputs == 2)
@@ -361,7 +364,7 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
             tapControl.smoothLevelLinear_.nextBlock(level, count);
 
             // calculate pan
-            tapControl.smoothPan_.nextBlock(pan, count);
+            tapControl.smoothPanNormalized_.nextBlock(pan, count);
 
             // calculate width (stereo only)
             if (numInputs == 2)
@@ -408,7 +411,6 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
 //==============================================================================
 static inline simde__m128 calcStereoPanGains(float value)
 {
-    value = 0.5f * (value + 1.0f);
     simde__m128 x = simde_mm_setr_ps(1.0f - value, value, 0.0f, 0.0f);
     simde__m128 y = simde_mm_sqrt_ps(x);
     return y;
@@ -535,7 +537,7 @@ auto GdNetwork::TapControl::getSmoothers() -> std::array<LinearSmoother *, kNumS
         &smoothHpfCutoff_,
         &smoothResonanceLinear_,
         &smoothShiftLinear_,
-        &smoothPan_,
+        &smoothPanNormalized_,
         &smoothWidth_,
     }};
 }
