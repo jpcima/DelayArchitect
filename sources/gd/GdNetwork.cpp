@@ -428,6 +428,7 @@ void GdNetwork::mixMonoToStereo(unsigned tapIndex, const float *input, const flo
     float *rightOutput = outputs[1];
 
     unsigned i = 0;
+
     for (; i + 3 < count; i += 4) {
         simde__m128 pan = simde_mm_load_ps(&pans[i]);
         simde__m128 panGainLeft = calcPanGainsPS(simde_mm_sub_ps(simde_mm_set1_ps(1.0f), pan));
