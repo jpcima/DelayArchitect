@@ -375,3 +375,15 @@ void LookAndFeel::drawTooltip(juce::Graphics &g, const juce::String &text, int w
     layoutTooltipText(text, findColour(juce::TooltipWindow::textColourId))
         .draw(g, { (float)width, (float)height });
 }
+
+juce::MouseCursor LookAndFeel::createPencilCursor()
+{
+    Impl &impl = *impl_;
+    fontaudio::IconHelper &fad = *impl.fontAudio_;
+
+    int height = 20;
+    juce::Image img = fad.getIcon(fontaudio::Pen, (float)height, juce::Colours::white);
+    juce::Point<int> hotspot{0, height};
+
+    return juce::MouseCursor(img, hotspot.getX(), hotspot.getY());
+}

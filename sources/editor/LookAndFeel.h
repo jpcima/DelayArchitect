@@ -27,12 +27,14 @@
  */
 
 #pragma once
+#include "editor/parts/TapEditScreen.h"
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <memory>
 
 using BaseLookAndFeel = juce::LookAndFeel_V4;
 
-class LookAndFeel final : public BaseLookAndFeel {
+class LookAndFeel final : public BaseLookAndFeel,
+                          public TapEditScreen::LookAndFeelMethods {
 public:
     LookAndFeel();
     ~LookAndFeel() override;
@@ -58,6 +60,8 @@ public:
     juce::PopupMenu::Options getOptionsForComboBoxPopupMenu(juce::ComboBox &combo, juce::Label &label) override;
 
     void drawTooltip(juce::Graphics &g, const juce::String &text, int width, int height) override;
+
+    juce::MouseCursor createPencilCursor() override;
 
 private:
     struct Impl;

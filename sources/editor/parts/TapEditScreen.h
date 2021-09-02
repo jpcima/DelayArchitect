@@ -66,6 +66,12 @@ public:
         editLevelBaseColourId,
     };
 
+    class LookAndFeelMethods {
+    public:
+        virtual ~LookAndFeelMethods() {}
+        virtual juce::MouseCursor createPencilCursor() { return {}; }
+    };
+
     TapEditScreen();
     ~TapEditScreen() override;
 
@@ -167,6 +173,8 @@ public:
     bool isTapSelected() const;
     void setTapSelected(bool selected);
 
+    void pencilAt(juce::Point<int> pos, juce::ModifierKeys mods);
+
     class Listener {
     public:
         virtual ~Listener() {}
@@ -181,6 +189,7 @@ public:
 
 protected:
     void paint(juce::Graphics &g) override;
+    bool hitTest(int x, int y) override;
     void mouseDown(const juce::MouseEvent &e) override;
     void mouseUp(const juce::MouseEvent &e) override;
     void mouseDrag(const juce::MouseEvent &e) override;

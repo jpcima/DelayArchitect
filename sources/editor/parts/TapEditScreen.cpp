@@ -86,9 +86,14 @@ struct TapEditScreen::Impl : public TapEditItem::Listener,
     juce::SelectedItemSet<TapEditItem *> lassoSelection_;
 
     ///
+    juce::MouseCursor pencilCursor_;
+    juce::ModifierKeys pencilModifiers_;
+
+    ///
     enum {
         kStatusNormal,
         kStatusClicked,
+        kStatusPencil,
         kStatusLasso,
     };
     int status_ = kStatusNormal;
@@ -111,6 +116,7 @@ struct TapEditScreen::Impl : public TapEditItem::Listener,
     void updateTimeRangeLabels();
     void scheduleUpdateMiniMap();
     void updateMiniMap();
+    void pencilAt(juce::Point<float> position, juce::ModifierKeys mods);
 
     ///
     void tapEditStarted(TapEditItem *item, GdParameter id) override;
@@ -162,6 +168,10 @@ TapEditScreen::TapEditScreen()
 
     impl.updateTimeRangeLabels();
     impl.relayoutSubcomponents();
+
+    if (LookAndFeelMethods *lm = dynamic_cast<LookAndFeelMethods *>(&getLookAndFeel())) {
+        impl.pencilCursor_ = lm->createPencilCursor();
+    }
 }
 
 TapEditScreen::~TapEditScreen()
@@ -663,16 +673,24 @@ void TapEditScreen::mouseDown(const juce::MouseEvent &e)
     Impl &impl = *impl_;
     juce::Rectangle<int> intervalsRow = getIntervalsRow();
 
-    if (intervalsRow.toFloat().contains(e.position)) {
-        float delay = alignDelayToGrid(getDelayForX(e.position.getX()));
-        int tapNumber = impl.findUnusedTap();
-        if (tapNumber != -1) {
-            impl.createNewTap(tapNumber, delay);
-            setOnlyTapSelected(tapNumber);
+    if (impl.status_ == Impl::kStatusNormal) {
+        if (intervalsRow.toFloat().contains(e.position)) {
+            float delay = alignDelayToGrid(getDelayForX(e.position.getX()));
+            int tapNumber = impl.findUnusedTap();
+            if (tapNumber != -1) {
+                impl.createNewTap(tapNumber, delay);
+                setOnlyTapSelected(tapNumber);
+            }
         }
-    }
-    else {
-        impl.status_ = Impl::kStatusClicked;
+        else if (e.mods.isShiftDown()) {
+            setMouseCursor(impl.pencilCursor_);
+            impl.status_ = Impl::kStatusPencil;
+            impl.pencilModifiers_ = e.mods;
+            impl.pencilAt(e.position, e.mods);
+        }
+        else {
+            impl.status_ = Impl::kStatusClicked;
+        }
     }
 }
 
@@ -685,6 +703,10 @@ void TapEditScreen::mouseUp(const juce::MouseEvent &e)
     switch (impl.status_) {
     case Impl::kStatusClicked:
         setAllTapsSelected(false);
+        impl.status_ = Impl::kStatusNormal;
+        break;
+    case Impl::kStatusPencil:
+        setMouseCursor(juce::MouseCursor::NormalCursor);
         impl.status_ = Impl::kStatusNormal;
         break;
     case Impl::kStatusLasso:
@@ -702,6 +724,9 @@ void TapEditScreen::mouseDrag(const juce::MouseEvent &e)
     case Impl::kStatusClicked:
         impl.lasso_->beginLasso(e, impl.lassoSource_.get());
         impl.status_ = Impl::kStatusLasso;
+        break;
+    case Impl::kStatusPencil:
+        impl.pencilAt(e.position, impl.pencilModifiers_);
         break;
     case Impl::kStatusLasso:
         impl.lasso_->dragLasso(e);
@@ -833,6 +858,36 @@ void TapEditScreen::Impl::updateMiniMap()
     miniMap.displayValues(miniMapValues, numMiniMapValues);
 
     miniMapUpdateTimer_->stopTimer();
+}
+
+void TapEditScreen::Impl::pencilAt(juce::Point<float> position, juce::ModifierKeys mods)
+{
+    TapEditScreen *self = self_;
+
+    // find the nearest tap among these which contain our pencil cursor
+    int matchNumber = -1;
+    int matchDistance = 0;
+
+    for (int itemNumber = 0; itemNumber < GdMaxLines; ++itemNumber) {
+        TapEditItem &item = *items_[itemNumber];
+        if (!item.isVisible())
+            continue;
+        juce::Rectangle<int> ib = item.getLocalBounds();
+        juce::Point<int> pt = item.getLocalPoint(self, position).roundToInt();
+        if (pt.getX() < 0 || pt.getX() > ib.getRight())
+            continue;
+        int distance = std::abs(pt.getX() - ib.getCentreX());
+        if (matchNumber == -1 || distance < matchDistance) {
+            matchNumber = itemNumber;
+            matchDistance = distance;
+        }
+    }
+
+    if (matchNumber == -1)
+        return;
+
+    TapEditItem &item = *items_[matchNumber];
+    item.pencilAt(item.getLocalPoint(self, position).roundToInt(), mods);
 }
 
 void TapEditScreen::Impl::tapEditStarted(TapEditItem *, GdParameter id)
@@ -1247,6 +1302,30 @@ void TapEditItem::setTapSelected(bool selected)
     repaint();
 }
 
+void TapEditItem::pencilAt(juce::Point<int> pos, juce::ModifierKeys mods)
+{
+    Impl &impl = *impl_;
+
+    juce::Slider *slider = impl.getSliderForEditMode(impl.editMode_);
+    if (!slider)
+        return;
+
+    juce::Point<int> sliderPos = slider->getLocalPoint(this, pos);
+    double proportion = 1.0 - ((double)sliderPos.getY() / (double)slider->getHeight());
+    double value = slider->proportionOfLengthToValue(proportion);
+
+    if (slider->isTwoValue()) {
+        if (mods.isRightButtonDown())
+            slider->setMaxValue(value);
+        else
+            slider->setMinValue(value);
+    }
+    else if (slider->isThreeValue())
+        jassertfalse;
+    else
+        slider->setValue(value);
+}
+
 void TapEditItem::addListener(Listener *listener)
 {
     Impl &impl = *impl_;
@@ -1287,6 +1366,15 @@ void TapEditItem::paint(juce::Graphics &g)
     g.fillRoundedRectangle(labelBounds.toFloat(), 3.0f);
     g.setColour(tapLabelTextColour);
     g.drawText(labelTextCstr, labelBounds, juce::Justification::centred);
+}
+
+bool TapEditItem::hitTest(int x, int y)
+{
+    // let the screen receive shift+click, in order to operate in draw mode
+    if (juce::ModifierKeys::currentModifiers.isShiftDown())
+        return false;
+
+    return juce::Component::hitTest(x, y);
 }
 
 void TapEditItem::mouseDown(const juce::MouseEvent &e)
