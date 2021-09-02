@@ -480,8 +480,8 @@ void GdNetwork::mixStereoToStereo(unsigned tapIndex, const float *const inputs[]
         simde__m128 side = simde_mm_mul_ps(simde_mm_set1_ps(0.5f), simde_mm_sub_ps(rightSample, leftSample));
         simde__m128 width = simde_mm_load_ps(&widths[i]);
         simde__m128 att = simde_mm_max_ps(simde_mm_add_ps(simde_mm_set1_ps(1.0f), width), simde_mm_set1_ps(2.0f));
-        leftSample = simde_mm_div_ps(mid - width * side, att);
-        rightSample = simde_mm_div_ps(mid + width * side, att);
+        leftSample = simde_mm_div_ps(simde_mm_sub_ps(mid, simde_mm_mul_ps(width, side)), att);
+        rightSample = simde_mm_div_ps(simde_mm_add_ps(mid, simde_mm_mul_ps(width, side)), att);
 
         simde_mm_storeu_ps(&leftOutput[i], simde_mm_add_ps(simde_mm_loadu_ps(&leftOutput[i]), leftSample));
         simde_mm_storeu_ps(&rightOutput[i], simde_mm_add_ps(simde_mm_loadu_ps(&rightOutput[i]), rightSample));
