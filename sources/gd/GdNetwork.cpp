@@ -419,8 +419,6 @@ static inline simde__m128 calcStereoPanGains(float value)
 //==============================================================================
 void GdNetwork::mixMonoToStereo(unsigned tapIndex, const float *input, const float *level, const float *pans, const float *wet, float *const outputs[], unsigned count)
 {
-    // TODO level
-
     float *leftOutput = outputs[0];
     float *rightOutput = outputs[1];
 
@@ -439,8 +437,6 @@ void GdNetwork::mixMonoToStereo(unsigned tapIndex, const float *input, const flo
 
 void GdNetwork::mixStereoToStereo(unsigned tapIndex, const float *const inputs[], const float *level, const float *pans, const float *widths, const float *wet, float *const outputs[], unsigned count)
 {
-    // TODO level
-
     const float *leftInput = inputs[0];
     const float *rightInput = inputs[1];
     float *leftOutput = outputs[0];
