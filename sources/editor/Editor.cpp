@@ -127,10 +127,10 @@ Editor::Editor(Processor &p)
 
     juce::PopupMenu *mainMenu = new juce::PopupMenu;
     impl.mainMenu_.reset(mainMenu);
-    mainMenu->addItem(TRANS("Load preset"), [&impl]() { impl.choosePresetFileToLoad(); });
-    mainMenu->addItem(TRANS("Save preset"), [&impl]() { impl.choosePresetFileToSave(); });
+    mainMenu->addItem(TRANS("Load patch"), [&impl]() { impl.choosePresetFileToLoad(); });
+    mainMenu->addItem(TRANS("Save patch"), [&impl]() { impl.choosePresetFileToSave(); });
     mainMenu->addSeparator();
-    mainMenu->addItem(TRANS("Import preset"), [&impl]() { impl.choosePresetFileToImport(); });
+    mainMenu->addItem(TRANS("Import patch"), [&impl]() { impl.choosePresetFileToImport(); });
     mainMenu->addSeparator();
     mainMenu->addItem(TRANS("Recall defaults"), [&impl]() { impl.loadPreset(PresetFile::makeDefault()); });
     mainMenu->addSeparator();
