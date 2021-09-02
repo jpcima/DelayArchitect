@@ -52,15 +52,15 @@ LookAndFeel::LookAndFeel()
     static_assert(BaseLookAndFeel::ColourScheme::numColours == 9, "unexpected number of colors");
 
     BaseLookAndFeel::ColourScheme cs = {
-        /* windowBackground */  0xff2f2f3a,
-        /* widgetBackground */  0xff262626 /*0xff191926*/,
-        /* menuBackground */    0xffd0d0d0,
-        /* outline */           0x4066667c /*0xff66667c*/,
-        /* defaultText */       0xc0ffffff /*0xc8ffffff*/,
-        /* defaultFill */       0xffd8d8d8,
-        /* highlightedText */   0xffffffff,
-        /* highlightedFill */   0xffecb336 /*0xff606073*/,
-        /* menuText */          0xff000000,
+        /* windowBackground */  0xff2f2f3au,
+        /* widgetBackground */  0xff262626u /*0xff191926u*/,
+        /* menuBackground */    0xffd0d0d0u,
+        /* outline */           0x4066667cu /*0xff66667cu*/,
+        /* defaultText */       0xc0ffffffu /*0xc8ffffffu*/,
+        /* defaultFill */       0xffd8d8d8u,
+        /* highlightedText */   0xffffffffu,
+        /* highlightedFill */   0xffecb336u /*0xff606073u*/,
+        /* menuText */          0xff000000u,
     };
 
     setColourScheme(cs);
