@@ -23,6 +23,7 @@ find_package(PkgConfig)
 add_subdirectory("thirdparty/JUCE" EXCLUDE_FROM_ALL)
 juce_add_module("thirdparty/fontaudio/wrappers/juce/module/fontaudio")
 
+option(GD_COPY_AFTER_BUILD "Copy after build" OFF)
 option(GD_BENCHMARKS "Build benchmarks" OFF)
 set(GD_PITCH_SHIFTER_TYPE "SuperCollider" CACHE STRING "Pitch shifter implementation to use")
 set_property(CACHE GD_PITCH_SHIFTER_TYPE PROPERTY STRINGS "SuperCollider" "SoundTouch" "Simple")
@@ -45,7 +46,7 @@ juce_add_plugin(DelayArchitect
   EDITOR_WANTS_KEYBOARD_FOCUS FALSE
   VST3_CATEGORIES "Fx Delay"
   AU_MAIN_TYPE "kAudioUnitType_Effect"
-  COPY_PLUGIN_AFTER_BUILD FALSE
+  COPY_PLUGIN_AFTER_BUILD "${GD_COPY_AFTER_BUILD}"
   NEEDS_CURL FALSE
   NEEDS_WEB_BROWSER FALSE)
 
