@@ -133,7 +133,7 @@ inline void GdTapFx::performKRateUpdates(Control control, unsigned index)
 #if GD_SHIFTER_USES_AA_FILTER
     {
         GdFilterAA &shifterAA = shifterAA_;
-        shifterAA.setCutoff(shifterAA.getSampleRate() / control.shift[index]);
+        shifterAA.setCutoff(shifterAA.getSampleRate() / (2 * control.shift[index]));
     }
 #endif
 
