@@ -27,6 +27,11 @@ option(GD_BENCHMARKS "Build benchmarks" OFF)
 set(GD_PITCH_SHIFTER_TYPE "SuperCollider" CACHE STRING "Pitch shifter implementation to use")
 set_property(CACHE GD_PITCH_SHIFTER_TYPE PROPERTY STRINGS "SuperCollider" "SoundTouch" "Simple")
 
+###
+add_library(jsl INTERFACE)
+target_include_directories(jsl INTERFACE "thirdparty/jsl/include")
+
+###
 juce_add_plugin(DelayArchitect
   PLUGIN_CODE Gdly
   PLUGIN_MANUFACTURER_CODE Jpci
@@ -181,7 +186,8 @@ target_include_directories(simde
 ###
 target_link_libraries(Gd
   PRIVATE
-  simde)
+  simde
+  jsl)
 
 ###
 find_package(OpenMP)

@@ -22,6 +22,7 @@
 #include "GdTapFx.h"
 #include "GdDefs.h"
 #include "utility/LinearSmoother.h"
+#include <jsl/allocator>
 #include <array>
 #include <vector>
 #include <memory>
@@ -125,5 +126,6 @@ private:
 
     // internal
     enum { kNumTempBuffers = 16 };
-    std::array<std::vector<float>, kNumTempBuffers> temp_;
+    using TempBuffer = std::vector<float, jsl::aligned_allocator<float, 32>>;
+    std::array<TempBuffer, kNumTempBuffers> temp_;
 };

@@ -77,7 +77,7 @@ void GdNetwork::setSampleRate(float sampleRate)
 
 void GdNetwork::setBufferSize(unsigned bufferSize)
 {
-    for (std::vector<float> &temp : temp_)
+    for (TempBuffer &temp : temp_)
         temp.resize(bufferSize);
 
     for (ChannelDsp &chan : channels_)
@@ -416,13 +416,33 @@ static inline simde__m128 calcStereoPanGains(float value)
     return y;
 }
 
+static inline simde__m128 calcPanGainsPS(simde__m128 value)
+{
+    return simde_mm_sqrt_ps(value);
+}
+
 //==============================================================================
 void GdNetwork::mixMonoToStereo(unsigned tapIndex, const float *input, const float *level, const float *pans, const float *wet, float *const outputs[], unsigned count)
 {
     float *leftOutput = outputs[0];
     float *rightOutput = outputs[1];
 
-    for (unsigned i = 0; i < count; ++i) {
+    unsigned i = 0;
+    for (; i + 3 < count; i += 4) {
+        simde__m128 pan = simde_mm_load_ps(&pans[i]);
+        simde__m128 panGainLeft = calcPanGainsPS(simde_mm_sub_ps(simde_mm_set1_ps(1.0f), pan));
+        simde__m128 panGainRight = calcPanGainsPS(pan);
+
+        simde__m128 in = simde_mm_load_ps(&input[i]);
+        simde__m128 gain = simde_mm_mul_ps(simde_mm_load_ps(&wet[i]), simde_mm_load_ps(&level[i]));
+        simde__m128 leftSample = simde_mm_mul_ps(panGainLeft, simde_mm_mul_ps(in, gain));
+        simde__m128 rightSample = simde_mm_mul_ps(panGainRight, simde_mm_mul_ps(in, gain));
+
+        simde_mm_storeu_ps(&leftOutput[i], simde_mm_add_ps(simde_mm_loadu_ps(&leftOutput[i]), leftSample));
+        simde_mm_storeu_ps(&rightOutput[i], simde_mm_add_ps(simde_mm_loadu_ps(&rightOutput[i]), rightSample));
+    }
+
+    for (; i < count; ++i) {
         simde__m128 panGain = calcStereoPanGains(pans[i]);
 
         float in = input[i];
@@ -442,7 +462,31 @@ void GdNetwork::mixStereoToStereo(unsigned tapIndex, const float *const inputs[]
     float *leftOutput = outputs[0];
     float *rightOutput = outputs[1];
 
-    for (unsigned i = 0; i < count; ++i) {
+    unsigned i = 0;
+
+    for (; i + 3 < count; i += 4) {
+        simde__m128 pan = simde_mm_load_ps(&pans[i]);
+        simde__m128 panGainLeft = calcPanGainsPS(simde_mm_sub_ps(simde_mm_set1_ps(1.0f), pan));
+        simde__m128 panGainRight = calcPanGainsPS(pan);
+
+        simde__m128 gain = simde_mm_mul_ps(simde_mm_load_ps(&wet[i]), simde_mm_load_ps(&level[i]));
+        simde__m128 leftSample = simde_mm_mul_ps(panGainLeft,
+            simde_mm_mul_ps(simde_mm_load_ps(&leftInput[i]), gain));
+        simde__m128 rightSample = simde_mm_mul_ps(panGainRight,
+            simde_mm_mul_ps(simde_mm_load_ps(&rightInput[i]), gain));
+
+        simde__m128 mid = simde_mm_mul_ps(simde_mm_set1_ps(0.5f), simde_mm_add_ps(leftSample, rightSample));
+        simde__m128 side = simde_mm_mul_ps(simde_mm_set1_ps(0.5f), simde_mm_sub_ps(rightSample, leftSample));
+        simde__m128 width = simde_mm_load_ps(&widths[i]);
+        simde__m128 att = simde_mm_max_ps(simde_mm_add_ps(simde_mm_set1_ps(1.0f), width), simde_mm_set1_ps(2.0f));
+        leftSample = simde_mm_div_ps(mid - width * side, att);
+        rightSample = simde_mm_div_ps(mid + width * side, att);
+
+        simde_mm_storeu_ps(&leftOutput[i], simde_mm_add_ps(simde_mm_loadu_ps(&leftOutput[i]), leftSample));
+        simde_mm_storeu_ps(&rightOutput[i], simde_mm_add_ps(simde_mm_loadu_ps(&rightOutput[i]), rightSample));
+    }
+
+    for (; i < count; ++i) {
         simde__m128 panGain = calcStereoPanGains(pans[i]);
 
         float gain = wet[i] * level[i];
