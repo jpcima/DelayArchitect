@@ -21,7 +21,10 @@
 #include "GdFilter.h"
 #include "GdShifter.h"
 #include "GdDefs.h"
+#include "filters/GdFilterAA.h"
 #include <cstdio>
+
+#define GD_SHIFTER_USES_AA_FILTER 1
 
 class GdTapFx {
 public:
@@ -47,6 +50,9 @@ public:
 
     GdFilter lpf_;
     GdFilter hpf_;
+#if GD_SHIFTER_USES_AA_FILTER
+    GdFilterAA shifterAA_;
+#endif
     GdShifter shifter_;
 };
 
@@ -55,6 +61,9 @@ inline void GdTapFx::clear()
 {
     lpf_.clear();
     hpf_.clear();
+#if GD_SHIFTER_USES_AA_FILTER
+    shifterAA_.clear();
+#endif
     shifter_.clear();
 }
 
@@ -62,6 +71,9 @@ inline void GdTapFx::setSampleRate(float sampleRate)
 {
     lpf_.setSampleRate(sampleRate);
     hpf_.setSampleRate(sampleRate);
+#if GD_SHIFTER_USES_AA_FILTER
+    shifterAA_.setSampleRate(sampleRate);
+#endif
     shifter_.setSampleRate(sampleRate);
     clear();
 }
@@ -118,6 +130,13 @@ inline void GdTapFx::performKRateUpdates(Control control, unsigned index)
         }
     }
 
+#if GD_SHIFTER_USES_AA_FILTER
+    {
+        GdFilterAA &shifterAA = shifterAA_;
+        shifterAA.setCutoff(shifterAA.getSampleRate() / control.shift[index]);
+    }
+#endif
+
 #if GD_SHIFTER_UPDATES_AT_K_RATE
     {
         GdShifter &shifter = shifter_;
@@ -143,6 +162,15 @@ inline void GdTapFx::process(const float *input, float *output, Control control,
     }
 
     input = output;
+
+#if GD_SHIFTER_USES_AA_FILTER
+    {
+        GdFilterAA &shifterAA = shifterAA_;
+        shifterAA.process(input, output, count);
+    }
+
+    input = output;
+#endif
 
     {
         GdShifter &shifter = shifter_;
@@ -171,6 +199,15 @@ inline float GdTapFx::processOne(float input, Control control, unsigned index)
     }
 
     input = output;
+
+#if GD_SHIFTER_USES_AA_FILTER
+    {
+        GdFilterAA &shifterAA = shifterAA_;
+        output = shifterAA.processOne(input);
+    }
+
+    input = output;
+#endif
 
     {
         GdShifter &shifter = shifter_;
