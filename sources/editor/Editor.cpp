@@ -171,6 +171,9 @@ Editor::Editor(Processor &p)
             .withTargetComponent(impl_->mainComponent_->tapMenuButton_.get()));
     };
 
+    mainComponent->filterAnalogChoice_->addItem(TRANS("Digital"), 1);
+    mainComponent->filterAnalogChoice_->addItem(TRANS("Analog"), 2);
+
     setSize(mainComponent->getWidth(), mainComponent->getHeight());
     addAndMakeVisible(mainComponent);
 
@@ -297,6 +300,7 @@ void Editor::Impl::createActiveTapParameterAttachments()
     att.makeNew<juce::ButtonParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_FLIP, tapNumber)), *mainComponent->flipEnableButton_, nullptr);
     att.makeNew<juce::SliderParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_LEVEL, tapNumber)), *mainComponent->levelSlider_, nullptr);
     att.makeNew<InvertedButtonParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_MUTE, tapNumber)), *mainComponent->muteButton_, nullptr);
+    att.makeNew<juce::ComboBoxParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_FILTER_ANALOG, tapNumber)), *mainComponent->filterAnalogChoice_, nullptr);
 }
 
 void Editor::Impl::updateTapChoiceComboBoxes()

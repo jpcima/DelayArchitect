@@ -154,6 +154,7 @@ private:
     std::unique_ptr<FadGlyphButton> tapEnabledButton_;
     std::unique_ptr<FadGlyphButton> tapMenuButton_;
     std::unique_ptr<FadGlyphButton> menuButton_;
+    std::unique_ptr<juce::ComboBox> filterAnalogChoice_;
 
 
     //==============================================================================

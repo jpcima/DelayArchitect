@@ -122,6 +122,7 @@ Ignorable static constexpr float GdMinFeedbackGainDB = -64.0f;
     _(TAP_##X##_LPF_CUTOFF, (10, 22000, 0, 800, GDR_MIDPOINT), 22000, GDP_FLOAT, "Tap " #X " LPF Cutoff", "Hz", I) \
     _(TAP_##X##_HPF_CUTOFF, (10, 22000, 0, 800, GDR_MIDPOINT), 0, GDP_FLOAT, "Tap " #X " HPF Cutoff", "Hz", I) \
     _(TAP_##X##_RESONANCE, (0, 20), 0, GDP_FLOAT, "Tap " #X " Resonance", "dB", I) \
+    _(TAP_##X##_FILTER_ANALOG, (false, true), false, GDP_BOOLEAN, "Tap " #X " Filter Analog", "", I) \
     _(TAP_##X##_TUNE_ENABLE, (false, true), false, GDP_BOOLEAN, "Tap " #X " Tune Enable", "", I) \
     _(TAP_##X##_TUNE, (-1200, 1200), 0, GDP_FLOAT, "Tap " #X " Tune", "cts", I) \
     _(TAP_##X##_PAN, (-100, 100), 0, GDP_FLOAT, "Tap " #X " Pan", "%", I)       \

@@ -172,6 +172,9 @@ void GdNetwork::setParameter(unsigned parameter, float value)
             tapControl.resonanceDB_ = value;
             tapControl.smoothResonanceLinear_.setTarget(db2linear(tapControl.resonanceDB_));
             break;
+        case GDP_TAP_A_FILTER_ANALOG:
+            tapControl.filterAnalog_ = (bool)value;
+            break;
         case GDP_TAP_A_TUNE_ENABLE:
             tapControl.shiftEnable_ = (bool)value;
             goto tap_tune;
@@ -283,6 +286,7 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
 
     auto prepareFXControls = [&fxControl](TapControl &tapControl, unsigned count) {
         fxControl.filter = tapControl.filterEnable_ ? tapControl.filter_ : GdFilterOff;
+        fxControl.filterAnalog = tapControl.filterAnalog_;
         tapControl.smoothLpfCutoff_.nextBlock(fxControl.lpfCutoff, count);
         tapControl.smoothHpfCutoff_.nextBlock(fxControl.hpfCutoff, count);
         tapControl.smoothResonanceLinear_.nextBlock(fxControl.resonance, count);

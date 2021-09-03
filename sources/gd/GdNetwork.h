@@ -107,6 +107,7 @@ private:
         float lpfCutoff_ = 0;
         float hpfCutoff_ = 0;
         float resonanceDB_ = 0;
+        bool filterAnalog_ = false;
         bool shiftEnable_ = false;
         float shift_ = 0;
         float pan_ = 0;

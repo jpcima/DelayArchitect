@@ -42,6 +42,7 @@ public:
 
     struct Control {
         int filter = GdFilterOff;
+        bool filterAnalog = false;
         float *lpfCutoff = nullptr;
         float *hpfCutoff = nullptr;
         float *resonance = nullptr;
@@ -127,6 +128,7 @@ inline void GdTapFx::performKRateUpdates(Control control, unsigned index)
             }
             if (mustUpdate)
                 f.updateCoeffs();
+            f.setAnalog(control.filterAnalog);
         }
     }
 

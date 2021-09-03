@@ -223,7 +223,7 @@ MainComponent::MainComponent ()
     filterChoice_->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     filterChoice_->addListener (this);
 
-    filterChoice_->setBounds (32, 548, 108, 24);
+    filterChoice_->setBounds (32, 540, 108, 24);
 
     unknown4.reset (new juce::Label (juce::String(),
                                      TRANS("Filter")));
@@ -538,6 +538,16 @@ MainComponent::MainComponent ()
 
     menuButton_->setBounds (48, 4, 32, 32);
 
+    filterAnalogChoice_.reset (new juce::ComboBox (juce::String()));
+    addAndMakeVisible (filterAnalogChoice_.get());
+    filterAnalogChoice_->setEditableText (false);
+    filterAnalogChoice_->setJustificationType (juce::Justification::centredLeft);
+    filterAnalogChoice_->setTextWhenNothingSelected (juce::String());
+    filterAnalogChoice_->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    filterAnalogChoice_->addListener (this);
+
+    filterAnalogChoice_->setBounds (32, 568, 108, 24);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -690,6 +700,7 @@ MainComponent::~MainComponent()
     tapEnabledButton_ = nullptr;
     tapMenuButton_ = nullptr;
     menuButton_ = nullptr;
+    filterAnalogChoice_ = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -955,6 +966,11 @@ void MainComponent::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
         //[UserComboBoxCode_activeTapChoice_] -- add your combo box handling code here..
         //[/UserComboBoxCode_activeTapChoice_]
     }
+    else if (comboBoxThatHasChanged == filterAnalogChoice_.get())
+    {
+        //[UserComboBoxCode_filterAnalogChoice_] -- add your combo box handling code here..
+        //[/UserComboBoxCode_filterAnalogChoice_]
+    }
 
     //[UsercomboBoxChanged_Post]
     //[/UsercomboBoxChanged_Post]
@@ -1061,7 +1077,7 @@ BEGIN_JUCER_METADATA
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
           needsCallback="1"/>
   <COMBOBOX name="" id="a5bfb32dfcd0d098" memberName="filterChoice_" virtualName=""
-            explicitFocusOrder="0" pos="32 548 108 24" editable="0" layout="33"
+            explicitFocusOrder="0" pos="32 540 108 24" editable="0" layout="33"
             items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="" id="906ee5da5ccfb0f6" memberName="unknown4" virtualName=""
          explicitFocusOrder="0" pos="16 504 140 24" edTextCol="ff000000"
@@ -1215,6 +1231,9 @@ BEGIN_JUCER_METADATA
   <GENERICCOMPONENT name="" id="b47f9836c0b72c69" memberName="menuButton_" virtualName=""
                     explicitFocusOrder="0" pos="48 4 32 32" class="FadGlyphButton"
                     params="juce::String{}"/>
+  <COMBOBOX name="" id="cc686315cdb951b1" memberName="filterAnalogChoice_"
+            virtualName="" explicitFocusOrder="0" pos="32 568 108 24" editable="0"
+            layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
