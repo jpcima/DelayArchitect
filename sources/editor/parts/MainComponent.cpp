@@ -308,7 +308,7 @@ MainComponent::MainComponent ()
     pitchSlider_->setTextBoxStyle (juce::Slider::TextBoxBelow, false, 80, 20);
     pitchSlider_->addListener (this);
 
-    pitchSlider_->setBounds (572, 520, 96, 88);
+    pitchSlider_->setBounds (564, 520, 96, 88);
 
     unknown8.reset (new juce::Label (juce::String(),
                                      TRANS("Tune")));
@@ -319,7 +319,7 @@ MainComponent::MainComponent ()
     unknown8->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     unknown8->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    unknown8->setBounds (568, 504, 104, 24);
+    unknown8->setBounds (560, 504, 104, 24);
 
     panSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (panSlider_.get());
@@ -328,7 +328,7 @@ MainComponent::MainComponent ()
     panSlider_->setTextBoxStyle (juce::Slider::TextBoxBelow, false, 80, 20);
     panSlider_->addListener (this);
 
-    panSlider_->setBounds (684, 520, 96, 88);
+    panSlider_->setBounds (680, 520, 96, 88);
 
     unknown9.reset (new juce::Label (juce::String(),
                                      TRANS("Pan")));
@@ -339,7 +339,7 @@ MainComponent::MainComponent ()
     unknown9->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     unknown9->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    unknown9->setBounds (680, 504, 104, 24);
+    unknown9->setBounds (676, 504, 104, 24);
 
     widthSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (widthSlider_.get());
@@ -348,7 +348,7 @@ MainComponent::MainComponent ()
     widthSlider_->setTextBoxStyle (juce::Slider::TextBoxBelow, false, 80, 20);
     widthSlider_->addListener (this);
 
-    widthSlider_->setBounds (784, 520, 96, 88);
+    widthSlider_->setBounds (772, 520, 96, 88);
 
     unknown10.reset (new juce::Label (juce::String(),
                                       TRANS("Width")));
@@ -359,7 +359,7 @@ MainComponent::MainComponent ()
     unknown10->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     unknown10->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    unknown10->setBounds (792, 504, 80, 24);
+    unknown10->setBounds (780, 504, 80, 24);
 
     levelSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (levelSlider_.get());
@@ -515,37 +515,37 @@ MainComponent::MainComponent ()
     addAndMakeVisible (syncButton_.get());
     syncButton_->addListener (this);
 
-    syncButton_->setBounds (12, 44, 28, 24);
+    syncButton_->setBounds (8, 40, 32, 32);
 
     feedbackEnableButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (feedbackEnableButton_.get());
     feedbackEnableButton_->addListener (this);
 
-    feedbackEnableButton_->setBounds (884, 44, 28, 24);
+    feedbackEnableButton_->setBounds (880, 40, 32, 32);
 
     filterEnableButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (filterEnableButton_.get());
     filterEnableButton_->addListener (this);
 
-    filterEnableButton_->setBounds (16, 504, 28, 24);
+    filterEnableButton_->setBounds (12, 500, 32, 32);
 
     tuneEnableButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (tuneEnableButton_.get());
     tuneEnableButton_->addListener (this);
 
-    tuneEnableButton_->setBounds (568, 504, 28, 24);
+    tuneEnableButton_->setBounds (556, 500, 32, 32);
 
     flipEnableButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (flipEnableButton_.get());
     flipEnableButton_->addListener (this);
 
-    flipEnableButton_->setBounds (680, 504, 28, 24);
+    flipEnableButton_->setBounds (676, 500, 32, 32);
 
     muteButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (muteButton_.get());
     muteButton_->addListener (this);
 
-    muteButton_->setBounds (880, 504, 28, 24);
+    muteButton_->setBounds (876, 500, 32, 32);
 
 
     //[UserPreSize]
@@ -574,14 +574,14 @@ MainComponent::MainComponent ()
         button.setButtonText(iconName);
     };
     setupFontAudioButton(*menuButton_, 16.0f, fontaudio::HExpand);
-    setupFontAudioButton(*syncButton_, 12.0f, fontaudio::Powerswitch);
-    setupFontAudioButton(*feedbackEnableButton_, 12.0f, fontaudio::Powerswitch);
+    setupFontAudioButton(*syncButton_, 14.0f, fontaudio::Powerswitch);
+    setupFontAudioButton(*feedbackEnableButton_, 14.0f, fontaudio::Powerswitch);
     setupFontAudioButton(*tapEnabledButton_, 12.0f, fontaudio::Powerswitch);
     setupFontAudioButton(*tapMenuButton_, 12.0f, fontaudio::HExpand);
-    setupFontAudioButton(*filterEnableButton_, 12.0f, fontaudio::Powerswitch);
-    setupFontAudioButton(*tuneEnableButton_, 12.0f, fontaudio::Powerswitch);
-    setupFontAudioButton(*muteButton_, 12.0f, fontaudio::Mute);
-    setupFontAudioButton(*flipEnableButton_, 12.0f, fontaudio::Diskio);
+    setupFontAudioButton(*filterEnableButton_, 14.0f, fontaudio::Powerswitch);
+    setupFontAudioButton(*tuneEnableButton_, 14.0f, fontaudio::Powerswitch);
+    setupFontAudioButton(*muteButton_, 14.0f, fontaudio::Mute);
+    setupFontAudioButton(*flipEnableButton_, 14.0f, fontaudio::Diskio);
 
     activeTapChoice_->setScrollWheelEnabled(true);
     feedbackTapChoice_->setScrollWheelEnabled(true);
@@ -774,7 +774,25 @@ void MainComponent::paint (juce::Graphics& g)
     }
 
     {
-        float x = 554.0f, y = 500.0f, width = 432.0f, height = 108.0f;
+        float x = 556.0f, y = 500.0f, width = 112.0f, height = 108.0f;
+        juce::Colour fillColour = juce::Colour (0xff434343);
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 1.000f);
+    }
+
+    {
+        float x = 876.0f, y = 500.0f, width = 112.0f, height = 108.0f;
+        juce::Colour fillColour = juce::Colour (0xff434343);
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 1.000f);
+    }
+
+    {
+        float x = 676.0f, y = 500.0f, width = 192.0f, height = 108.0f;
         juce::Colour fillColour = juce::Colour (0xff434343);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
@@ -1024,7 +1042,11 @@ BEGIN_JUCER_METADATA
     <ROUNDRECT pos="8 40 112 204" cornerSize="1.0" fill="solid: ff333333" hasStroke="0"/>
     <ROUNDRECT pos="12 500 432 108" cornerSize="1.0" fill="solid: ff434343"
                hasStroke="0"/>
-    <ROUNDRECT pos="554 500 432 108" cornerSize="1.0" fill="solid: ff434343"
+    <ROUNDRECT pos="556 500 112 108" cornerSize="1.0" fill="solid: ff434343"
+               hasStroke="0"/>
+    <ROUNDRECT pos="876 500 112 108" cornerSize="1.0" fill="solid: ff434343"
+               hasStroke="0"/>
+    <ROUNDRECT pos="676 500 192 108" cornerSize="1.0" fill="solid: ff434343"
                hasStroke="0"/>
   </BACKGROUND>
   <GENERICCOMPONENT name="" id="c36eda615afd52ad" memberName="tapEditScreen_" virtualName=""
@@ -1131,32 +1153,32 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="16.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <SLIDER name="" id="5affa2208e6503a" memberName="pitchSlider_" virtualName="better::Slider"
-          explicitFocusOrder="0" pos="572 520 96 88" min="0.0" max="10.0"
+          explicitFocusOrder="0" pos="564 520 96 88" min="0.0" max="10.0"
           int="0.0" style="RotaryHorizontalVerticalDrag" textBoxPos="TextBoxBelow"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
           needsCallback="1"/>
   <LABEL name="" id="16005f9095f804c0" memberName="unknown8" virtualName=""
-         explicitFocusOrder="0" pos="568 504 104 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="560 504 104 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Tune" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="16.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <SLIDER name="" id="9db05a1846c0a580" memberName="panSlider_" virtualName="better::Slider"
-          explicitFocusOrder="0" pos="684 520 96 88" min="0.0" max="10.0"
+          explicitFocusOrder="0" pos="680 520 96 88" min="0.0" max="10.0"
           int="0.0" style="RotaryHorizontalVerticalDrag" textBoxPos="TextBoxBelow"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
           needsCallback="1"/>
   <LABEL name="" id="f049bece2c57a0b0" memberName="unknown9" virtualName=""
-         explicitFocusOrder="0" pos="680 504 104 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="676 504 104 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Pan" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="16.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <SLIDER name="" id="fa27f85db75faeb0" memberName="widthSlider_" virtualName="better::Slider"
-          explicitFocusOrder="0" pos="784 520 96 88" min="0.0" max="10.0"
+          explicitFocusOrder="0" pos="772 520 96 88" min="0.0" max="10.0"
           int="0.0" style="RotaryHorizontalVerticalDrag" textBoxPos="TextBoxBelow"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
           needsCallback="1"/>
   <LABEL name="" id="903c9f3b27211a0c" memberName="unknown10" virtualName=""
-         explicitFocusOrder="0" pos="792 504 80 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="780 504 80 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Width" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="16.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
@@ -1227,22 +1249,22 @@ BEGIN_JUCER_METADATA
               explicitFocusOrder="0" pos="92 8 400 24" initialText="" multiline="0"
               retKeyStartsLine="0" readonly="0" scrollbars="1" caret="1" popupmenu="1"/>
   <TEXTBUTTON name="" id="7ac12be0bb27f229" memberName="syncButton_" virtualName=""
-              explicitFocusOrder="0" pos="12 44 28 24" buttonText="" connectedEdges="0"
+              explicitFocusOrder="0" pos="8 40 32 32" buttonText="" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="e43adf889edc780a" memberName="feedbackEnableButton_"
-              virtualName="" explicitFocusOrder="0" pos="884 44 28 24" buttonText=""
+              virtualName="" explicitFocusOrder="0" pos="880 40 32 32" buttonText=""
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="7bcc36a07c5c42ff" memberName="filterEnableButton_"
-              virtualName="" explicitFocusOrder="0" pos="16 504 28 24" buttonText=""
+              virtualName="" explicitFocusOrder="0" pos="12 500 32 32" buttonText=""
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="7496b3b0f072ed02" memberName="tuneEnableButton_"
-              virtualName="" explicitFocusOrder="0" pos="568 504 28 24" buttonText=""
+              virtualName="" explicitFocusOrder="0" pos="556 500 32 32" buttonText=""
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="26aa605edc3b0e21" memberName="flipEnableButton_"
-              virtualName="" explicitFocusOrder="0" pos="680 504 28 24" buttonText=""
+              virtualName="" explicitFocusOrder="0" pos="676 500 32 32" buttonText=""
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="2f55e1ddbe6ca060" memberName="muteButton_" virtualName=""
-              explicitFocusOrder="0" pos="880 504 28 24" buttonText="" connectedEdges="0"
+              explicitFocusOrder="0" pos="876 500 32 32" buttonText="" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
