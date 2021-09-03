@@ -1004,6 +1004,7 @@ struct TapEditItem::Impl : public TapSlider::Listener,
     juce::Button *getCurrentButton() const;
     juce::Button *getButtonForEditMode(TapEditMode editMode) const;
     void updateSliderAndButtonVisibility();
+    void updateSliderPolarities();
     void repositionSlidersAndButtons();
     juce::Rectangle<int> getLabelBounds() const;
 
@@ -1311,8 +1312,10 @@ void TapEditItem::setTapValue(GdParameter id, float value, juce::NotificationTyp
             button->setToggleState((bool)value, nt);
         break;
     case GDP_TAP_A_FLIP:
-        if (juce::Button *button = impl.getButtonForEditMode(kTapEditPan))
+        if (juce::Button *button = impl.getButtonForEditMode(kTapEditPan)) {
             button->setToggleState(!(bool)value, nt);
+            impl.updateSliderPolarities();
+        }
         break;
     case GDP_TAP_A_MUTE:
         if (juce::Button *button = impl.getButtonForEditMode(kTapEditLevel))
@@ -1541,6 +1544,7 @@ void TapEditItem::resized()
 {
     Impl &impl = *impl_;
     impl.repositionSlidersAndButtons();
+    impl.updateSliderPolarities();
 }
 
 TapSlider *TapEditItem::Impl::getCurrentSlider() const
@@ -1577,6 +1581,18 @@ void TapEditItem::Impl::updateSliderAndButtonVisibility()
     for (const auto &buttonPair : buttons_) {
         juce::Button *button = buttonPair.second.get();
         button->setVisible(button == currentButton);
+    }
+}
+
+void TapEditItem::Impl::updateSliderPolarities()
+{
+    TapEditItem *self = self_;
+
+    if (TapSlider *slider = getSliderForEditMode(kTapEditPan)) {
+        juce::AffineTransform tr;
+        if (!(bool)self->getTapValue(GdRecomposeParameter(GDP_TAP_A_FLIP, itemNumber_)))
+            tr = juce::AffineTransform{}.verticalFlip((float)self->getHeight());
+        slider->setTransform(tr);
     }
 }
 
