@@ -1868,10 +1868,12 @@ void TapMiniMap::mouseDrag(const juce::MouseEvent &event)
     juce::Point<float> position = event.position;
     int status = impl.status_;
 
+    constexpr float kMinTimeRange = 0.2f;
+
     if (status == Impl::kStatusDraggingLeft) {
         juce::Rectangle<float> rangeBounds = impl.getRangeBounds();
         float minT = 0.0f;
-        float maxT = std::max(minT, impl.getDelayForX(rangeBounds.getRight()) - 0.5f);
+        float maxT = std::max(minT, impl.getDelayForX(rangeBounds.getRight()) - kMinTimeRange);
         float newT = juce::jlimit(minT, maxT, impl.getDelayForX(position.getX()));
         if (impl.timeRange_.getStart() != newT) {
             impl.timeRange_.setStart(newT);
@@ -1882,7 +1884,7 @@ void TapMiniMap::mouseDrag(const juce::MouseEvent &event)
     else if (status == Impl::kStatusDraggingRight) {
         juce::Rectangle<float> rangeBounds = impl.getRangeBounds();
         float maxT = GdMaxDelay;
-        float minT = std::min(maxT, impl.getDelayForX(rangeBounds.getX()) + 0.5f);
+        float minT = std::min(maxT, impl.getDelayForX(rangeBounds.getX()) + kMinTimeRange);
         float newT = juce::jlimit(minT, maxT, impl.getDelayForX(position.getX()));
         if (impl.timeRange_.getEnd() != newT) {
             impl.timeRange_.setEnd(newT);
