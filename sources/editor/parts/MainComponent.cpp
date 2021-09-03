@@ -239,7 +239,7 @@ MainComponent::MainComponent ()
     unknown4->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     unknown4->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    unknown4->setBounds (16, 504, 152, 24);
+    unknown4->setBounds (16, 504, 140, 24);
 
     hpfCutoffSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (hpfCutoffSlider_.get());
@@ -1096,7 +1096,7 @@ BEGIN_JUCER_METADATA
             explicitFocusOrder="0" pos="32 548 108 24" editable="0" layout="33"
             items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="" id="906ee5da5ccfb0f6" memberName="unknown4" virtualName=""
-         explicitFocusOrder="0" pos="16 504 152 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="16 504 140 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Filter" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="16.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
