@@ -1013,7 +1013,6 @@ struct TapEditItem::Impl : public TapSlider::Listener,
     void sliderDragEnded(juce::Slider *slider) override;
 
     void buttonClicked(juce::Button *button) override;
-    void buttonStateChanged(juce::Button *button) override;
 };
 
 TapEditItem::TapEditItem(TapEditScreen *screen, int itemNumber)
@@ -1690,11 +1689,6 @@ void TapEditItem::Impl::sliderDragEnded(juce::Slider *slider)
 }
 
 void TapEditItem::Impl::buttonClicked(juce::Button *button)
-{
-    (void)button;
-}
-
-void TapEditItem::Impl::buttonStateChanged(juce::Button *button)
 {
     juce::String identifier = "X-Change-ID";
 
