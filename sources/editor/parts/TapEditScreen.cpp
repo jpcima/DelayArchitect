@@ -730,6 +730,20 @@ void TapEditScreen::mouseUp(const juce::MouseEvent &e)
     }
 }
 
+void TapEditScreen::mouseMove(const juce::MouseEvent &e)
+{
+    Impl &impl = *impl_;
+
+    switch (impl.status_) {
+    case Impl::kStatusNormal:
+        if (getIntervalsRow().toFloat().contains(e.position))
+            setMouseCursor(impl.pencilCursor_);
+        else
+            setMouseCursor(juce::MouseCursor::NormalCursor);
+        break;
+    }
+}
+
 void TapEditScreen::mouseDrag(const juce::MouseEvent &e)
 {
     Impl &impl = *impl_;

@@ -131,6 +131,7 @@ protected:
     void paint(juce::Graphics &g) override;
     void mouseDown(const juce::MouseEvent &e) override;
     void mouseUp(const juce::MouseEvent &e) override;
+    void mouseMove(const juce::MouseEvent &e) override;
     void mouseDrag(const juce::MouseEvent &e) override;
     bool keyPressed(const juce::KeyPress &e) override;
     void resized() override;
