@@ -39,9 +39,21 @@ public:
     void setCutoff(Real cutoff);
     Real getResonance() const;
     void setResonance(Real resonance);
+    bool isAnalog() const;
+    void setAnalog(bool analog);
     void updateCoeffs();
     template <class T> void process(const T *input, T *output, unsigned count);
     Real processOne(Real input);
+
+    struct Linearity {
+        Real operator()(Real x) const;
+    };
+    struct SaturatingNonLinearity {
+        Real operator()(Real x) const;
+    };
+
+    template <class T, class NL> void processNL(const T *input, T *output, unsigned count);
+    template <class NL> Real processOneNL(Real input);
 
     struct Coeff1 {
         // the first order component
@@ -70,6 +82,9 @@ private:
     Real sampleRate_ = 0;
     Real cutoff_ = 0;
     Real resonance_ = 0;
+
+    // digital/analog
+    Real (GdFilter:: *processOneFunction_)(Real) = &GdFilter::processOneNL<Linearity>;
 };
 
 #include "GdFilter.hpp"

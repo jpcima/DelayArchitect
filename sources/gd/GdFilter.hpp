@@ -21,6 +21,16 @@
 #include "utility/RsqrtNL.h"
 #include <cmath>
 
+inline GdFilter::Real GdFilter::Linearity::operator()(Real x) const
+{
+    return x;
+}
+
+inline GdFilter::Real GdFilter::SaturatingNonLinearity::operator()(Real x) const
+{
+    return rsqrtNL(x);
+}
+
 inline void GdFilter::clear()
 {
     mem1_ = Mem1{};
@@ -62,15 +72,47 @@ inline void GdFilter::setResonance(Real resonance)
     resonance_ = resonance;
 }
 
+inline bool GdFilter::isAnalog() const
+{
+    return processOneFunction_ == &GdFilter::processOneNL<SaturatingNonLinearity>;
+}
+
+inline void GdFilter::setAnalog(bool analog)
+{
+    Real (GdFilter:: *function)(Real) = analog ?
+        &GdFilter::processOneNL<SaturatingNonLinearity> :
+        &GdFilter::processOneNL<Linearity>;
+
+    if (processOneFunction_ == function)
+        return;
+
+    processOneFunction_ = function;
+    clear();
+}
+
 inline GdFilter::Real GdFilter::processOne(Real input)
 {
+    return (this->*processOneFunction_)(input);
+}
+
+template <class T> inline void GdFilter::process(const T *input, T *output, unsigned count)
+{
+    if (isAnalog())
+        processNL<T, SaturatingNonLinearity>(input, output, count);
+    else
+        processNL<T, Linearity>(input, output, count);
+}
+
+template <class NL> inline GdFilter::Real GdFilter::processOneNL(Real input)
+{
     Real output;
+    NL nl;
 
     // First order part
     {
         const Coeff1 c = coeff1_;
         Mem1 m = mem1_;
-        output = c.u0 * input + c.u1 * m.x1 - c.v1 * m.y1;
+        output = c.u0 * input + nl(c.u1 * m.x1 - c.v1 * m.y1);
         m.x1 = input;
         m.y1 = output;
         mem1_ = m;
@@ -83,20 +125,20 @@ inline GdFilter::Real GdFilter::processOne(Real input)
         const Coeff2 c = coeff2_;
         Mem2 m = mem2_;
         output = m.s1 + c.b0 * input;
-        m.s1 = rsqrtNL(m.s2 + c.b1 * input - c.a1 * output);
-        m.s2 = rsqrtNL(c.b2 * input - c.a2 * output);
+        m.s1 = nl(m.s2 + c.b1 * input - c.a1 * output);
+        m.s2 = nl(c.b2 * input - c.a2 * output);
         mem2_ = m;
     }
 
     return output;
 }
 
-template <class T> void GdFilter::process(const T *input, T *output, unsigned count)
+template <class T, class NL> inline void GdFilter::processNL(const T *input, T *output, unsigned count)
 {
     GdFilter filter = *this;
 
     for (unsigned i = 0; i < count; ++i)
-        output[i] = filter.processOne((Real)input[i]);
+        output[i] = filter.processOneNL<NL>((Real)input[i]);
 
     mem1_ = filter.mem1_;
     mem2_ = filter.mem2_;
