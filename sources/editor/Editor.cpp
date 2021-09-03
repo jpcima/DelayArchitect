@@ -31,6 +31,7 @@
 #include "editor/parts/MainComponent.h"
 #include "editor/parts/AboutComponent.h"
 #include "editor/parts/TapEditScreen.h"
+#include "editor/parts/FadGlyphButton.h"
 #include "editor/parts/AdvancedTooltipWindow.h"
 #include "editor/attachments/TapParameterAttachment.h"
 #include "editor/attachments/GridParameterAttachment.h"

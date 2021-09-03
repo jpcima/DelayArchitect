@@ -49,6 +49,7 @@
 
 #include "TapEditScreen.h"
 #include "editor/LookAndFeel.h"
+#include "editor/parts/FadGlyphButton.h"
 #include <fontaudio/fontaudio.h>
 #include <array>
 #include <cstdio>
@@ -153,13 +154,6 @@ MainComponent::MainComponent ()
     unknown->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
     unknown->setBounds (448, 504, 104, 24);
-
-    tapEnabledButton_.reset (new juce::TextButton (juce::String()));
-    addAndMakeVisible (tapEnabledButton_.get());
-    tapEnabledButton_->setConnectedEdges (juce::Button::ConnectedOnRight);
-    tapEnabledButton_->addListener (this);
-
-    tapEnabledButton_->setBounds (416, 468, 32, 24);
 
     feedbackTapChoice_.reset (new juce::ComboBox (juce::String()));
     addAndMakeVisible (feedbackTapChoice_.get());
@@ -424,12 +418,6 @@ MainComponent::MainComponent ()
 
     unknown14->setBounds (16, 80, 96, 24);
 
-    menuButton_.reset (new juce::TextButton (juce::String()));
-    addAndMakeVisible (menuButton_.get());
-    menuButton_->addListener (this);
-
-    menuButton_->setBounds (48, 8, 32, 24);
-
     unknown15.reset (new juce::Label (juce::String(),
                                       TRANS("Swing")));
     addAndMakeVisible (unknown15.get());
@@ -459,13 +447,6 @@ MainComponent::MainComponent ()
     activeTapChoice_->addListener (this);
 
     activeTapChoice_->setBounds (448, 468, 104, 24);
-
-    tapMenuButton_.reset (new juce::TextButton (juce::String()));
-    addAndMakeVisible (tapMenuButton_.get());
-    tapMenuButton_->setConnectedEdges (juce::Button::ConnectedOnLeft);
-    tapMenuButton_->addListener (this);
-
-    tapMenuButton_->setBounds (552, 468, 32, 24);
 
     unknown16.reset (new juce::Label (juce::String(),
                                       TRANS("Sync")));
@@ -511,41 +492,50 @@ MainComponent::MainComponent ()
 
     patchNameEditor_->setBounds (92, 8, 400, 24);
 
-    syncButton_.reset (new juce::TextButton (juce::String()));
-    addAndMakeVisible (syncButton_.get());
-    syncButton_->addListener (this);
-
-    syncButton_->setBounds (8, 40, 32, 32);
-
-    feedbackEnableButton_.reset (new juce::TextButton (juce::String()));
-    addAndMakeVisible (feedbackEnableButton_.get());
-    feedbackEnableButton_->addListener (this);
-
-    feedbackEnableButton_->setBounds (880, 40, 32, 32);
-
-    filterEnableButton_.reset (new juce::TextButton (juce::String()));
+    filterEnableButton_.reset (new FadGlyphButton (juce::String{}));
     addAndMakeVisible (filterEnableButton_.get());
-    filterEnableButton_->addListener (this);
 
     filterEnableButton_->setBounds (12, 500, 32, 32);
 
-    tuneEnableButton_.reset (new juce::TextButton (juce::String()));
+    tuneEnableButton_.reset (new FadGlyphButton (juce::String{}));
     addAndMakeVisible (tuneEnableButton_.get());
-    tuneEnableButton_->addListener (this);
 
     tuneEnableButton_->setBounds (556, 500, 32, 32);
 
-    flipEnableButton_.reset (new juce::TextButton (juce::String()));
+    flipEnableButton_.reset (new FadGlyphButton (juce::String{}));
     addAndMakeVisible (flipEnableButton_.get());
-    flipEnableButton_->addListener (this);
 
     flipEnableButton_->setBounds (676, 500, 32, 32);
 
-    muteButton_.reset (new juce::TextButton (juce::String()));
+    muteButton_.reset (new FadGlyphButton (juce::String{}));
     addAndMakeVisible (muteButton_.get());
-    muteButton_->addListener (this);
 
     muteButton_->setBounds (876, 500, 32, 32);
+
+    feedbackEnableButton_.reset (new FadGlyphButton (juce::String{}));
+    addAndMakeVisible (feedbackEnableButton_.get());
+
+    feedbackEnableButton_->setBounds (880, 40, 32, 32);
+
+    syncButton_.reset (new FadGlyphButton (juce::String{}));
+    addAndMakeVisible (syncButton_.get());
+
+    syncButton_->setBounds (8, 40, 32, 32);
+
+    tapEnabledButton_.reset (new FadGlyphButton (juce::String{}));
+    addAndMakeVisible (tapEnabledButton_.get());
+
+    tapEnabledButton_->setBounds (416, 464, 32, 32);
+
+    tapMenuButton_.reset (new FadGlyphButton (juce::String{}));
+    addAndMakeVisible (tapMenuButton_.get());
+
+    tapMenuButton_->setBounds (552, 464, 32, 32);
+
+    menuButton_.reset (new FadGlyphButton (juce::String{}));
+    addAndMakeVisible (menuButton_.get());
+
+    menuButton_->setBounds (48, 4, 32, 32);
 
 
     //[UserPreSize]
@@ -569,19 +559,18 @@ MainComponent::MainComponent ()
     muteButton_->setClickingTogglesState(true);
     flipEnableButton_->setClickingTogglesState(true);
 
-    auto setupFontAudioButton = [](juce::TextButton &button, float textHeight, const fontaudio::IconName &iconName) {
-        LookAndFeel::setTextButtonFont(button, juce::Font("Fontaudio", textHeight, juce::Font::plain));
-        button.setButtonText(iconName);
+    auto setupFadGlyphButton = [](FadGlyphButton &button, float textHeight, const fontaudio::IconName &iconName) {
+        button.setIcon(iconName, textHeight, false, true, false);
     };
-    setupFontAudioButton(*menuButton_, 16.0f, fontaudio::HExpand);
-    setupFontAudioButton(*syncButton_, 14.0f, fontaudio::Powerswitch);
-    setupFontAudioButton(*feedbackEnableButton_, 14.0f, fontaudio::Powerswitch);
-    setupFontAudioButton(*tapEnabledButton_, 12.0f, fontaudio::Powerswitch);
-    setupFontAudioButton(*tapMenuButton_, 12.0f, fontaudio::HExpand);
-    setupFontAudioButton(*filterEnableButton_, 14.0f, fontaudio::Powerswitch);
-    setupFontAudioButton(*tuneEnableButton_, 14.0f, fontaudio::Powerswitch);
-    setupFontAudioButton(*muteButton_, 14.0f, fontaudio::Mute);
-    setupFontAudioButton(*flipEnableButton_, 14.0f, fontaudio::Diskio);
+    setupFadGlyphButton(*menuButton_, 14.0f, fontaudio::HExpand);
+    setupFadGlyphButton(*syncButton_, 14.0f, fontaudio::Powerswitch);
+    setupFadGlyphButton(*feedbackEnableButton_, 14.0f, fontaudio::Powerswitch);
+    setupFadGlyphButton(*tapEnabledButton_, 14.0f, fontaudio::Powerswitch);
+    setupFadGlyphButton(*tapMenuButton_, 14.0f, fontaudio::HExpand);
+    setupFadGlyphButton(*filterEnableButton_, 14.0f, fontaudio::Powerswitch);
+    setupFadGlyphButton(*tuneEnableButton_, 14.0f, fontaudio::Powerswitch);
+    setupFadGlyphButton(*muteButton_, 14.0f, fontaudio::Mute);
+    setupFadGlyphButton(*flipEnableButton_, 14.0f, fontaudio::Diskio);
 
     activeTapChoice_->setScrollWheelEnabled(true);
     feedbackTapChoice_->setScrollWheelEnabled(true);
@@ -606,20 +595,19 @@ MainComponent::MainComponent ()
 
     // stretch components which attach to the connected edge of a text button
     // by 1px towards the button, so it fuses into a single line
-    juce::Component *leftExpandedComponents[] = {
-        tapMenuButton_.get(),
-    };
-    juce::Component *rightExpandedComponents[] = {
-        tapEnabledButton_.get(),
-    };
-    for (juce::Component *comp : leftExpandedComponents) {
-        juce::Rectangle<int> bounds = comp->getBounds();
-        comp->setBounds(bounds.withLeft(bounds.getX() - 1));
-    }
-    for (juce::Component *comp : rightExpandedComponents) {
-        juce::Rectangle<int> bounds = comp->getBounds();
-        comp->setBounds(bounds.withRight(bounds.getRight() + 1));
-    }
+    //
+    //juce::Component *leftExpandedComponents[] = {
+    //};
+    //juce::Component *rightExpandedComponents[] = {
+    //};
+    //for (juce::Component *comp : leftExpandedComponents) {
+    //    juce::Rectangle<int> bounds = comp->getBounds();
+    //    comp->setBounds(bounds.withLeft(bounds.getX() - 1));
+    //}
+    //for (juce::Component *comp : rightExpandedComponents) {
+    //    juce::Rectangle<int> bounds = comp->getBounds();
+    //    comp->setBounds(bounds.withRight(bounds.getRight() + 1));
+    //}
 
     //
     juce::Path logoPath = juce::Drawable::parseSVGPath("M 397.05078 64.132812 C 378.80078 64.132812 359.79935 64.799479 346.66602 66.132812 C 292.79935 71.332812 243.46667 84.933854 202 105.86719 C 172.26667 121.06719 158.39987 131.06602 134.5332 154.66602 C 104.79987 184.26602 91.733073 205.46732 87.066406 231.33398 C 79.333073 275.20065 113.06576 322.40078 159.73242 332.80078 C 173.46576 335.86745 201.33372 334.80026 212.40039 330.93359 C 225.86706 326.00026 236.26732 319.59987 245.33398 310.5332 C 265.06732 290.66654 273.4668 266 269.4668 240 C 267.33346 226.66667 263.73398 219.20065 251.33398 203.33398 C 234.93398 182.13398 231.73255 172.53268 237.19922 160.66602 C 241.46589 151.33268 262.13411 135.86667 280.80078 128 C 298.53411 120.66667 312.53268 118.26641 334.66602 119.06641 C 357.33268 119.86641 365.06602 121.73372 382.66602 130.40039 C 410.53268 144.13372 422.66602 164.26719 426.66602 203.86719 C 427.46602 212.80052 428 295.2 428 438 C 428 678.53333 427.59961 665.99922 435.59961 691.19922 C 445.06628 721.33255 462.26732 740.93411 491.33398 754.80078 C 510.53398 763.86745 523.06615 766.66628 548.13281 767.59961 C 572.39948 768.53294 585.46589 766.93255 603.19922 761.19922 C 633.99922 751.06589 665.06641 730.00078 695.06641 698.80078 C 707.99974 685.33411 711.86667 678.53255 712 669.19922 C 712 662.53255 708.13255 657.33398 703.19922 657.33398 C 701.86589 657.33398 695.06758 661.20052 688.26758 665.86719 C 669.46758 678.80052 659.19922 681.46576 649.19922 675.73242 C 641.59922 671.46576 636.26641 662.39909 633.06641 647.73242 C 630.26641 635.59909 630.26732 631.73398 629.33398 443.33398 C 628.66732 328.13398 627.73359 244.4 626.93359 234 C 624.40026 203.46667 615.73333 178.13346 600 155.4668 C 591.6 143.33346 564.53385 116.80039 549.86719 106.40039 C 520.66719 85.600391 482.40026 71.199479 442.93359 66.132812 C 432.80026 64.799479 415.30078 64.132813 397.05078 64.132812 z M 247.61719 361.9043 C 240.9834 361.83516 234.4 362.12578 228 362.80078 C 184.53333 367.20078 146.80078 387.06706 118.80078 420.40039 C 82.800781 463.06706 64.933073 518.13333 67.066406 580 C 67.866406 603.2 69.733984 616.26602 75.333984 636.66602 C 89.867318 690.39935 124.26641 734.26667 167.06641 754 C 194.26641 766.53333 228.13424 770.93333 260.26758 766 C 307.46758 758.93333 352.40078 727.73242 378.80078 683.73242 C 386.26745 671.46576 387.06667 666.53255 382 663.19922 C 377.73333 660.39922 373.99935 661.73268 366.66602 668.66602 C 358.66602 676.26602 339.59961 690.13424 331.59961 694.26758 C 302.26628 709.06758 261.60065 703.59961 237.33398 681.59961 C 202.13398 649.86628 179.99909 588.53398 177.73242 517.33398 C 176.39909 474.53398 180.93346 446.79961 193.4668 421.59961 C 203.20013 401.59961 213.33359 392.93307 228.93359 391.06641 C 237.20026 390.13307 243.99948 392.26628 250.13281 397.59961 C 259.86615 406.13294 263.73255 416.66745 267.19922 444.80078 C 271.73255 479.46745 280.66576 495.06602 301.73242 504.66602 C 334.26576 519.59935 369.86615 502.53359 376.13281 468.93359 C 378.66615 455.06693 374.66576 436.4 365.73242 420 C 359.19909 408.26667 339.86667 389.33307 326 381.06641 C 306.06667 369.25807 276.36361 362.20391 247.61719 361.9043 z ");
@@ -653,7 +641,6 @@ MainComponent::~MainComponent()
     lastTapButton_ = nullptr;
     tapDelaySlider_ = nullptr;
     unknown = nullptr;
-    tapEnabledButton_ = nullptr;
     feedbackTapChoice_ = nullptr;
     unknown2 = nullptr;
     feedbackTapGainSlider_ = nullptr;
@@ -680,22 +667,23 @@ MainComponent::~MainComponent()
     unknown13 = nullptr;
     gridChoice_ = nullptr;
     unknown14 = nullptr;
-    menuButton_ = nullptr;
     unknown15 = nullptr;
     swingSlider_ = nullptr;
     activeTapChoice_ = nullptr;
-    tapMenuButton_ = nullptr;
     unknown16 = nullptr;
     unknown17 = nullptr;
     tapMiniMap_ = nullptr;
     logoButton_ = nullptr;
     patchNameEditor_ = nullptr;
-    syncButton_ = nullptr;
-    feedbackEnableButton_ = nullptr;
     filterEnableButton_ = nullptr;
     tuneEnableButton_ = nullptr;
     flipEnableButton_ = nullptr;
     muteButton_ = nullptr;
+    feedbackEnableButton_ = nullptr;
+    syncButton_ = nullptr;
+    tapEnabledButton_ = nullptr;
+    tapMenuButton_ = nullptr;
+    menuButton_ = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -860,51 +848,6 @@ void MainComponent::buttonClicked (juce::Button* buttonThatWasClicked)
         //[UserButtonCode_lastTapButton_] -- add your button handler code here..
         tapEditScreen_->endTap();
         //[/UserButtonCode_lastTapButton_]
-    }
-    else if (buttonThatWasClicked == tapEnabledButton_.get())
-    {
-        //[UserButtonCode_tapEnabledButton_] -- add your button handler code here..
-        //[/UserButtonCode_tapEnabledButton_]
-    }
-    else if (buttonThatWasClicked == menuButton_.get())
-    {
-        //[UserButtonCode_menuButton_] -- add your button handler code here..
-        //[/UserButtonCode_menuButton_]
-    }
-    else if (buttonThatWasClicked == tapMenuButton_.get())
-    {
-        //[UserButtonCode_tapMenuButton_] -- add your button handler code here..
-        //[/UserButtonCode_tapMenuButton_]
-    }
-    else if (buttonThatWasClicked == syncButton_.get())
-    {
-        //[UserButtonCode_syncButton_] -- add your button handler code here..
-        //[/UserButtonCode_syncButton_]
-    }
-    else if (buttonThatWasClicked == feedbackEnableButton_.get())
-    {
-        //[UserButtonCode_feedbackEnableButton_] -- add your button handler code here..
-        //[/UserButtonCode_feedbackEnableButton_]
-    }
-    else if (buttonThatWasClicked == filterEnableButton_.get())
-    {
-        //[UserButtonCode_filterEnableButton_] -- add your button handler code here..
-        //[/UserButtonCode_filterEnableButton_]
-    }
-    else if (buttonThatWasClicked == tuneEnableButton_.get())
-    {
-        //[UserButtonCode_tuneEnableButton_] -- add your button handler code here..
-        //[/UserButtonCode_tuneEnableButton_]
-    }
-    else if (buttonThatWasClicked == flipEnableButton_.get())
-    {
-        //[UserButtonCode_flipEnableButton_] -- add your button handler code here..
-        //[/UserButtonCode_flipEnableButton_]
-    }
-    else if (buttonThatWasClicked == muteButton_.get())
-    {
-        //[UserButtonCode_muteButton_] -- add your button handler code here..
-        //[/UserButtonCode_muteButton_]
     }
 
     //[UserbuttonClicked_Post]
@@ -1083,9 +1026,6 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Delay" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="16.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
-  <TEXTBUTTON name="" id="7240b06205c10e61" memberName="tapEnabledButton_"
-              virtualName="" explicitFocusOrder="0" pos="416 468 32 24" buttonText=""
-              connectedEdges="2" needsCallback="1" radioGroupId="0"/>
   <COMBOBOX name="" id="4376ef98cd0f798e" memberName="feedbackTapChoice_"
             virtualName="" explicitFocusOrder="0" pos="900 80 72 24" editable="0"
             layout="33" items="" textWhenNonSelected="" textWhenNoItems=""/>
@@ -1210,9 +1150,6 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Grid" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="16.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
-  <TEXTBUTTON name="" id="3bd4ee7bb83de442" memberName="menuButton_" virtualName=""
-              explicitFocusOrder="0" pos="48 8 32 24" buttonText="" connectedEdges="0"
-              needsCallback="1" radioGroupId="0"/>
   <LABEL name="" id="be77851fc14d8ba" memberName="unknown15" virtualName=""
          explicitFocusOrder="0" pos="16 132 96 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Swing" editableSingleClick="0" editableDoubleClick="0"
@@ -1226,9 +1163,6 @@ BEGIN_JUCER_METADATA
   <COMBOBOX name="" id="61cd9161ffe3a708" memberName="activeTapChoice_" virtualName=""
             explicitFocusOrder="0" pos="448 468 104 24" editable="0" layout="36"
             items="" textWhenNonSelected="" textWhenNoItems=""/>
-  <TEXTBUTTON name="" id="923d76d9239ffb8" memberName="tapMenuButton_" virtualName=""
-              explicitFocusOrder="0" pos="552 468 32 24" buttonText="" connectedEdges="1"
-              needsCallback="1" radioGroupId="0"/>
   <LABEL name="" id="25e83144e25df24d" memberName="unknown16" virtualName=""
          explicitFocusOrder="0" pos="16 44 94 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Sync" editableSingleClick="0" editableDoubleClick="0"
@@ -1248,24 +1182,33 @@ BEGIN_JUCER_METADATA
   <TEXTEDITOR name="" id="f5168c8f248320c4" memberName="patchNameEditor_" virtualName=""
               explicitFocusOrder="0" pos="92 8 400 24" initialText="" multiline="0"
               retKeyStartsLine="0" readonly="0" scrollbars="1" caret="1" popupmenu="1"/>
-  <TEXTBUTTON name="" id="7ac12be0bb27f229" memberName="syncButton_" virtualName=""
-              explicitFocusOrder="0" pos="8 40 32 32" buttonText="" connectedEdges="0"
-              needsCallback="1" radioGroupId="0"/>
-  <TEXTBUTTON name="" id="e43adf889edc780a" memberName="feedbackEnableButton_"
-              virtualName="" explicitFocusOrder="0" pos="880 40 32 32" buttonText=""
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
-  <TEXTBUTTON name="" id="7bcc36a07c5c42ff" memberName="filterEnableButton_"
-              virtualName="" explicitFocusOrder="0" pos="12 500 32 32" buttonText=""
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
-  <TEXTBUTTON name="" id="7496b3b0f072ed02" memberName="tuneEnableButton_"
-              virtualName="" explicitFocusOrder="0" pos="556 500 32 32" buttonText=""
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
-  <TEXTBUTTON name="" id="26aa605edc3b0e21" memberName="flipEnableButton_"
-              virtualName="" explicitFocusOrder="0" pos="676 500 32 32" buttonText=""
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
-  <TEXTBUTTON name="" id="2f55e1ddbe6ca060" memberName="muteButton_" virtualName=""
-              explicitFocusOrder="0" pos="876 500 32 32" buttonText="" connectedEdges="0"
-              needsCallback="1" radioGroupId="0"/>
+  <GENERICCOMPONENT name="" id="6f7446dd30f7a10a" memberName="filterEnableButton_"
+                    virtualName="" explicitFocusOrder="0" pos="12 500 32 32" class="FadGlyphButton"
+                    params="juce::String{}"/>
+  <GENERICCOMPONENT name="" id="edc0aba9e3f1131e" memberName="tuneEnableButton_"
+                    virtualName="" explicitFocusOrder="0" pos="556 500 32 32" class="FadGlyphButton"
+                    params="juce::String{}"/>
+  <GENERICCOMPONENT name="" id="6d041b00ec4a7429" memberName="flipEnableButton_"
+                    virtualName="" explicitFocusOrder="0" pos="676 500 32 32" class="FadGlyphButton"
+                    params="juce::String{}"/>
+  <GENERICCOMPONENT name="" id="c22c2b3f78f64cdd" memberName="muteButton_" virtualName=""
+                    explicitFocusOrder="0" pos="876 500 32 32" class="FadGlyphButton"
+                    params="juce::String{}"/>
+  <GENERICCOMPONENT name="" id="cca4aa87de0001d8" memberName="feedbackEnableButton_"
+                    virtualName="" explicitFocusOrder="0" pos="880 40 32 32" class="FadGlyphButton"
+                    params="juce::String{}"/>
+  <GENERICCOMPONENT name="" id="fc0f07f2602c1b20" memberName="syncButton_" virtualName=""
+                    explicitFocusOrder="0" pos="8 40 32 32" class="FadGlyphButton"
+                    params="juce::String{}"/>
+  <GENERICCOMPONENT name="" id="90adb3940d1f9143" memberName="tapEnabledButton_"
+                    virtualName="" explicitFocusOrder="0" pos="416 464 32 32" class="FadGlyphButton"
+                    params="juce::String{}"/>
+  <GENERICCOMPONENT name="" id="bb2c4f96514254df" memberName="tapMenuButton_" virtualName=""
+                    explicitFocusOrder="0" pos="552 464 32 32" class="FadGlyphButton"
+                    params="juce::String{}"/>
+  <GENERICCOMPONENT name="" id="b47f9836c0b72c69" memberName="menuButton_" virtualName=""
+                    explicitFocusOrder="0" pos="48 4 32 32" class="FadGlyphButton"
+                    params="juce::String{}"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

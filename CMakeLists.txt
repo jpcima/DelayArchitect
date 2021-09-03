@@ -83,6 +83,8 @@ target_sources(DelayArchitect
   "sources/editor/parts/AdvancedTooltipWindow.cpp"
   "sources/editor/parts/BetterSlider.h"
   "sources/editor/parts/BetterSlider.cpp"
+  "sources/editor/parts/FadGlyphButton.h"
+  "sources/editor/parts/FadGlyphButton.cpp"
   "sources/editor/attachments/TapParameterAttachment.h"
   "sources/editor/attachments/TapParameterAttachment.cpp"
   "sources/editor/attachments/GridParameterAttachment.h"

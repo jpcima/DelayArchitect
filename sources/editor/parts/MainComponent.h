@@ -54,6 +54,7 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 class TapEditScreen;
 class TapMiniMap;
+class FadGlyphButton;
 //[/Headers]
 
 
@@ -109,7 +110,6 @@ private:
     std::unique_ptr<juce::TextButton> lastTapButton_;
     std::unique_ptr<better::Slider> tapDelaySlider_;
     std::unique_ptr<juce::Label> unknown;
-    std::unique_ptr<juce::TextButton> tapEnabledButton_;
     std::unique_ptr<juce::ComboBox> feedbackTapChoice_;
     std::unique_ptr<juce::Label> unknown2;
     std::unique_ptr<better::Slider> feedbackTapGainSlider_;
@@ -136,22 +136,23 @@ private:
     std::unique_ptr<juce::Label> unknown13;
     std::unique_ptr<juce::ComboBox> gridChoice_;
     std::unique_ptr<juce::Label> unknown14;
-    std::unique_ptr<juce::TextButton> menuButton_;
     std::unique_ptr<juce::Label> unknown15;
     std::unique_ptr<better::Slider> swingSlider_;
     std::unique_ptr<juce::ComboBox> activeTapChoice_;
-    std::unique_ptr<juce::TextButton> tapMenuButton_;
     std::unique_ptr<juce::Label> unknown16;
     std::unique_ptr<juce::Label> unknown17;
     std::unique_ptr<TapMiniMap> tapMiniMap_;
     std::unique_ptr<juce::DrawableButton> logoButton_;
     std::unique_ptr<juce::TextEditor> patchNameEditor_;
-    std::unique_ptr<juce::TextButton> syncButton_;
-    std::unique_ptr<juce::TextButton> feedbackEnableButton_;
-    std::unique_ptr<juce::TextButton> filterEnableButton_;
-    std::unique_ptr<juce::TextButton> tuneEnableButton_;
-    std::unique_ptr<juce::TextButton> flipEnableButton_;
-    std::unique_ptr<juce::TextButton> muteButton_;
+    std::unique_ptr<FadGlyphButton> filterEnableButton_;
+    std::unique_ptr<FadGlyphButton> tuneEnableButton_;
+    std::unique_ptr<FadGlyphButton> flipEnableButton_;
+    std::unique_ptr<FadGlyphButton> muteButton_;
+    std::unique_ptr<FadGlyphButton> feedbackEnableButton_;
+    std::unique_ptr<FadGlyphButton> syncButton_;
+    std::unique_ptr<FadGlyphButton> tapEnabledButton_;
+    std::unique_ptr<FadGlyphButton> tapMenuButton_;
+    std::unique_ptr<FadGlyphButton> menuButton_;
 
 
     //==============================================================================
