@@ -878,10 +878,6 @@ void TapEditScreen::Impl::pencilAt(juce::Point<float> position, juce::ModifierKe
 {
     TapEditScreen *self = self_;
 
-    // find the nearest tap among these which contain our pencil cursor
-    int matchNumber = -1;
-    int matchDistance = 0;
-
     for (int itemNumber = 0; itemNumber < GdMaxLines; ++itemNumber) {
         TapEditItem &item = *items_[itemNumber];
         if (!item.isVisible())
@@ -890,18 +886,8 @@ void TapEditScreen::Impl::pencilAt(juce::Point<float> position, juce::ModifierKe
         juce::Point<int> pt = item.getLocalPoint(self, position).roundToInt();
         if (pt.getX() < 0 || pt.getX() > ib.getRight())
             continue;
-        int distance = std::abs(pt.getX() - ib.getCentreX());
-        if (matchNumber == -1 || distance < matchDistance) {
-            matchNumber = itemNumber;
-            matchDistance = distance;
-        }
+        item.pencilAt(pt, mods);
     }
-
-    if (matchNumber == -1)
-        return;
-
-    TapEditItem &item = *items_[matchNumber];
-    item.pencilAt(item.getLocalPoint(self, position).roundToInt(), mods);
 }
 
 void TapEditScreen::Impl::tapEditStarted(TapEditItem *, GdParameter id)
