@@ -1304,6 +1304,8 @@ void TapEditItem::setTapSelected(bool selected)
 
 void TapEditItem::pencilAt(juce::Point<int> pos, juce::ModifierKeys mods)
 {
+    (void)mods;
+
     Impl &impl = *impl_;
 
     juce::Slider *slider = impl.getSliderForEditMode(impl.editMode_);
@@ -1315,10 +1317,12 @@ void TapEditItem::pencilAt(juce::Point<int> pos, juce::ModifierKeys mods)
     double value = slider->proportionOfLengthToValue(proportion);
 
     if (slider->isTwoValue()) {
-        if (mods.isRightButtonDown())
-            slider->setMaxValue(value);
-        else
+        double distanceToMax = std::fabs(proportion - slider->valueToProportionOfLength(slider->getMaxValue()));
+        double distanceToMin = std::fabs(proportion - slider->valueToProportionOfLength(slider->getMinValue()));
+        if (distanceToMin < distanceToMax)
             slider->setMinValue(value);
+        else
+            slider->setMaxValue(value);
     }
     else if (slider->isThreeValue())
         jassertfalse;
