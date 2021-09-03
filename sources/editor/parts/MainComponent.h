@@ -134,17 +134,11 @@ private:
     std::unique_ptr<juce::Label> unknown11;
     std::unique_ptr<juce::Label> unknown12;
     std::unique_ptr<juce::Label> unknown13;
-    std::unique_ptr<juce::TextButton> syncButton_;
     std::unique_ptr<juce::ComboBox> gridChoice_;
     std::unique_ptr<juce::Label> unknown14;
     std::unique_ptr<juce::TextButton> menuButton_;
     std::unique_ptr<juce::Label> unknown15;
     std::unique_ptr<better::Slider> swingSlider_;
-    std::unique_ptr<juce::TextButton> filterEnableButton_;
-    std::unique_ptr<juce::TextButton> tuneEnableButton_;
-    std::unique_ptr<juce::TextButton> muteButton_;
-    std::unique_ptr<juce::TextButton> feedbackEnableButton_;
-    std::unique_ptr<juce::TextButton> flipEnableButton_;
     std::unique_ptr<juce::ComboBox> activeTapChoice_;
     std::unique_ptr<juce::TextButton> tapMenuButton_;
     std::unique_ptr<juce::Label> unknown16;
@@ -152,6 +146,12 @@ private:
     std::unique_ptr<TapMiniMap> tapMiniMap_;
     std::unique_ptr<juce::DrawableButton> logoButton_;
     std::unique_ptr<juce::TextEditor> patchNameEditor_;
+    std::unique_ptr<juce::TextButton> syncButton_;
+    std::unique_ptr<juce::TextButton> feedbackEnableButton_;
+    std::unique_ptr<juce::TextButton> filterEnableButton_;
+    std::unique_ptr<juce::TextButton> tuneEnableButton_;
+    std::unique_ptr<juce::TextButton> flipEnableButton_;
+    std::unique_ptr<juce::TextButton> muteButton_;
 
 
     //==============================================================================

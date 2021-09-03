@@ -133,6 +133,12 @@ juce::Slider::SliderLayout LookAndFeel::getSliderLayout(juce::Slider &slider)
         }
     }
 
+    if (slider.isRotary()) {
+        juce::Slider::SliderLayout layout = BaseLookAndFeel::getSliderLayout(slider);
+        layout.sliderBounds.setHeight(layout.sliderBounds.getHeight() + layout.textBoxBounds.getHeight() / 2);
+        return layout;
+    }
+
     return BaseLookAndFeel::getSliderLayout(slider);
 }
 
