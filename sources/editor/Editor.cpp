@@ -39,6 +39,7 @@
 #include "editor/attachments/SliderParameterAttachmentWithTooltip.h"
 #include "editor/attachments/ComboBoxParameterAttachmentByID.h"
 #include "editor/utility/FunctionalTimer.h"
+#include "editor/utility/CommonPrefix.h"
 #include "processor/Processor.h"
 #include "processor/PresetFile.h"
 #include "importer/ImporterPST.h"
@@ -91,6 +92,7 @@ struct Editor::Impl : public TapEditScreen::Listener,
 
     void copyActiveTap();
     void pasteActiveTap();
+    void copyToAllTaps(GdParameter decomposedId);
 
     void showAbout();
 
@@ -146,6 +148,21 @@ Editor::Editor(Processor &p)
     impl.tapMenu_.reset(tapMenu);
     tapMenu->addItem(TRANS("Copy tap"), [&impl]() { impl.copyActiveTap(); });
     tapMenu->addItem(TRANS("Paste tap"), [&impl]() { impl.pasteActiveTap(); });
+    tapMenu->addSeparator();
+    {
+        juce::PopupMenu subMenu;
+        juce::String parameterNames[GdNumPametersPerTap];
+        for (int i = 0; i < GdNumPametersPerTap; ++i) {
+            int index = GdFirstParameterOfFirstTap + i;
+            parameterNames[i] = impl.getRangedParameter(index)->getName(1024);
+        }
+        int commonPrefix = getCommonPrefix(parameterNames, GdNumPametersPerTap);
+        for (int i = 0; i < GdNumPametersPerTap; ++i) {
+            int index = GdFirstParameterOfFirstTap + i;
+            subMenu.addItem(parameterNames[i].substring(commonPrefix), [&impl, index]() { impl.copyToAllTaps((GdParameter)index); });
+        }
+        tapMenu->addSubMenu(TRANS("Copy to all taps"), subMenu);
+    }
     mainComponent->tapMenuButton_->onClick = [this]() {
         impl_->tapMenu_->showMenuAsync(
             juce::PopupMenu::Options()
@@ -497,6 +514,19 @@ void Editor::Impl::pasteActiveTap()
         juce::RangedAudioParameter *parameter = getRangedParameter((int)id);
         if (const juce::var *value = tree.getPropertyPointer(GdParameterName(decomposedId)))
             parameter->setValueNotifyingHost(parameter->convertTo0to1((float)(double)*value));
+    }
+}
+
+void Editor::Impl::copyToAllTaps(GdParameter decomposedId)
+{
+    int activeTapNumber = activeTapNumber_;
+    GdParameter activeId = GdRecomposeParameter(decomposedId, activeTapNumber);
+    float value01 = getRangedParameter((int)activeId)->getValue();
+
+    for (int tapNumber = 0; tapNumber < GdMaxLines; ++tapNumber) {
+        GdParameter id = GdRecomposeParameter(decomposedId, tapNumber);
+        if (id != activeId)
+            getRangedParameter((int)id)->setValueNotifyingHost(value01);
     }
 }
 

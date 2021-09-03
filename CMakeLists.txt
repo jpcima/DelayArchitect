@@ -100,6 +100,8 @@ target_sources(DelayArchitect
   "sources/editor/importer/ImporterPST.cpp"
   "sources/editor/importer/ImporterPST.h"
   "sources/editor/utility/FunctionalTimer.h"
+  "sources/editor/utility/CommonPrefix.h"
+  "sources/editor/utility/CommonPrefix.cpp"
   "sources/utility/AutoDeletePool.h"
   "sources/utility/AutoDeletePool.hpp")
 
