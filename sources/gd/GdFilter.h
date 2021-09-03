@@ -40,6 +40,7 @@ public:
     Real getResonance() const;
     void setResonance(Real resonance);
     void updateCoeffs();
+    template <class T> void process(const T *input, T *output, unsigned count);
     Real processOne(Real input);
 
     struct Coeff1 {

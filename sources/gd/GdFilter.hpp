@@ -90,3 +90,14 @@ inline GdFilter::Real GdFilter::processOne(Real input)
 
     return output;
 }
+
+template <class T> void GdFilter::process(const T *input, T *output, unsigned count)
+{
+    GdFilter filter = *this;
+
+    for (unsigned i = 0; i < count; ++i)
+        output[i] = filter.processOne(input[i]);
+
+    mem1_ = filter.mem1_;
+    mem2_ = filter.mem2_;
+}

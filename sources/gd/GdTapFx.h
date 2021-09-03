@@ -149,16 +149,14 @@ inline void GdTapFx::process(const float *input, float *output, Control control,
 {
     {
         GdFilter &lpf = lpf_;
-        for (unsigned i = 0; i < count; ++i)
-            output[i] = lpf.processOne(input[i]);
+        lpf.process(input, output, count);
     }
 
     input = output;
 
     {
         GdFilter &hpf = hpf_;
-        for (unsigned i = 0; i < count; ++i)
-            output[i] = hpf.processOne(input[i]);
+        hpf.process(input, output, count);
     }
 
     input = output;
