@@ -96,7 +96,7 @@ template <class T> void GdFilter::process(const T *input, T *output, unsigned co
     GdFilter filter = *this;
 
     for (unsigned i = 0; i < count; ++i)
-        output[i] = filter.processOne(input[i]);
+        output[i] = filter.processOne((Real)input[i]);
 
     mem1_ = filter.mem1_;
     mem2_ = filter.mem2_;
