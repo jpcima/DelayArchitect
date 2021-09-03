@@ -27,6 +27,10 @@
 #include <vector>
 #include <memory>
 
+#if !defined(GD_SHIFTER_CAN_REPORT_LATENCY)
+#   error Must define GD_SHIFTER_CAN_REPORT_LATENCY
+#endif
+
 class GdNetwork {
 public:
     enum ChannelMode {
@@ -122,7 +126,9 @@ private:
     };
 
     TapControl tapControls_[GdMaxLines];
+#if GD_SHIFTER_CAN_REPORT_LATENCY
     LinearSmoother smoothTapLatency_[GdMaxLines];
+#endif
 
     // internal
     enum { kNumTempBuffers = 16 };

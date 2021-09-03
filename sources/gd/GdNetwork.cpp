@@ -40,8 +40,10 @@ GdNetwork::GdNetwork(ChannelMode channelMode)
 
     smoothFbGainLinear_.setTimeConstant(GdParamSmoothTime);
 
+#if GD_SHIFTER_CAN_REPORT_LATENCY
     for (unsigned tapIndex = 0; tapIndex < GdMaxLines; ++tapIndex)
         smoothTapLatency_[tapIndex].setTimeConstant(GdParamSmoothTime);
+#endif
 }
 
 GdNetwork::~GdNetwork()
@@ -52,10 +54,12 @@ void GdNetwork::clear()
 {
     smoothFbGainLinear_.clearToTarget();
 
+#if GD_SHIFTER_CAN_REPORT_LATENCY
     for (unsigned tapIndex = 0; tapIndex < GdMaxLines; ++tapIndex) {
         smoothTapLatency_[tapIndex].setTarget(channels_[0].taps_[tapIndex].fx_.getLatency());
         smoothTapLatency_[tapIndex].clearToTarget();
     }
+#endif
 
     for (ChannelDsp &chan : channels_)
         chan.clear();
@@ -233,7 +237,9 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
     fxControl.resonance = allocateTemp();
     fxControl.shift = allocateTemp();
 
+#if GD_SHIFTER_CAN_REPORT_LATENCY
     float *latency = allocateTemp();
+#endif
 
     const float *tapInputs[2] = { leftInput, rightInput };
 
@@ -251,15 +257,21 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
 
     //--------------------------------------------------------------------------
 
-    auto prepareTapControls = [this, numInputs, delays, latency, level, pan, width](int tapIndex, TapControl &tapControl, unsigned count) {
+    auto prepareTapControls = [
+#if GD_SHIFTER_CAN_REPORT_LATENCY
+                               latency,
+#endif
+        this, numInputs, delays, level, pan, width](int tapIndex, TapControl &tapControl, unsigned count) {
         // compute the line delays
         tapControl.smoothDelay_.nextBlock(delays, count);
+#if GD_SHIFTER_CAN_REPORT_LATENCY
         // compute tap latency
         smoothTapLatency_[tapIndex].setTarget(channels_[0].taps_[tapIndex].fx_.getLatency());
         smoothTapLatency_[tapIndex].nextBlock(latency, count);
         // compensate delays according to latency
         for (unsigned i = 0; i < count; ++i)
             delays[i] = std::max(0.0f, delays[i] - latency[i]);
+#endif
         // calculate level
         tapControl.smoothLevelLinear_.nextBlock(level, count);
         // calculate pan
