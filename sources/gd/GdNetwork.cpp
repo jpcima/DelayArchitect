@@ -249,6 +249,36 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
         fbTapIndex = ~0u;
     }
 
+    //--------------------------------------------------------------------------
+
+    auto prepareTapControls = [this, numInputs, delays, latency, level, pan, width](int tapIndex, TapControl &tapControl, unsigned count) {
+        // compute the line delays
+        tapControl.smoothDelay_.nextBlock(delays, count);
+        // compute tap latency
+        smoothTapLatency_[tapIndex].setTarget(channels_[0].taps_[tapIndex].fx_.getLatency());
+        smoothTapLatency_[tapIndex].nextBlock(latency, count);
+        // compensate delays according to latency
+        for (unsigned i = 0; i < count; ++i)
+            delays[i] = std::max(0.0f, delays[i] - latency[i]);
+        // calculate level
+        tapControl.smoothLevelLinear_.nextBlock(level, count);
+        // calculate pan
+        tapControl.smoothPanNormalized_.nextBlock(pan, count);
+        // calculate width (stereo only)
+        if (numInputs == 2)
+            tapControl.smoothWidth_.nextBlock(width, count);
+    };
+
+    auto prepareFXControls = [&fxControl](TapControl &tapControl, unsigned count) {
+        fxControl.filter = tapControl.filterEnable_ ? tapControl.filter_ : GdFilterOff;
+        tapControl.smoothLpfCutoff_.nextBlock(fxControl.lpfCutoff, count);
+        tapControl.smoothHpfCutoff_.nextBlock(fxControl.hpfCutoff, count);
+        tapControl.smoothResonanceLinear_.nextBlock(fxControl.resonance, count);
+        tapControl.smoothShiftLinear_.nextBlock(fxControl.shift, count);
+    };
+
+    //--------------------------------------------------------------------------
+
     // if there is a feedback line, process it first
     if (fbTapIndex == ~0u) {
         for (unsigned chanIndex = 0; chanIndex < numInputs; ++chanIndex)
@@ -258,33 +288,11 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
         TapControl &tapControl = tapControls_[fbTapIndex];
 
         if (tapControl.enable_) {
-            // compute the line delays
-            tapControl.smoothDelay_.nextBlock(delays, count);
-
-            // compute tap latency
-            smoothTapLatency_[fbTapIndex].setTarget(channels_[0].taps_[fbTapIndex].fx_.getLatency());
-            smoothTapLatency_[fbTapIndex].nextBlock(latency, count);
-
-            // compensate delays according to latency
-            for (unsigned i = 0; i < count; ++i)
-                delays[i] = std::max(0.0f, delays[i] - latency[i]);
-
-            // calculate level
-            tapControl.smoothLevelLinear_.nextBlock(level, count);
-
-            // calculate pan
-            tapControl.smoothPanNormalized_.nextBlock(pan, count);
-
-            // calculate width (stereo only)
-            if (numInputs == 2)
-                tapControl.smoothWidth_.nextBlock(width, count);
+            // compute tap parameters
+            prepareTapControls(fbTapIndex, tapControl, count);
 
             // compute FX parameters
-            fxControl.filter = tapControl.filterEnable_ ? tapControl.filter_ : GdFilterOff;
-            tapControl.smoothLpfCutoff_.nextBlock(fxControl.lpfCutoff, count);
-            tapControl.smoothHpfCutoff_.nextBlock(fxControl.hpfCutoff, count);
-            tapControl.smoothResonanceLinear_.nextBlock(fxControl.resonance, count);
-            tapControl.smoothShiftLinear_.nextBlock(fxControl.shift, count);
+            prepareFXControls(tapControl, count);
 
             // compute the feedback gain
             smoothFbGainLinear_.nextBlock(feedbackGain, count);
@@ -349,33 +357,11 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
                 mixMonoToStereo(tapIndex, feedbackTapOutputs[0], level, pan, wet, outputs, count);
         }
         else {
-            // compute the line delays
-            tapControl.smoothDelay_.nextBlock(delays, count);
-
-            // compute tap latency
-            smoothTapLatency_[tapIndex].setTarget(channels_[0].taps_[tapIndex].fx_.getLatency());
-            smoothTapLatency_[tapIndex].nextBlock(latency, count);
-
-            // compensate delays according to latency
-            for (unsigned i = 0; i < count; ++i)
-                delays[i] = std::max(0.0f, delays[i] - latency[i]);
-
-            // calculate level
-            tapControl.smoothLevelLinear_.nextBlock(level, count);
-
-            // calculate pan
-            tapControl.smoothPanNormalized_.nextBlock(pan, count);
-
-            // calculate width (stereo only)
-            if (numInputs == 2)
-                tapControl.smoothWidth_.nextBlock(width, count);
+            // compute tap parameters
+            prepareTapControls(tapIndex, tapControl, count);
 
             // compute FX parameters
-            fxControl.filter = tapControl.filterEnable_ ? tapControl.filter_ : GdFilterOff;
-            tapControl.smoothLpfCutoff_.nextBlock(fxControl.lpfCutoff, count);
-            tapControl.smoothHpfCutoff_.nextBlock(fxControl.hpfCutoff, count);
-            tapControl.smoothResonanceLinear_.nextBlock(fxControl.resonance, count);
-            tapControl.smoothShiftLinear_.nextBlock(fxControl.shift, count);
+            prepareFXControls(tapControl, count);
 
             for (unsigned chanIndex = 0; chanIndex < numInputs; ++chanIndex) {
                 ChannelDsp &chan = channels_[chanIndex];
