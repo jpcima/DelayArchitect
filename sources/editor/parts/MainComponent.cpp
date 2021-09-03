@@ -248,7 +248,7 @@ MainComponent::MainComponent ()
     hpfCutoffSlider_->setTextBoxStyle (juce::Slider::TextBoxBelow, false, 80, 20);
     hpfCutoffSlider_->addListener (this);
 
-    hpfCutoffSlider_->setBounds (168, 520, 96, 88);
+    hpfCutoffSlider_->setBounds (152, 520, 96, 88);
 
     lpfCutoffSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (lpfCutoffSlider_.get());
@@ -257,7 +257,7 @@ MainComponent::MainComponent ()
     lpfCutoffSlider_->setTextBoxStyle (juce::Slider::TextBoxBelow, false, 80, 20);
     lpfCutoffSlider_->addListener (this);
 
-    lpfCutoffSlider_->setBounds (256, 520, 96, 88);
+    lpfCutoffSlider_->setBounds (248, 520, 96, 88);
 
     unknown5.reset (new juce::Label (juce::String(),
                                      TRANS("HPF cutoff")));
@@ -268,7 +268,7 @@ MainComponent::MainComponent ()
     unknown5->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     unknown5->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    unknown5->setBounds (176, 504, 80, 24);
+    unknown5->setBounds (160, 504, 80, 24);
 
     unknown6.reset (new juce::Label (juce::String(),
                                      TRANS("LPF cutoff")));
@@ -279,7 +279,7 @@ MainComponent::MainComponent ()
     unknown6->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     unknown6->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    unknown6->setBounds (264, 504, 80, 24);
+    unknown6->setBounds (256, 504, 80, 24);
 
     resonanceSlider_.reset (new better::Slider (juce::String()));
     addAndMakeVisible (resonanceSlider_.get());
@@ -1101,22 +1101,22 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="16.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <SLIDER name="" id="918797f645a07437" memberName="hpfCutoffSlider_" virtualName="better::Slider"
-          explicitFocusOrder="0" pos="168 520 96 88" min="0.0" max="10.0"
+          explicitFocusOrder="0" pos="152 520 96 88" min="0.0" max="10.0"
           int="0.0" style="RotaryHorizontalVerticalDrag" textBoxPos="TextBoxBelow"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
           needsCallback="1"/>
   <SLIDER name="" id="184bee36214dd11a" memberName="lpfCutoffSlider_" virtualName="better::Slider"
-          explicitFocusOrder="0" pos="256 520 96 88" min="0.0" max="10.0"
+          explicitFocusOrder="0" pos="248 520 96 88" min="0.0" max="10.0"
           int="0.0" style="RotaryHorizontalVerticalDrag" textBoxPos="TextBoxBelow"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
           needsCallback="1"/>
   <LABEL name="" id="5f3ddd07c93c41a6" memberName="unknown5" virtualName=""
-         explicitFocusOrder="0" pos="176 504 80 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="160 504 80 24" edTextCol="ff000000"
          edBkgCol="0" labelText="HPF cutoff" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="16.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
   <LABEL name="" id="8aeb3c214b9a746b" memberName="unknown6" virtualName=""
-         explicitFocusOrder="0" pos="264 504 80 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="256 504 80 24" edTextCol="ff000000"
          edBkgCol="0" labelText="LPF cutoff" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="16.0"
          kerning="0.0" bold="0" italic="0" justification="36"/>
