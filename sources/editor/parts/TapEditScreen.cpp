@@ -556,7 +556,13 @@ juce::Rectangle<int> TapEditScreen::getLocalBoundsNoMargin() const
 
 juce::Rectangle<int> TapEditScreen::getScreenArea() const
 {
-    return getIntervalsRow().getUnion(getSlidersRow());
+    return getIntervalsRow().getUnion(getSlidersRow()).getUnion(getButtonsRow());
+}
+
+juce::Rectangle<int> TapEditScreen::getButtonsRow() const
+{
+    int buttonsHeight = TapEditItem::getLabelHeight();
+    return getLocalBoundsNoMargin().removeFromTop(buttonsHeight);
 }
 
 juce::Rectangle<int> TapEditScreen::getIntervalsRow() const
@@ -567,8 +573,9 @@ juce::Rectangle<int> TapEditScreen::getIntervalsRow() const
 
 juce::Rectangle<int> TapEditScreen::getSlidersRow() const
 {
+    int buttonsHeight = TapEditItem::getLabelHeight();
     int intervalsHeight = TapEditItem::getLabelHeight();
-    return getLocalBoundsNoMargin().withTrimmedBottom(intervalsHeight);
+    return getLocalBoundsNoMargin().withTrimmedBottom(intervalsHeight).withTrimmedTop(buttonsHeight);
 }
 
 juce::Colour TapEditScreen::getColourOfEditMode(const juce::LookAndFeel &lnf, TapEditMode mode)
@@ -617,6 +624,7 @@ void TapEditScreen::paint(juce::Graphics &g)
 
     Impl &impl = *impl_;
     juce::Rectangle<int> screenBounds = getScreenArea();
+    juce::Rectangle<int> buttonsRow = getButtonsRow();
     juce::Rectangle<int> intervalsRow = getIntervalsRow();
 
     juce::Colour screenContourColour = findColour(screenContourColourId);
@@ -650,6 +658,12 @@ void TapEditScreen::paint(juce::Graphics &g)
     }
     g.setColour(intervalContourColour);
     g.drawRect(intervalsRow);
+
+    ///
+    g.setColour(intervalFillColour);
+    g.fillRect(buttonsRow);
+    g.setColour(intervalContourColour);
+    g.drawRect(buttonsRow);
 
     ///
     float refLineY = 0;
@@ -951,7 +965,8 @@ juce::SelectedItemSet<TapEditItem *> &TapEditScreen::Impl::TapLassoSource::getLa
 }
 
 //------------------------------------------------------------------------------
-struct TapEditItem::Impl : public TapSlider::Listener {
+struct TapEditItem::Impl : public TapSlider::Listener,
+                           public juce::Button::Listener {
     using Listener = TapEditItem::Listener;
 
     TapEditItem *self_ = nullptr;
@@ -963,6 +978,7 @@ struct TapEditItem::Impl : public TapSlider::Listener {
     int itemNumber_ {};
     TapEditMode editMode_ = kTapEditOff;
     std::map<TapEditMode, std::unique_ptr<TapSlider>> sliders_;
+    std::map<TapEditMode, std::unique_ptr<juce::Button>> buttons_;
     bool tapSelected_ = false;
 
     class Slider : public TapSlider {
@@ -974,15 +990,29 @@ struct TapEditItem::Impl : public TapSlider::Listener {
         TapEditItem::Impl &impl_;
     };
 
+    class Button : public juce::Button {
+    public:
+        explicit Button(TapEditItem::Impl &impl);
+    protected:
+        void paintButton(juce::Graphics &g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+    private:
+        TapEditItem::Impl &impl_;
+    };
+
     TapSlider *getCurrentSlider() const;
     TapSlider *getSliderForEditMode(TapEditMode editMode) const;
-    void updateSliderVisibility();
-    void repositionSliders();
+    juce::Button *getCurrentButton() const;
+    juce::Button *getButtonForEditMode(TapEditMode editMode) const;
+    void updateSliderAndButtonVisibility();
+    void repositionSlidersAndButtons();
     juce::Rectangle<int> getLabelBounds() const;
 
     void sliderValueChanged(juce::Slider *slider) override;
     void sliderDragStarted(juce::Slider *slider) override;
     void sliderDragEnded(juce::Slider *slider) override;
+
+    void buttonClicked(juce::Button *button) override;
+    void buttonStateChanged(juce::Button *button) override;
 };
 
 TapEditItem::TapEditItem(TapEditScreen *screen, int itemNumber)
@@ -1027,11 +1057,28 @@ TapEditItem::TapEditItem(TapEditScreen *screen, int itemNumber)
         addChildComponent(slider);
     };
 
+    auto createButton = [this, &impl]
+        (TapEditMode mode, GdParameter id)
+    {
+        juce::Button *button = new TapEditItem::Impl::Button(impl);
+        impl.buttons_[mode] = std::unique_ptr<juce::Button>(button);
+        button->addListener(&impl);
+        juce::NamedValueSet &properties = button->getProperties();
+        properties.set("X-Change-ID", (int)id);
+        addChildComponent(button);
+    };
+
     createSlider(kTapEditCutoff, GdRecomposeParameter(GDP_TAP_A_HPF_CUTOFF, itemNumber), GdRecomposeParameter(GDP_TAP_A_LPF_CUTOFF, itemNumber), kTapSliderTwoValues);
     createSlider(kTapEditResonance, GdRecomposeParameter(GDP_TAP_A_RESONANCE, itemNumber), GDP_NONE, kTapSliderNormal);
     createSlider(kTapEditTune, GdRecomposeParameter(GDP_TAP_A_TUNE, itemNumber), GDP_NONE, kTapSliderBipolar);
     createSlider(kTapEditPan, GdRecomposeParameter(GDP_TAP_A_PAN, itemNumber), GDP_NONE, kTapSliderBipolar);
     createSlider(kTapEditLevel, GdRecomposeParameter(GDP_TAP_A_LEVEL, itemNumber), GDP_NONE, kTapSliderNormal);
+
+    createButton(kTapEditCutoff, GdRecomposeParameter(GDP_TAP_A_FILTER_ENABLE, itemNumber));
+    createButton(kTapEditResonance, GdRecomposeParameter(GDP_TAP_A_FILTER, itemNumber));
+    createButton(kTapEditTune, GdRecomposeParameter(GDP_TAP_A_TUNE_ENABLE, itemNumber));
+    createButton(kTapEditPan, GdRecomposeParameter(GDP_TAP_A_FLIP, itemNumber));
+    createButton(kTapEditLevel, GdRecomposeParameter(GDP_TAP_A_MUTE, itemNumber));
 }
 
 TapEditItem::~TapEditItem()
@@ -1105,7 +1152,7 @@ void TapEditItem::setEditMode(TapEditMode mode)
 
     impl.editMode_ = mode;
 
-    impl.updateSliderVisibility();
+    impl.updateSliderAndButtonVisibility();
 
     repaint();
 }
@@ -1150,6 +1197,26 @@ float TapEditItem::getTapValue(GdParameter id) const
     case GDP_TAP_A_LEVEL:
         if (TapSlider *slider = impl.getSliderForEditMode(kTapEditLevel))
             return (float)slider->getValue();
+        goto notfound;
+    case GDP_TAP_A_FILTER_ENABLE:
+        if (juce::Button *button = impl.getButtonForEditMode(kTapEditCutoff))
+            return (float)button->getToggleState();
+        goto notfound;
+    case GDP_TAP_A_FILTER:
+        if (juce::Button *button = impl.getButtonForEditMode(kTapEditResonance))
+            return (float)button->getToggleState();
+        goto notfound;
+    case GDP_TAP_A_TUNE_ENABLE:
+        if (juce::Button *button = impl.getButtonForEditMode(kTapEditTune))
+            return (float)button->getToggleState();
+        goto notfound;
+    case GDP_TAP_A_FLIP:
+        if (juce::Button *button = impl.getButtonForEditMode(kTapEditPan))
+            return (float)!button->getToggleState();
+        goto notfound;
+    case GDP_TAP_A_MUTE:
+        if (juce::Button *button = impl.getButtonForEditMode(kTapEditLevel))
+            return (float)!button->getToggleState();
         goto notfound;
     default: notfound:
         jassertfalse;
@@ -1230,6 +1297,26 @@ void TapEditItem::setTapValue(GdParameter id, float value, juce::NotificationTyp
     case GDP_TAP_A_LEVEL:
         if (TapSlider *slider = impl.getSliderForEditMode(kTapEditLevel))
             slider->setValue(value, nt);
+        break;
+    case GDP_TAP_A_FILTER_ENABLE:
+        if (juce::Button *button = impl.getButtonForEditMode(kTapEditCutoff))
+            button->setToggleState((bool)value, nt);
+        break;
+    case GDP_TAP_A_FILTER:
+        if (juce::Button *button = impl.getButtonForEditMode(kTapEditResonance))
+            button->setToggleState((bool)value, nt);
+        break;
+    case GDP_TAP_A_TUNE_ENABLE:
+        if (juce::Button *button = impl.getButtonForEditMode(kTapEditTune))
+            button->setToggleState((bool)value, nt);
+        break;
+    case GDP_TAP_A_FLIP:
+        if (juce::Button *button = impl.getButtonForEditMode(kTapEditPan))
+            button->setToggleState(!(bool)value, nt);
+        break;
+    case GDP_TAP_A_MUTE:
+        if (juce::Button *button = impl.getButtonForEditMode(kTapEditLevel))
+            button->setToggleState(!(bool)value, nt);
         break;
     }
 }
@@ -1447,13 +1534,13 @@ void TapEditItem::mouseDrag(const juce::MouseEvent &e)
 void TapEditItem::moved()
 {
     Impl &impl = *impl_;
-    impl.repositionSliders();
+    impl.repositionSlidersAndButtons();
 }
 
 void TapEditItem::resized()
 {
     Impl &impl = *impl_;
-    impl.repositionSliders();
+    impl.repositionSlidersAndButtons();
 }
 
 TapSlider *TapEditItem::Impl::getCurrentSlider() const
@@ -1467,25 +1554,51 @@ TapSlider *TapEditItem::Impl::getSliderForEditMode(TapEditMode editMode) const
     return (it == sliders_.end()) ? nullptr : it->second.get();
 }
 
-void TapEditItem::Impl::updateSliderVisibility()
+juce::Button *TapEditItem::Impl::getCurrentButton() const
+{
+    return getButtonForEditMode(editMode_);
+}
+
+juce::Button *TapEditItem::Impl::getButtonForEditMode(TapEditMode editMode) const
+{
+    auto it = buttons_.find(editMode);
+    return (it == buttons_.end()) ? nullptr : it->second.get();
+}
+
+void TapEditItem::Impl::updateSliderAndButtonVisibility()
 {
     TapSlider *currentSlider = getCurrentSlider();
     for (const auto &sliderPair : sliders_) {
         TapSlider *slider = sliderPair.second.get();
         slider->setVisible(slider == currentSlider);
     }
+
+    juce::Button *currentButton = getCurrentButton();
+    for (const auto &buttonPair : buttons_) {
+        juce::Button *button = buttonPair.second.get();
+        button->setVisible(button == currentButton);
+    }
 }
 
-void TapEditItem::Impl::repositionSliders()
+void TapEditItem::Impl::repositionSlidersAndButtons()
 {
     TapEditItem *self = self_;
+    int labelHeight = getLabelHeight();
+    int buttonHeight = getLabelHeight();
+
     juce::Rectangle<int> bounds = self->getLocalBounds();
-    juce::Rectangle<int> sliderBounds = bounds.withTrimmedBottom(getLabelHeight());
+    juce::Rectangle<int> sliderBounds = bounds.withTrimmedBottom(labelHeight).withTrimmedTop(buttonHeight);
     sliderBounds = sliderBounds.withSizeKeepingCentre(8, sliderBounds.getHeight());
+    juce::Rectangle<int> buttonBounds = bounds.withHeight(buttonHeight).withWidth(bounds.getWidth());
 
     for (const auto &sliderPair : sliders_) {
         TapSlider *slider = sliderPair.second.get();
         slider->setBounds(sliderBounds);
+    }
+
+    for (const auto &buttonPair : buttons_) {
+        juce::Button *button = buttonPair.second.get();
+        button->setBounds(buttonBounds);
     }
 }
 
@@ -1497,27 +1610,25 @@ juce::Rectangle<int> TapEditItem::Impl::getLabelBounds() const
 
 void TapEditItem::Impl::sliderValueChanged(juce::Slider *slider)
 {
-    double value{};
     juce::String identifier;
     switch (slider->getThumbBeingDragged()) {
     default:
-        value = slider->getValue();
         identifier = "X-Change-ID";
         break;
     case 1:
-        value = slider->getMinValue();
         identifier = "X-Change-ID-1";
         break;
     case 2:
-        value = slider->getMaxValue();
         identifier = "X-Change-ID-2";
         break;
     }
 
     TapEditItem *self = self_;
     GdParameter id = (GdParameter)(int)slider->getProperties().getWithDefault(identifier, -1);
-    if (id != GDP_NONE)
+    if (id != GDP_NONE) {
+        float value = self->getTapValue(id);
         listeners_.call([self, id, value](Listener &l) { l.tapValueChanged(self, id, (float)value); });
+    }
 }
 
 void TapEditItem::Impl::sliderDragStarted(juce::Slider *slider)
@@ -1562,6 +1673,23 @@ void TapEditItem::Impl::sliderDragEnded(juce::Slider *slider)
         listeners_.call([self, id](Listener &l) { l.tapEditEnded(self, id); });
 }
 
+void TapEditItem::Impl::buttonClicked(juce::Button *button)
+{
+    (void)button;
+}
+
+void TapEditItem::Impl::buttonStateChanged(juce::Button *button)
+{
+    juce::String identifier = "X-Change-ID";
+
+    TapEditItem *self = self_;
+    GdParameter id = (GdParameter)(int)button->getProperties().getWithDefault(identifier, -1);
+    if (id != GDP_NONE) {
+        float value = self->getTapValue(id);
+        listeners_.call([self, id, value](Listener &l) { l.tapValueChanged(self, id, (float)value); });
+    }
+}
+
 TapEditItem::Impl::Slider::Slider(TapEditItem::Impl &impl)
     : impl_(impl)
 {
@@ -1578,6 +1706,31 @@ void TapEditItem::Impl::Slider::paint(juce::Graphics &g)
     g.reduceClipRegion(clipBounds);
 
     TapSlider::paint(g);
+}
+
+TapEditItem::Impl::Button::Button(TapEditItem::Impl &impl)
+    : juce::Button({}),
+      impl_(impl)
+{
+    setClickingTogglesState(true);
+}
+
+void TapEditItem::Impl::Button::paintButton(juce::Graphics &g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
+{
+    // TODO
+    (void)shouldDrawButtonAsHighlighted;
+
+    Impl &impl = impl_;
+    juce::Rectangle<int> bounds = getLocalBounds().reduced(1, 1);
+
+    juce::Colour color = TapEditScreen::getColourOfEditMode(getLookAndFeel(), impl.editMode_);
+    float cornerSize = 3.0f;
+
+    g.setColour(color);
+    if (getToggleState() ^ shouldDrawButtonAsDown)
+        g.fillRoundedRectangle(bounds.toFloat(), cornerSize);
+    else
+        g.drawRoundedRectangle(bounds.toFloat(), cornerSize, 2.0f);
 }
 
 //------------------------------------------------------------------------------

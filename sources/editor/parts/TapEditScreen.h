@@ -106,6 +106,7 @@ public:
 
     juce::Rectangle<int> getLocalBoundsNoMargin() const;
     juce::Rectangle<int> getScreenArea() const;
+    juce::Rectangle<int> getButtonsRow() const;
     juce::Rectangle<int> getIntervalsRow() const;
     juce::Rectangle<int> getSlidersRow() const;
 
