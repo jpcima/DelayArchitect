@@ -43,7 +43,7 @@ void GdLine::setMaxDelay(float maxDelay)
         return;
 
     maxDelay_ = maxDelay;
-    allocateLineBuffer((unsigned)std::ceil(sampleRate_ * maxDelay_));
+    allocateLineBuffer((unsigned)std::ceil(sampleRate_ * maxDelay));
 }
 
 void GdLine::process(const float *input, const float *delay, float *output, unsigned count)
