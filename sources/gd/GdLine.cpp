@@ -58,15 +58,10 @@ void GdLine::process(const float *input, const float *delay, float *output, unsi
         lineData[lineIndex] = input[i];
 
         ///
-        float limitedDelay = delay[i];
-        limitedDelay = (limitedDelay < 0.0f) ? 0.0f : limitedDelay;
-        limitedDelay = (limitedDelay > maxDelay) ? maxDelay : limitedDelay;
-        float sampleDelay = sampleRate * limitedDelay;
-
-        ///
+        float sampleDelay = sampleRate * delay[i];
         float fractionalPosition = sampleDelay - (unsigned)sampleDelay;
         unsigned decimalPosition = lineIndex + lineCapacity - (unsigned)sampleDelay;
-        decimalPosition = (decimalPosition < lineCapacity) ? decimalPosition : (decimalPosition - lineCapacity);
+        decimalPosition -= (decimalPosition < lineCapacity) ? 0 : lineCapacity;
 
         ///
         unsigned i1 = decimalPosition;

@@ -49,15 +49,10 @@ inline float GdLine::processOne(float input, float delay)
     lineData[lineIndex] = input;
 
     ///
-    float limitedDelay = delay;
-    limitedDelay = (limitedDelay < 0.0f) ? 0.0f : limitedDelay;
-    limitedDelay = (limitedDelay > maxDelay) ? maxDelay : limitedDelay;
-    float sampleDelay = sampleRate * limitedDelay;
-
-    ///
+    float sampleDelay = sampleRate * delay;
     float fractionalPosition = sampleDelay - (unsigned)sampleDelay;
     unsigned decimalPosition = lineIndex + lineCapacity - (unsigned)sampleDelay;
-    decimalPosition = (decimalPosition < lineCapacity) ? decimalPosition : (decimalPosition - lineCapacity);
+    decimalPosition -= (decimalPosition < lineCapacity) ? 0 : lineCapacity;
 
     ///
     unsigned i1 = decimalPosition;

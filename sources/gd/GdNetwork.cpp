@@ -141,7 +141,7 @@ void GdNetwork::setParameter(unsigned parameter, float value)
             break;
         case GDP_TAP_A_DELAY:
             {
-                tapControl.delay_ = value;
+                tapControl.delay_ = std::max(0.0f, std::min((float)GdMaxDelay, value));
                 tapControl.smoothDelay_.setTarget(!sync_ ? tapControl.delay_ :
                     GdAlignDelayToGrid(tapControl.delay_, div_, swing_, bpm_));
             }
