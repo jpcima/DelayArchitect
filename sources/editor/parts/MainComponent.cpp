@@ -50,6 +50,7 @@
 #include "TapEditScreen.h"
 #include "editor/LookAndFeel.h"
 #include "editor/parts/FadGlyphButton.h"
+#include "editor/parts/SVGGlyphButton.h"
 #include <fontaudio/fontaudio.h>
 #include <array>
 #include <cstdio>
@@ -507,7 +508,7 @@ MainComponent::MainComponent ()
 
     flipEnableButton_->setBounds (676, 500, 32, 32);
 
-    muteButton_.reset (new FadGlyphButton (juce::String{}));
+    muteButton_.reset (new SVGGlyphButton (juce::String{}));
     addAndMakeVisible (muteButton_.get());
 
     muteButton_->setBounds (876, 500, 32, 32);
@@ -560,7 +561,7 @@ MainComponent::MainComponent ()
     flipEnableButton_->setClickingTogglesState(true);
 
     auto setupFadGlyphButton = [](FadGlyphButton &button, float textHeight, const fontaudio::IconName &iconName) {
-        button.setIcon(iconName, textHeight, false, true, false);
+        button.setIcon(iconName, textHeight);
     };
     setupFadGlyphButton(*menuButton_, 14.0f, fontaudio::HExpand);
     setupFadGlyphButton(*syncButton_, 14.0f, fontaudio::Powerswitch);
@@ -569,8 +570,13 @@ MainComponent::MainComponent ()
     setupFadGlyphButton(*tapMenuButton_, 14.0f, fontaudio::HExpand);
     setupFadGlyphButton(*filterEnableButton_, 14.0f, fontaudio::Powerswitch);
     setupFadGlyphButton(*tuneEnableButton_, 14.0f, fontaudio::Powerswitch);
-    setupFadGlyphButton(*muteButton_, 14.0f, fontaudio::Mute);
     setupFadGlyphButton(*flipEnableButton_, 14.0f, fontaudio::Diskio);
+
+    {
+        juce::String shapeOff = "m 112.2793,73.203125 a 6.0006,6.0006 0 0 0 -6.44532,0.996094 L 71.035156,105.22852 H 51.078125 a 6.0006,6.0006 0 0 0 -6,6 v 36.20703 a 6.0006,6.0006 0 0 0 6,6 h 20.101562 l 34.845703,28.54492 a 6.0006,6.0006 0 0 0 9.80078,-4.64063 V 78.677734 a 6.0006,6.0006 0 0 0 -3.54687,-5.474609 z m -8.45313,18.865234 V 164.66797 L 79.320312,144.59375 V 113.91797 Z M 57.078125,117.22852 h 10.242187 v 24.20703 H 57.078125 Z m 108.584115,-12.0586 a 6,6 0 0 0 -4.24414,1.75586 l -33.67969,33.67969 a 6,6 0 0 0 0,8.48633 6,6 0 0 0 8.48633,0 l 33.67968,-33.67969 a 6,6 0 0 0 0,-8.48633 6,6 0 0 0 -4.24218,-1.75586 z m -33.67969,0 a 6,6 0 0 0 -4.24414,1.75586 6,6 0 0 0 0,8.48633 l 33.67969,33.67969 a 6,6 0 0 0 8.48632,0 6,6 0 0 0 0,-8.48633 l -33.67968,-33.67969 a 6,6 0 0 0 -4.24219,-1.75586 z";
+        juce::String shapeOn = "m 112.2793,73.203125 a 6.0006,6.0006 0 0 0 -6.44532,0.996094 L 71.035156,105.22852 H 51.078125 a 6.0006,6.0006 0 0 0 -6,6 v 36.20703 a 6.0006,6.0006 0 0 0 6,6 h 20.101562 l 34.845703,28.54492 a 6.0006,6.0006 0 0 0 9.80078,-4.64063 V 78.677734 a 6.0006,6.0006 0 0 0 -3.54687,-5.474609 z m -8.45313,18.865234 V 164.66797 L 79.320312,144.59375 V 113.91797 Z M 57.078125,117.22852 h 10.242187 v 24.20703 H 57.078125 Z M 150.47656,79.181641 a 6,6 0 0 0 -4.4082,1.287109 6,6 0 0 0 -0.91992,8.435547 c 18.37084,22.867633 18.37084,55.341343 0,78.208983 a 6,6 0 0 0 0.91992,8.43555 6,6 0 0 0 8.43555,-0.91992 c 21.85454,-27.20409 21.85454,-66.03615 0,-93.240238 a 6,6 0 0 0 -4.02735,-2.207031 z m -11.21875,11.498046 a 6,6 0 0 0 -4.45703,1.101563 6,6 0 0 0 -1.26953,8.39063 c 12.21586,16.57287 12.21586,39.10095 0,55.67382 a 6,6 0 0 0 1.26953,8.39063 6,6 0 0 0 8.38867,-1.26953 c 15.30687,-20.76635 15.30687,-49.14967 0,-69.916019 a 6,6 0 0 0 -3.93164,-2.371094 z m -12.20312,12.580083 a 6,6 0 0 0 -4.50977,0.85937 6,6 0 0 0 -1.72461,8.30859 c 6.21776,9.47315 6.21776,21.68896 0,31.16211 a 6,6 0 0 0 1.72461,8.3086 6,6 0 0 0 8.3086,-1.72461 c 8.82399,-13.44392 8.82399,-30.88616 0,-44.33008 a 6,6 0 0 0 -3.79883,-2.58398 z";
+        muteButton_->setSVGPaths(shapeOff, shapeOn, 14.0f);
+    }
 
     activeTapChoice_->setScrollWheelEnabled(true);
     feedbackTapChoice_->setScrollWheelEnabled(true);
@@ -1192,7 +1198,7 @@ BEGIN_JUCER_METADATA
                     virtualName="" explicitFocusOrder="0" pos="676 500 32 32" class="FadGlyphButton"
                     params="juce::String{}"/>
   <GENERICCOMPONENT name="" id="c22c2b3f78f64cdd" memberName="muteButton_" virtualName=""
-                    explicitFocusOrder="0" pos="876 500 32 32" class="FadGlyphButton"
+                    explicitFocusOrder="0" pos="876 500 32 32" class="SVGGlyphButton"
                     params="juce::String{}"/>
   <GENERICCOMPONENT name="" id="cca4aa87de0001d8" memberName="feedbackEnableButton_"
                     virtualName="" explicitFocusOrder="0" pos="880 40 32 32" class="FadGlyphButton"

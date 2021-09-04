@@ -29,17 +29,16 @@
 #pragma once
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <memory>
-namespace fontaudio { typedef juce::String IconName; }
 
-class FadGlyphButton : public juce::ShapeButton {
+class SVGGlyphButton : public juce::ShapeButton {
 public:
-    explicit FadGlyphButton(const juce::String &name);
-    virtual ~FadGlyphButton() override;
-    void setIcon(const fontaudio::IconName &iconName, float glyphHeight);
-    void setGlyph(juce::juce_wchar codePoint, float glyphHeight);
+    explicit SVGGlyphButton(const juce::String &name);
+    virtual ~SVGGlyphButton() override;
+    void setSVGPaths(const juce::String &svgPathWhenOff, const juce::String &svgPathWhenOn, float glyphHeight);
 
 protected:
     virtual void resized() override;
+    virtual void buttonStateChanged() override;
 
 private:
     struct Impl;

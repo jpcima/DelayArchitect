@@ -26,16 +26,19 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include "FadGlyphButton.h"
-#include <fontaudio/fontaudio.h>
+#include "SVGGlyphButton.h"
 
-struct FadGlyphButton::Impl {
-    FadGlyphButton *self_ = nullptr;
+struct SVGGlyphButton::Impl {
+    SVGGlyphButton *self_ = nullptr;
+    bool shouldPaintAsOn_ = false;
+    juce::Path shapeWhenOn_;
+    juce::Path shapeWhenOff_;
     float currentGlyphHeight_ = 0.0f;
     void updateGlyphBorder();
+    void changeShapeAccordingToToggleState();
 };
 
-FadGlyphButton::FadGlyphButton(const juce::String &name)
+SVGGlyphButton::SVGGlyphButton(const juce::String &name)
     : juce::ShapeButton(name, juce::Colour{}, juce::Colour{}, juce::Colour{}),
       impl_(new Impl)
 {
@@ -51,47 +54,52 @@ FadGlyphButton::FadGlyphButton(const juce::String &name)
     shouldUseOnColours(true);
 }
 
-FadGlyphButton::~FadGlyphButton()
+SVGGlyphButton::~SVGGlyphButton()
 {
 }
 
-void FadGlyphButton::setIcon(const fontaudio::IconName &iconName, float glyphHeight)
+void SVGGlyphButton::setSVGPaths(const juce::String &svgPathWhenOff, const juce::String &svgPathWhenOn, float glyphHeight)
 {
-    juce::juce_wchar utf32[2] {};
-    iconName.copyToUTF32(utf32, sizeof(utf32));
-    return setGlyph(utf32[0], glyphHeight);
-}
-
-void FadGlyphButton::setGlyph(juce::juce_wchar codePoint, float glyphHeight)
-{
-    juce::Path path;
-    {
-        juce::Font font("Fontaudio", glyphHeight, juce::Font::plain);
-        juce::GlyphArrangement ga;
-        ga.addLineOfText(font, juce::String::charToString(codePoint), 0.0f, 0.0f);
-        ga.createPath(path);
-    }
-
-    bool resizeNowToFitThisShape = false;
-    bool maintainShapeProportions = true;
-    bool hasDropShadow = false;
-    setShape(path, resizeNowToFitThisShape, maintainShapeProportions, hasDropShadow);
-
     Impl &impl = *impl_;
     impl.currentGlyphHeight_ = glyphHeight;
+    impl.shapeWhenOff_ = juce::Drawable::parseSVGPath(svgPathWhenOff);
+    impl.shapeWhenOn_ = juce::Drawable::parseSVGPath(svgPathWhenOn);
     impl.updateGlyphBorder();
+    impl.changeShapeAccordingToToggleState();
 }
 
-void FadGlyphButton::resized()
+void SVGGlyphButton::resized()
 {
     Impl &impl = *impl_;
     impl.updateGlyphBorder();
 }
 
-void FadGlyphButton::Impl::updateGlyphBorder()
+void SVGGlyphButton::buttonStateChanged()
 {
-    FadGlyphButton *self = self_;
+    Impl &impl = *impl_;
+    bool toggleState = getToggleState();
+
+    if (impl.shouldPaintAsOn_ != toggleState) {
+        impl.shouldPaintAsOn_ = toggleState;
+        impl.changeShapeAccordingToToggleState();
+    }
+
+    juce::ShapeButton::buttonStateChanged();
+}
+
+void SVGGlyphButton::Impl::updateGlyphBorder()
+{
+    SVGGlyphButton *self = self_;
     float gh = currentGlyphHeight_;
     int vgap = juce::roundToInt(((float)self->getHeight() - gh) / 2.0f);
     self->setBorderSize(juce::BorderSize<int>{vgap, 0, vgap, 0});
+}
+
+void SVGGlyphButton::Impl::changeShapeAccordingToToggleState()
+{
+    SVGGlyphButton *self = self_;
+    bool resizeNowToFitThisShape = false;
+    bool maintainShapeProportions = true;
+    bool hasDropShadow = false;
+    self->setShape(shouldPaintAsOn_ ? shapeWhenOn_ : shapeWhenOff_, resizeNowToFitThisShape, maintainShapeProportions, hasDropShadow);
 }

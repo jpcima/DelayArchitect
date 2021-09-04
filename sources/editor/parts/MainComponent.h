@@ -55,6 +55,7 @@
 class TapEditScreen;
 class TapMiniMap;
 class FadGlyphButton;
+class SVGGlyphButton;
 //[/Headers]
 
 
@@ -147,7 +148,7 @@ private:
     std::unique_ptr<FadGlyphButton> filterEnableButton_;
     std::unique_ptr<FadGlyphButton> tuneEnableButton_;
     std::unique_ptr<FadGlyphButton> flipEnableButton_;
-    std::unique_ptr<FadGlyphButton> muteButton_;
+    std::unique_ptr<SVGGlyphButton> muteButton_;
     std::unique_ptr<FadGlyphButton> feedbackEnableButton_;
     std::unique_ptr<FadGlyphButton> syncButton_;
     std::unique_ptr<FadGlyphButton> tapEnabledButton_;

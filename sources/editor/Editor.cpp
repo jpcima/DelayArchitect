@@ -32,6 +32,7 @@
 #include "editor/parts/AboutComponent.h"
 #include "editor/parts/TapEditScreen.h"
 #include "editor/parts/FadGlyphButton.h"
+#include "editor/parts/SVGGlyphButton.h"
 #include "editor/parts/AdvancedTooltipWindow.h"
 #include "editor/attachments/TapParameterAttachment.h"
 #include "editor/attachments/GridParameterAttachment.h"
@@ -295,7 +296,7 @@ void Editor::Impl::createActiveTapParameterAttachments()
     att.makeNew<juce::SliderParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_WIDTH, tapNumber)), *mainComponent->widthSlider_, nullptr);
     att.makeNew<juce::ButtonParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_FLIP, tapNumber)), *mainComponent->flipEnableButton_, nullptr);
     att.makeNew<juce::SliderParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_LEVEL, tapNumber)), *mainComponent->levelSlider_, nullptr);
-    att.makeNew<juce::ButtonParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_MUTE, tapNumber)), *mainComponent->muteButton_, nullptr);
+    att.makeNew<InvertedButtonParameterAttachment>(*getRangedParameter((int)GdRecomposeParameter(GDP_TAP_A_MUTE, tapNumber)), *mainComponent->muteButton_, nullptr);
 }
 
 void Editor::Impl::updateTapChoiceComboBoxes()
