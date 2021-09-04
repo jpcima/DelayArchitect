@@ -56,12 +56,11 @@ inline float GdLine::processOne(float input, float delay)
     float sampleRate = sampleRate_;
 
     ///
-    lineData[lineIndex] = input;
-
-    ///
-    unsigned secondaryLineIndex = lineIndex + lineCapacity;
-    secondaryLineIndex = (secondaryLineIndex < lineCapacityPlusExtra) ? secondaryLineIndex : lineIndex;
-    lineData[secondaryLineIndex] = input;
+    unsigned writeIndex1 = lineIndex;
+    unsigned writeIndex2 = lineIndex + lineCapacity;
+    writeIndex2 = (writeIndex2 < lineCapacityPlusExtra) ? writeIndex2 : lineIndex;
+    lineData[writeIndex1] = input;
+    lineData[writeIndex2] = input;
 
     ///
     float sampleDelay = sampleRate * delay;
@@ -75,8 +74,8 @@ inline float GdLine::processOne(float input, float delay)
     float output = lineData[i1] + fractionalPosition * (lineData[i2] - lineData[i1]);
 
     ///
-    lineIndex = (lineIndex + 1 < lineCapacity) ? (lineIndex + 1) : 0;
-    lineIndex_ = lineIndex;
+    lineIndex += 1;
+    lineIndex -= (lineIndex < lineCapacity) ? 0 : lineCapacity;
 
     ///
     return output;

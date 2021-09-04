@@ -18,6 +18,7 @@
  */
 
 #include "GdLine.h"
+#include "GdSIMD.h"
 #include <algorithm>
 #include <cstdio>
 #include <cmath>
@@ -56,14 +57,50 @@ void GdLine::process(const float *input, const float *delay, float *output, unsi
     unsigned lineCapacityPlusExtra = lineCapacity + kLineCyclicExtra;
     float sampleRate = sampleRate_;
 
-    for (unsigned i = 0; i < count; ++i) {
-        float currentInput = input[i];
-        lineData[lineIndex] = currentInput;
+    unsigned i = 0;
+
+#if 1
+    for (; i + 3 < count; i += 4) {
+        simde__m128 currentInputPS = simde_mm_loadu_ps(&input[i]);
+
+        int writeIndex1 = (int)lineIndex;
+        int writeIndex2 = writeIndex1;
+        writeIndex2 -= (writeIndex1 > (int)(lineCapacityPlusExtra - 4)) ? (int)lineCapacity : 0;
+        writeIndex2 += (writeIndex1 < kLineCyclicExtra) ? (int)lineCapacity : 0;
+
+        simde_mm_storeu_ps(&lineData[writeIndex1], currentInputPS);
+        simde_mm_storeu_ps(&lineData[writeIndex2], currentInputPS);
 
         ///
-        unsigned secondaryLineIndex = lineIndex + lineCapacity;
-        secondaryLineIndex = (secondaryLineIndex < lineCapacityPlusExtra) ? secondaryLineIndex : lineIndex;
-        lineData[secondaryLineIndex] = currentInput;
+        simde__m128i lineCapacityI = simde_mm_set1_epi32((int)lineCapacity);
+        simde__m128i lineIndexI = simde_mm_add_epi32(simde_mm_set1_epi32(lineIndex), simde_mm_setr_epi32(0, 1, 2, 3));
+        //lineIndexI = simde_mm_sub_epi32(lineIndexI,
+        //    ternaryEPI32(simde_mm_cmplt_epi32(lineIndexI, lineCapacityI), simde_mm_set1_epi32(0), lineCapacityI));
+
+        simde__m128 sampleDelayPS = simde_mm_mul_ps(simde_mm_set1_ps(sampleRate), simde_mm_load_ps(&delay[i]));
+        simde__m128i sampleDelayI = simde_mm_cvtps_epi32(sampleDelayPS);
+        simde__m128 fractionalPositionPS = simde_mm_sub_ps(sampleDelayPS, simde_mm_cvtepi32_ps(sampleDelayI));
+        simde__m128i decimalPositionI = simde_mm_sub_epi32(simde_mm_add_epi32(lineIndexI, lineCapacityI), sampleDelayI);
+        decimalPositionI = simde_mm_sub_epi32(decimalPositionI,
+            ternaryEPI32(simde_mm_cmplt_epi32(decimalPositionI, lineCapacityI), simde_mm_set1_epi32(0), lineCapacityI));
+
+        ///
+        simde_mm_storeu_ps(&output[i], lerpPS(lineData, decimalPositionI, fractionalPositionPS));
+
+        ///
+        lineIndex += 4;
+        lineIndex -= (lineIndex < lineCapacity) ? 0 : lineCapacity;
+    }
+#endif
+
+    for (; i < count; ++i) {
+        float currentInput = input[i];
+
+        unsigned writeIndex1 = lineIndex;
+        unsigned writeIndex2 = lineIndex + lineCapacity;
+        writeIndex2 = (writeIndex2 < lineCapacityPlusExtra) ? writeIndex2 : lineIndex;
+        lineData[writeIndex1] = currentInput;
+        lineData[writeIndex2] = currentInput;
 
         ///
         float sampleDelay = sampleRate * delay[i];
@@ -77,7 +114,8 @@ void GdLine::process(const float *input, const float *delay, float *output, unsi
         output[i] = lineData[i1] + fractionalPosition * (lineData[i2] - lineData[i1]);
 
         ///
-        lineIndex = (lineIndex + 1 < lineCapacity) ? (lineIndex + 1) : 0;
+        lineIndex += 1;
+        lineIndex -= (lineIndex < lineCapacity) ? 0 : lineCapacity;
     }
 
     ///

@@ -147,6 +147,7 @@ add_library(Gd STATIC
   "sources/gd/GdFilter.hpp"
   "sources/gd/GdShifter.cpp"
   "sources/gd/GdShifter.h"
+  "sources/gd/GdSIMD.h"
   "sources/gd/filters/GdFilterAA.cpp"
   "sources/gd/filters/GdFilterAA.h"
   "sources/gd/filters/GdFilterAA.hpp"
