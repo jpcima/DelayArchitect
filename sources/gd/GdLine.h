@@ -29,11 +29,12 @@ public:
     float processOne(float input, float delay);
 
 private:
-    std::vector<float> lineData_;
+    float *lineData_ = nullptr;
     unsigned lineCapacity_ = 0;
     unsigned lineIndex_ = 0;
     float maxDelay_ = 0;
     float sampleRate_ = 0;
+    std::vector<float> lineBuffer_;
     enum {
         // extra amount of frames, so that a newly pushed pack of frames
         // doesn't overwrite the tail right away (4 frames to permit SSE)
@@ -48,7 +49,7 @@ private:
 //==============================================================================
 inline float GdLine::processOne(float input, float delay)
 {
-    float *lineData = lineData_.data();
+    float *lineData = lineData_;
     unsigned lineIndex = lineIndex_;
     unsigned lineCapacity = lineCapacity_;
     unsigned lineCapacityPlusExtra = lineCapacity + kLineCyclicExtra;

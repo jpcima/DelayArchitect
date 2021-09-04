@@ -24,7 +24,7 @@
 
 void GdLine::clear()
 {
-    std::fill(lineData_.begin(), lineData_.end(), 0.0f);
+    std::fill(lineBuffer_.begin(), lineBuffer_.end(), 0.0f);
     lineIndex_ = 0;
 }
 
@@ -44,13 +44,13 @@ void GdLine::setMaxDelay(float maxDelay)
         return;
 
     maxDelay_ = maxDelay;
-    lineCapacity_ = (unsigned)std::ceil(sampleRate_ * maxDelay_) + kLineSIMDExtra;
+    lineCapacity_ = (unsigned)std::ceil(sampleRate_ * maxDelay) + kLineSIMDExtra;
     allocateLineBuffer();
 }
 
 void GdLine::process(const float *input, const float *delay, float *output, unsigned count)
 {
-    float *lineData = lineData_.data();
+    float *lineData = lineData_;
     unsigned lineIndex = lineIndex_;
     unsigned lineCapacity = lineCapacity_;
     unsigned lineCapacityPlusExtra = lineCapacity + kLineCyclicExtra;
@@ -86,6 +86,7 @@ void GdLine::process(const float *input, const float *delay, float *output, unsi
 
 void GdLine::allocateLineBuffer()
 {
-    lineData_.clear();
-    lineData_.resize((size_t)lineCapacity_ + kLineCyclicExtra);
+    lineBuffer_.clear();
+    lineBuffer_.resize((size_t)lineCapacity_ + kLineCyclicExtra + kLineSIMDExtra);
+    lineData_ = lineBuffer_.data() + kLineSIMDExtra;
 }
