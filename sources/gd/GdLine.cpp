@@ -34,7 +34,8 @@ void GdLine::setSampleRate(float sampleRate)
         return;
 
     sampleRate_ = sampleRate;
-    allocateLineBuffer((unsigned)std::ceil(sampleRate * maxDelay_));
+    lineCapacity_ = (unsigned)std::ceil(sampleRate * maxDelay_) + kLineSIMDExtra;
+    allocateLineBuffer();
 }
 
 void GdLine::setMaxDelay(float maxDelay)
@@ -43,19 +44,26 @@ void GdLine::setMaxDelay(float maxDelay)
         return;
 
     maxDelay_ = maxDelay;
-    allocateLineBuffer((unsigned)std::ceil(sampleRate_ * maxDelay_));
+    lineCapacity_ = (unsigned)std::ceil(sampleRate_ * maxDelay_) + kLineSIMDExtra;
+    allocateLineBuffer();
 }
 
 void GdLine::process(const float *input, const float *delay, float *output, unsigned count)
 {
     float *lineData = lineData_.data();
     unsigned lineIndex = lineIndex_;
-    unsigned lineCapacity = (unsigned)lineData_.size();
-    float maxDelay = maxDelay_;
+    unsigned lineCapacity = lineCapacity_;
+    unsigned lineCapacityPlusExtra = lineCapacity + kLineCyclicExtra;
     float sampleRate = sampleRate_;
 
     for (unsigned i = 0; i < count; ++i) {
-        lineData[lineIndex] = input[i];
+        float currentInput = input[i];
+        lineData[lineIndex] = currentInput;
+
+        ///
+        unsigned secondaryLineIndex = lineIndex + lineCapacity;
+        secondaryLineIndex = (secondaryLineIndex < lineCapacityPlusExtra) ? secondaryLineIndex : lineIndex;
+        lineData[secondaryLineIndex] = currentInput;
 
         ///
         float sampleDelay = sampleRate * delay[i];
@@ -66,7 +74,6 @@ void GdLine::process(const float *input, const float *delay, float *output, unsi
         ///
         unsigned i1 = decimalPosition;
         unsigned i2 = decimalPosition + 1;
-        i2 = (i2 < lineCapacity) ? i2 : 0;
         output[i] = lineData[i1] + fractionalPosition * (lineData[i2] - lineData[i1]);
 
         ///
@@ -77,8 +84,8 @@ void GdLine::process(const float *input, const float *delay, float *output, unsi
     lineIndex_ = lineIndex;
 }
 
-void GdLine::allocateLineBuffer(unsigned capacity)
+void GdLine::allocateLineBuffer()
 {
     lineData_.clear();
-    lineData_.resize(capacity);
+    lineData_.resize((size_t)lineCapacity_ + kLineCyclicExtra);
 }
