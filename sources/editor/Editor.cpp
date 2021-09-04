@@ -37,7 +37,6 @@
 #include "editor/attachments/GridParameterAttachment.h"
 #include "editor/attachments/AutomaticComboBoxParameterAttachment.h"
 #include "editor/attachments/InvertedButtonParameterAttachment.h"
-#include "editor/attachments/SliderParameterAttachmentWithTooltip.h"
 #include "editor/attachments/ComboBoxParameterAttachmentByID.h"
 #include "editor/utility/FunctionalTimer.h"
 #include "editor/utility/CommonPrefix.h"
@@ -193,8 +192,8 @@ Editor::Editor(Processor &p)
     att.makeNew<juce::SliderParameterAttachment>(*impl.getRangedParameter((int)GDP_FEEDBACK_GAIN), *mainComponent->feedbackTapGainSlider_, nullptr);
     att.makeNew<ComboBoxParameterAttachmentByID>(*impl.getRangedParameter((int)GDP_FEEDBACK_TAP), *mainComponent->feedbackTapChoice_, nullptr);
     att.makeNew<juce::SliderParameterAttachment>(*impl.getRangedParameter((int)GDP_SWING), *mainComponent->swingSlider_, nullptr);
-    att.makeNew<SliderParameterAttachmentWithTooltip>(*impl.getRangedParameter((int)GDP_MIX_WET), *mainComponent->wetSlider_, *impl.tooltipWindow_, nullptr);
-    att.makeNew<SliderParameterAttachmentWithTooltip>(*impl.getRangedParameter((int)GDP_MIX_DRY), *mainComponent->drySlider_, *impl.tooltipWindow_, nullptr);
+    att.makeNew<juce::SliderParameterAttachment>(*impl.getRangedParameter((int)GDP_MIX_WET), *mainComponent->wetSlider_, nullptr);
+    att.makeNew<juce::SliderParameterAttachment>(*impl.getRangedParameter((int)GDP_MIX_DRY), *mainComponent->drySlider_, nullptr);
     att.makeNew<GridParameterAttachment>(*impl.getRangedParameter((int)GDP_GRID), *mainComponent->gridChoice_);
 
     //
