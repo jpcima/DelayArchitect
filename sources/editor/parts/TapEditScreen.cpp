@@ -1727,10 +1727,16 @@ TapEditItem::Impl::Button::Button(TapEditItem::Impl &impl)
 
 void TapEditItem::Impl::Button::paintButton(juce::Graphics &g, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
 {
+    Impl &impl = impl_;
+    TapEditScreen *screen = impl.screen_;
+
+    // clips painting within the screen area
+    juce::Rectangle<int> clipBounds = getLocalArea(screen, screen->getScreenArea());
+    g.reduceClipRegion(clipBounds);
+
     // TODO
     (void)shouldDrawButtonAsHighlighted;
 
-    Impl &impl = impl_;
     juce::Rectangle<int> bounds = getLocalBounds().reduced(1, 1);
 
     juce::Colour color = TapEditScreen::getColourOfEditMode(getLookAndFeel(), impl.editMode_);
