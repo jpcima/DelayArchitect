@@ -30,6 +30,7 @@ public:
 
 private:
     float lastOutput_ = 0;
+    float lastLineOutput_ = 0;
     std::vector<float> lineData_;
     unsigned lineIndex_ = 0;
     float maxDelay_ = 0;
@@ -41,6 +42,7 @@ private:
 inline float GdLine::processOne(float input, float delay, float diffusion)
 {
     float lastOutput = lastOutput_;
+    float lastLineOutput = lastLineOutput_;
     float *lineData = lineData_.data();
     unsigned lineIndex = lineIndex_;
     unsigned lineCapacity = (unsigned)lineData_.size();
@@ -48,7 +50,9 @@ inline float GdLine::processOne(float input, float delay, float diffusion)
     float sampleRate = sampleRate_;
 
     ///
-    lineData[lineIndex] = input + diffusion * lastOutput;
+    //lineData[lineIndex] = input + diffusion * lastOutput;
+    float lineInput = input + diffusion * lastLineOutput;
+    lineData[lineIndex] = lineInput;
 
     ///
     float sampleDelay = sampleRate * delay;
@@ -61,14 +65,17 @@ inline float GdLine::processOne(float input, float delay, float diffusion)
     unsigned i2 = decimalPosition + 1;
     i2 = (i2 < lineCapacity) ? i2 : 0;
     float lineOutput = lineData[i1] + fractionalPosition * (lineData[i2] - lineData[i1]);
+    lastLineOutput = lineOutput;
 
     ///
-    lastOutput = lineOutput - input * diffusion;
+    //lastOutput = lineOutput - input * diffusion;
+    lastOutput = lineOutput - lineInput * diffusion;
 
     ///
     lineIndex = (lineIndex + 1 < lineCapacity) ? (lineIndex + 1) : 0;
     lineIndex_ = lineIndex;
     lastOutput_ = lastOutput;
+    lastLineOutput_ = lastLineOutput;
 
     ///
     return lastOutput;
