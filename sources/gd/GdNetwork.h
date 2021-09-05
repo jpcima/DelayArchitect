@@ -102,6 +102,8 @@ private:
         float delay_ = 0;
         float levelDB_ = 0;
         bool mute_ = false;
+        bool diffusionEnable_ = false;
+        float diffusion_ = 0;
         bool filterEnable_ = false;
         int filter_ = GdFilterOff;
         float lpfCutoff_ = 0;
@@ -115,13 +117,14 @@ private:
         // smoothers
         LinearSmoother smoothDelay_;
         LinearSmoother smoothLevelLinear_;
+        LinearSmoother smoothDiffusion_;
         LinearSmoother smoothLpfCutoff_;
         LinearSmoother smoothHpfCutoff_;
         LinearSmoother smoothResonanceLinear_;
         LinearSmoother smoothShiftLinear_;
         LinearSmoother smoothPanNormalized_;
         LinearSmoother smoothWidth_;
-        enum { kNumSmoothers = 8 };
+        enum { kNumSmoothers = 9 };
         std::array<LinearSmoother *, kNumSmoothers> getSmoothers();
     };
 
@@ -131,7 +134,7 @@ private:
 #endif
 
     // internal
-    enum { kNumTempBuffers = 16 };
+    enum { kNumTempBuffers = 17 };
     using TempBuffer = std::vector<float, jsl::aligned_allocator<float, 32>>;
     std::array<TempBuffer, kNumTempBuffers> temp_;
 };

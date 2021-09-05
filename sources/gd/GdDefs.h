@@ -115,6 +115,8 @@ Ignorable static constexpr float GdMinFeedbackGainDB = -64.0f;
     /* NOTE: Tap Enable must always appear first */                            \
     _(TAP_##X##_ENABLE, (false, true), false, GDP_BOOLEAN, "Tap " #X " Enable", "", I) \
     _(TAP_##X##_DELAY, (0, GdMaxDelay), 0, GDP_FLOAT, "Tap " #X " Delay", "s", I) \
+    _(TAP_##X##_DIFFUSION_ENABLE, (false, true), false, GDP_BOOLEAN, "Tap " #X " Diffusion Enable", "", I) \
+    _(TAP_##X##_DIFFUSION, (0, 100), 0, GDP_FLOAT, "Tap " #X " Diffusion", "%", I) \
     _(TAP_##X##_LEVEL, (-64, 6, 0, -6, GDR_MIDPOINT), 0, GDP_FLOAT, "Tap " #X " Level", "dB", I) \
     _(TAP_##X##_MUTE, (false, true), false, GDP_BOOLEAN, "Tap " #X " Mute", "", I) \
     _(TAP_##X##_FILTER_ENABLE, (false, true), false, GDP_BOOLEAN, "Tap " #X " Filter Enable", "", I) \

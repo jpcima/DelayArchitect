@@ -586,6 +586,9 @@ juce::Colour TapEditScreen::getColourOfEditMode(const juce::LookAndFeel &lnf, Ta
     default:
     case kTapEditOff:
         break;
+    case kTapEditDiffusion:
+        modeColour = lnf.findColour(TapEditScreen::editDiffusionBaseColourId);
+        break;
     case kTapEditCutoff:
         modeColour = lnf.findColour(TapEditScreen::editCutoffBaseColourId);
         break;
@@ -1069,12 +1072,14 @@ TapEditItem::TapEditItem(TapEditScreen *screen, int itemNumber)
     };
 
     createSlider(kTapEditCutoff, GdRecomposeParameter(GDP_TAP_A_HPF_CUTOFF, itemNumber), GdRecomposeParameter(GDP_TAP_A_LPF_CUTOFF, itemNumber), kTapSliderTwoValues);
+    createSlider(kTapEditDiffusion, GdRecomposeParameter(GDP_TAP_A_DIFFUSION, itemNumber), GDP_NONE, kTapSliderNormal);
     createSlider(kTapEditResonance, GdRecomposeParameter(GDP_TAP_A_RESONANCE, itemNumber), GDP_NONE, kTapSliderNormal);
     createSlider(kTapEditTune, GdRecomposeParameter(GDP_TAP_A_TUNE, itemNumber), GDP_NONE, kTapSliderBipolar);
     createSlider(kTapEditPan, GdRecomposeParameter(GDP_TAP_A_PAN, itemNumber), GDP_NONE, kTapSliderBipolar);
     createSlider(kTapEditLevel, GdRecomposeParameter(GDP_TAP_A_LEVEL, itemNumber), GDP_NONE, kTapSliderNormal);
 
     createButton(kTapEditCutoff, GdRecomposeParameter(GDP_TAP_A_FILTER_ENABLE, itemNumber));
+    createButton(kTapEditDiffusion, GdRecomposeParameter(GDP_TAP_A_DIFFUSION_ENABLE, itemNumber));
     createButton(kTapEditResonance, GdRecomposeParameter(GDP_TAP_A_FILTER, itemNumber));
     createButton(kTapEditTune, GdRecomposeParameter(GDP_TAP_A_TUNE_ENABLE, itemNumber));
     createButton(kTapEditPan, GdRecomposeParameter(GDP_TAP_A_FLIP, itemNumber));
@@ -1113,6 +1118,12 @@ bool TapEditItem::getReferenceLineY(TapEditMode mode, float &lineY, juce::Compon
     case kTapEditCutoff:
         if (TapSlider *slider = impl.getSliderForEditMode(mode)) {
             lineY = (float)getSliderValueY(*slider, 1000.0);
+            have = true;
+        }
+        break;
+    case kTapEditDiffusion:
+        if (TapSlider *slider = impl.getSliderForEditMode(mode)) {
+            lineY = (float)getSliderValueY(*slider, 50.0);
             have = true;
         }
         break;
@@ -1174,6 +1185,10 @@ float TapEditItem::getTapValue(GdParameter id) const
         return impl.data_.enabled;
     case GDP_TAP_A_DELAY:
         return impl.data_.delay;
+    case GDP_TAP_A_DIFFUSION:
+        if (TapSlider *slider = impl.getSliderForEditMode(kTapEditDiffusion))
+            return (float)slider->getValue();
+        goto notfound;
     case GDP_TAP_A_LPF_CUTOFF:
         if (TapSlider *slider = impl.getSliderForEditMode(kTapEditCutoff))
             return (float)slider->getMaxValue();
@@ -1197,6 +1212,10 @@ float TapEditItem::getTapValue(GdParameter id) const
     case GDP_TAP_A_LEVEL:
         if (TapSlider *slider = impl.getSliderForEditMode(kTapEditLevel))
             return (float)slider->getValue();
+        goto notfound;
+    case GDP_TAP_A_DIFFUSION_ENABLE:
+        if (juce::Button *button = impl.getButtonForEditMode(kTapEditDiffusion))
+            return (float)button->getToggleState();
         goto notfound;
     case GDP_TAP_A_FILTER_ENABLE:
         if (juce::Button *button = impl.getButtonForEditMode(kTapEditCutoff))
@@ -1274,6 +1293,10 @@ void TapEditItem::setTapValue(GdParameter id, float value, juce::NotificationTyp
 
         break;
     }
+    case GDP_TAP_A_DIFFUSION:
+        if (TapSlider *slider = impl.getSliderForEditMode(kTapEditDiffusion))
+            slider->setValue(value, nt);
+        break;
     case GDP_TAP_A_LPF_CUTOFF:
         if (TapSlider *slider = impl.getSliderForEditMode(kTapEditCutoff))
             slider->setMaxValue(value, nt);
@@ -1297,6 +1320,10 @@ void TapEditItem::setTapValue(GdParameter id, float value, juce::NotificationTyp
     case GDP_TAP_A_LEVEL:
         if (TapSlider *slider = impl.getSliderForEditMode(kTapEditLevel))
             slider->setValue(value, nt);
+        break;
+    case GDP_TAP_A_DIFFUSION_ENABLE:
+        if (juce::Button *button = impl.getButtonForEditMode(kTapEditDiffusion))
+            button->setToggleState((bool)value, nt);
         break;
     case GDP_TAP_A_FILTER_ENABLE:
         if (juce::Button *button = impl.getButtonForEditMode(kTapEditCutoff))
@@ -1336,6 +1363,7 @@ TapMiniMapValue TapEditItem::getMinimapValues() const
     fail:
         return {};
     // one-value sliders
+    case kTapEditDiffusion:
     case kTapEditResonance:
     case kTapEditLevel:
         if (TapSlider *slider = impl.getSliderForEditMode(editMode)) {

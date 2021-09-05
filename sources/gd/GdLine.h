@@ -25,10 +25,11 @@ public:
     void clear();
     void setSampleRate(float sampleRate);
     void setMaxDelay(float maxDelay);
-    void process(const float *input, const float *delay, float *output, unsigned count);
-    float processOne(float input, float delay);
+    void process(const float *input, const float *delay, const float *diffusion, float *output, unsigned count);
+    float processOne(float input, float delay, float diffusion);
 
 private:
+    float lastOutput_ = 0;
     std::vector<float> lineData_;
     unsigned lineIndex_ = 0;
     float maxDelay_ = 0;
@@ -37,8 +38,9 @@ private:
 };
 
 //==============================================================================
-inline float GdLine::processOne(float input, float delay)
+inline float GdLine::processOne(float input, float delay, float diffusion)
 {
+    float lastOutput = lastOutput_;
     float *lineData = lineData_.data();
     unsigned lineIndex = lineIndex_;
     unsigned lineCapacity = (unsigned)lineData_.size();
@@ -46,7 +48,7 @@ inline float GdLine::processOne(float input, float delay)
     float sampleRate = sampleRate_;
 
     ///
-    lineData[lineIndex] = input;
+    lineData[lineIndex] = input + diffusion * lastOutput;
 
     ///
     float sampleDelay = sampleRate * delay;
@@ -58,12 +60,16 @@ inline float GdLine::processOne(float input, float delay)
     unsigned i1 = decimalPosition;
     unsigned i2 = decimalPosition + 1;
     i2 = (i2 < lineCapacity) ? i2 : 0;
-    float output = lineData[i1] + fractionalPosition * (lineData[i2] - lineData[i1]);
+    float lineOutput = lineData[i1] + fractionalPosition * (lineData[i2] - lineData[i1]);
+
+    ///
+    lastOutput = lineOutput - input * diffusion;
 
     ///
     lineIndex = (lineIndex + 1 < lineCapacity) ? (lineIndex + 1) : 0;
     lineIndex_ = lineIndex;
+    lastOutput_ = lastOutput;
 
     ///
-    return output;
+    return lastOutput;
 }

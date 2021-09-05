@@ -85,6 +85,7 @@ LookAndFeel::LookAndFeel()
     setColour(TapEditScreen::lassoFillColourId, juce::Colour(0x00, 0x00, 0x00).withAlpha(0.25f));
     setColour(TapEditScreen::lassoOutlineColourId, juce::Colour(0xff, 0xff, 0xff).withAlpha(0.25f));
     setColour(TapEditScreen::textColourId, juce::Colour(0xff, 0xff, 0xff).withAlpha(0.75f));
+    setColour(TapEditScreen::editDiffusionBaseColourId, juce::Colour(0xd8, 0x76, 0x7b));
     setColour(TapEditScreen::editCutoffBaseColourId, juce::Colour(0xd8, 0x76, 0x7b));
     setColour(TapEditScreen::editResonanceBaseColourId, juce::Colour(0xd4, 0xe0, 0x7d));
     setColour(TapEditScreen::editTuneBaseColourId, juce::Colour(0x7a, 0xe1, 0x84));

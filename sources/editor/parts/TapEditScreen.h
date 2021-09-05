@@ -35,6 +35,7 @@ class TapMiniMap;
 //------------------------------------------------------------------------------
 enum TapEditMode {
     kTapEditOff,
+    kTapEditDiffusion,
     kTapEditCutoff,
     kTapEditResonance,
     kTapEditTune,
@@ -59,6 +60,7 @@ public:
         lassoFillColourId,
         lassoOutlineColourId,
         textColourId,
+        editDiffusionBaseColourId,
         editCutoffBaseColourId,
         editResonanceBaseColourId,
         editTuneBaseColourId,

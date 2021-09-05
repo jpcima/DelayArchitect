@@ -154,6 +154,14 @@ void GdNetwork::setParameter(unsigned parameter, float value)
         case GDP_TAP_A_MUTE:
             tapControl.mute_ = (bool)value;
             goto tap_level;
+        case GDP_TAP_A_DIFFUSION_ENABLE:
+            tapControl.diffusionEnable_ = (bool)value;
+            goto tap_diffusion;
+        case GDP_TAP_A_DIFFUSION:
+            tapControl.diffusion_ = value / 100.0f;
+        tap_diffusion:
+            tapControl.smoothDiffusion_.setTarget(tapControl.diffusionEnable_ ? tapControl.diffusion_ : 0.0f);
+            break;
         case GDP_TAP_A_FILTER_ENABLE:
             tapControl.filterEnable_ = (bool)value;
             break;
@@ -223,6 +231,7 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
     };
 
     float *delays = allocateTemp();
+    float *diffusions = allocateTemp();
     float *feedbackGain = allocateTemp();
     float *level = allocateTemp();
     float *pan = allocateTemp();
@@ -261,9 +270,11 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
 #if GD_SHIFTER_CAN_REPORT_LATENCY
                                latency,
 #endif
-        this, numInputs, delays, level, pan, width](int tapIndex, TapControl &tapControl, unsigned count) {
+        this, numInputs, delays, diffusions, level, pan, width](int tapIndex, TapControl &tapControl, unsigned count) {
         // compute the line delays
         tapControl.smoothDelay_.nextBlock(delays, count);
+        // compute the line diffusion
+        tapControl.smoothDiffusion_.nextBlock(diffusions, count);
 #if GD_SHIFTER_CAN_REPORT_LATENCY
         // compute tap latency
         smoothTapLatency_[tapIndex].setTarget(channels_[0].taps_[tapIndex].fx_.getLatency());
@@ -327,7 +338,7 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
                     for (unsigned j = i + GdTapFx::kControlUpdateInterval; i < j; ++i) {
                         float in = input[i] + feedback * feedbackGain[i];
                         inputAndFeedbackSum[i] = in;
-                        float out = tap.line_.processOne(in, delays[i]);
+                        float out = tap.line_.processOne(in, delays[i], diffusions[i]);
                         out = fx.processOne(out, fxControl, i);
                         //out = cubicNL(out); // saturate feedback
                         feedbackTapOutput[i] = out;
@@ -339,7 +350,7 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
                     for (; i < count; ++i) {
                         float in = input[i] + feedback * feedbackGain[i];
                         inputAndFeedbackSum[i] = in;
-                        float out = tap.line_.processOne(in, delays[i]);
+                        float out = tap.line_.processOne(in, delays[i], diffusions[i]);
                         out = fx.processOne(out, fxControl, i);
                         //out = cubicNL(out); // saturate feedback
                         feedbackTapOutput[i] = out;
@@ -383,7 +394,7 @@ void GdNetwork::process(const float *const inputs[], const float *dry, const flo
                 const float *tapInput = tapInputs[chanIndex];
                 float *ordinaryTapOutput = ordinaryTapOutputs[chanIndex];
 
-                tap.line_.process(tapInput, delays, ordinaryTapOutput, count);
+                tap.line_.process(tapInput, delays, diffusions, ordinaryTapOutput, count);
 
                 unsigned i = 0;
                 GdTapFx &fx = tap.fx_;
@@ -572,6 +583,7 @@ auto GdNetwork::TapControl::getSmoothers() -> std::array<LinearSmoother *, kNumS
     return {{
         &smoothDelay_,
         &smoothLevelLinear_,
+        &smoothDiffusion_,
         &smoothLpfCutoff_,
         &smoothHpfCutoff_,
         &smoothResonanceLinear_,

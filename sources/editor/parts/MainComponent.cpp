@@ -92,35 +92,35 @@ MainComponent::MainComponent ()
     cutoffButton_->setButtonText (TRANS("Cutoff"));
     cutoffButton_->addListener (this);
 
-    cutoffButton_->setBounds (144, 48, 136, 24);
+    cutoffButton_->setBounds (264, 48, 112, 24);
 
     resonanceButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (resonanceButton_.get());
     resonanceButton_->setButtonText (TRANS("Resonance"));
     resonanceButton_->addListener (this);
 
-    resonanceButton_->setBounds (288, 48, 136, 24);
+    resonanceButton_->setBounds (384, 48, 112, 24);
 
     tuneButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (tuneButton_.get());
     tuneButton_->setButtonText (TRANS("Tune"));
     tuneButton_->addListener (this);
 
-    tuneButton_->setBounds (432, 48, 136, 24);
+    tuneButton_->setBounds (504, 48, 112, 24);
 
     panButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (panButton_.get());
     panButton_->setButtonText (TRANS("Pan"));
     panButton_->addListener (this);
 
-    panButton_->setBounds (576, 48, 136, 24);
+    panButton_->setBounds (624, 48, 112, 24);
 
     levelButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (levelButton_.get());
     levelButton_->setButtonText (TRANS("Level"));
     levelButton_->addListener (this);
 
-    levelButton_->setBounds (720, 48, 136, 24);
+    levelButton_->setBounds (744, 48, 112, 24);
 
     firstTapButton_.reset (new juce::TextButton (juce::String()));
     addAndMakeVisible (firstTapButton_.get());
@@ -538,6 +538,13 @@ MainComponent::MainComponent ()
 
     menuButton_->setBounds (48, 4, 32, 32);
 
+    diffusionButton_.reset (new juce::TextButton (juce::String()));
+    addAndMakeVisible (diffusionButton_.get());
+    diffusionButton_->setButtonText (TRANS("Diffusion"));
+    diffusionButton_->addListener (this);
+
+    diffusionButton_->setBounds (144, 48, 112, 24);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -593,6 +600,7 @@ MainComponent::MainComponent ()
         button.setColour(juce::ComboBox::outlineColourId, tapEditScreen_->findColour(TapEditScreen::lineColourId));
     };
 
+    setEditButtonColors(*diffusionButton_, kTapEditDiffusion);
     setEditButtonColors(*cutoffButton_, kTapEditCutoff);
     setEditButtonColors(*resonanceButton_, kTapEditResonance);
     setEditButtonColors(*tuneButton_, kTapEditTune);
@@ -690,6 +698,7 @@ MainComponent::~MainComponent()
     tapEnabledButton_ = nullptr;
     tapMenuButton_ = nullptr;
     menuButton_ = nullptr;
+    diffusionButton_ = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -855,6 +864,12 @@ void MainComponent::buttonClicked (juce::Button* buttonThatWasClicked)
         tapEditScreen_->endTap();
         //[/UserButtonCode_lastTapButton_]
     }
+    else if (buttonThatWasClicked == diffusionButton_.get())
+    {
+        //[UserButtonCode_diffusionButton_] -- add your button handler code here..
+        impl.setEditMode(kTapEditDiffusion);
+        //[/UserButtonCode_diffusionButton_]
+    }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
@@ -1002,19 +1017,19 @@ BEGIN_JUCER_METADATA
                     explicitFocusOrder="0" pos="128 72 744 348" class="TapEditScreen"
                     params=""/>
   <TEXTBUTTON name="" id="fbe209bdcd7b5a8f" memberName="cutoffButton_" virtualName=""
-              explicitFocusOrder="0" pos="144 48 136 24" buttonText="Cutoff"
+              explicitFocusOrder="0" pos="264 48 112 24" buttonText="Cutoff"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="b57b7360ebc749d9" memberName="resonanceButton_" virtualName=""
-              explicitFocusOrder="0" pos="288 48 136 24" buttonText="Resonance"
+              explicitFocusOrder="0" pos="384 48 112 24" buttonText="Resonance"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="53c3c11e2e3cc96f" memberName="tuneButton_" virtualName=""
-              explicitFocusOrder="0" pos="432 48 136 24" buttonText="Tune"
+              explicitFocusOrder="0" pos="504 48 112 24" buttonText="Tune"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="c12936716811e246" memberName="panButton_" virtualName=""
-              explicitFocusOrder="0" pos="576 48 136 24" buttonText="Pan" connectedEdges="0"
+              explicitFocusOrder="0" pos="624 48 112 24" buttonText="Pan" connectedEdges="0"
               needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="7558d040ff50b9ed" memberName="levelButton_" virtualName=""
-              explicitFocusOrder="0" pos="720 48 136 24" buttonText="Level"
+              explicitFocusOrder="0" pos="744 48 112 24" buttonText="Level"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="" id="43aa27172b96c021" memberName="firstTapButton_" virtualName=""
               explicitFocusOrder="0" pos="16 304 96 56" buttonText="Start tap"
@@ -1215,6 +1230,9 @@ BEGIN_JUCER_METADATA
   <GENERICCOMPONENT name="" id="b47f9836c0b72c69" memberName="menuButton_" virtualName=""
                     explicitFocusOrder="0" pos="48 4 32 32" class="FadGlyphButton"
                     params="juce::String{}"/>
+  <TEXTBUTTON name="" id="36e66be6ab3fa420" memberName="diffusionButton_" virtualName=""
+              explicitFocusOrder="0" pos="144 48 112 24" buttonText="Diffusion"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
@@ -1230,6 +1248,7 @@ void MainComponent::Impl::setEditMode(TapEditMode editMode)
 
     MainComponent *self = self_;
     self->tapEditScreen_->setEditMode(editMode);
+    self->diffusionButton_->setToggleState(editMode == kTapEditDiffusion, juce::dontSendNotification);
     self->cutoffButton_->setToggleState(editMode == kTapEditCutoff, juce::dontSendNotification);
     self->resonanceButton_->setToggleState(editMode == kTapEditResonance, juce::dontSendNotification);
     self->tuneButton_->setToggleState(editMode == kTapEditTune, juce::dontSendNotification);
