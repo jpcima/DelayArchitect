@@ -2,6 +2,8 @@
 
 A visual, musical editor for delay effects
 
+![screenshot](docs/screen.png)
+
 ## Download development builds
 
 - [32-bit Windows VST3](https://nightly.link/jpcima/DelayArchitect/workflows/build/master/Win32%20VST3.zip)
