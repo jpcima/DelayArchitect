@@ -47,12 +47,14 @@
 #include "utility/AutoDeletePool.h"
 #include "Gd.h"
 #include <vector>
+#include <array>
 
 //==============================================================================
 struct Editor::Impl : public TapEditScreen::Listener,
                       public juce::AudioProcessorParameter::Listener {
     Editor *self_ = nullptr;
     Processor *processor_ = nullptr;
+    juce::SharedResourcePointer<juce::ApplicationProperties> props_;
     std::unique_ptr<AdvancedTooltipWindow> tooltipWindow_;
     std::unique_ptr<MainComponent> mainComponent_;
     juce::Array<juce::AudioProcessorParameter *> parameters_;
@@ -96,7 +98,9 @@ struct Editor::Impl : public TapEditScreen::Listener,
     void pasteActiveTap();
     void copyToAllTaps(GdParameter decomposedId);
 
+    void initializeZoom();
     void setZoom(int zoomPercent);
+    void updateZoomMenu(int currentZoomPercent);
 
     void showAbout();
 
@@ -109,6 +113,9 @@ struct Editor::Impl : public TapEditScreen::Listener,
 };
 
 //==============================================================================
+static constexpr std::array<int, 5> validZoomPercents{{100, 125, 150, 175, 200}};
+
+//==============================================================================
 Editor::Editor(Processor &p)
     : AudioProcessorEditor(p),
       impl_(new Impl)
@@ -118,6 +125,20 @@ Editor::Editor(Processor &p)
     impl.processor_ = &p;
 
     impl.parameters_ = p.getParameters();
+
+    juce::ApplicationProperties &props = *impl.props_;
+    {
+        juce::PropertiesFile::Options opts;
+        opts.applicationName = "Editor";
+        opts.filenameSuffix = ".settings";
+#if JUCE_LINUX || JUCE_BSD
+        opts.folderName = juce::File::getSpecialLocation(juce::File::userApplicationDataDirectory).getChildFile(JucePlugin_Name).getFullPathName();
+#else
+        opts.folderName = JucePlugin_Name;
+#endif
+        opts.osxLibrarySubFolder = "Application Support";
+        props.setStorageParameters(opts);
+    }
 
     static LookAndFeel lnf;
     setLookAndFeel(&lnf);
@@ -150,14 +171,13 @@ Editor::Editor(Processor &p)
 
     juce::PopupMenu *zoomMenu = new juce::PopupMenu;
     impl.zoomMenu_.reset(zoomMenu);
-    for (int zoomPercent : {100, 125, 150, 175, 200})
-        zoomMenu->addItem(juce::String(zoomPercent) + "%", [&impl, zoomPercent]() { impl.setZoom(zoomPercent); });
     mainComponent->zoomButton_->onClick = [this]() {
         impl_->zoomMenu_->showMenuAsync(
             juce::PopupMenu::Options()
             .withParentComponent(this)
             .withTargetComponent(impl_->mainComponent_->zoomButton_.get()));
     };
+    impl.initializeZoom();
 
     juce::PopupMenu *tapMenu = new juce::PopupMenu;
     impl.tapMenu_.reset(tapMenu);
@@ -545,10 +565,39 @@ void Editor::Impl::copyToAllTaps(GdParameter decomposedId)
     }
 }
 
+void Editor::Impl::initializeZoom()
+{
+    int zoomPercent = 100;
+
+    juce::ApplicationProperties &props = *props_;
+    if (juce::PropertiesFile *userFile = props.getUserSettings())
+        zoomPercent = userFile->getIntValue("Zoom", 100);
+
+    zoomPercent = juce::jlimit(validZoomPercents.front(), validZoomPercents.back(), zoomPercent);
+    setZoom(zoomPercent);
+}
+
 void Editor::Impl::setZoom(int zoomPercent)
 {
     juce::Desktop &desktop = juce::Desktop::getInstance();
     desktop.setGlobalScaleFactor((float)zoomPercent / 100.0f);
+
+    juce::ApplicationProperties &props = *props_;
+    if (juce::PropertiesFile *userFile = props.getUserSettings())
+        userFile->setValue("Zoom", zoomPercent);
+
+    updateZoomMenu(zoomPercent);
+}
+
+void Editor::Impl::updateZoomMenu(int currentZoomPercent)
+{
+    juce::PopupMenu &zoomMenu = *zoomMenu_;
+
+    zoomMenu.clear();
+    for (int zoomPercent : validZoomPercents) {
+        bool ticked = zoomPercent == currentZoomPercent;
+        zoomMenu.addItem(juce::String(zoomPercent) + "%", true, ticked, [this, zoomPercent]() { setZoom(zoomPercent); });
+    }
 }
 
 void Editor::Impl::showAbout()
