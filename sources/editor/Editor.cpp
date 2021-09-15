@@ -100,7 +100,7 @@ struct Editor::Impl : public TapEditScreen::Listener,
 
     void initializeZoom();
     void setZoom(int zoomPercent);
-    void updateZoomMenu(int currentZoomPercent);
+    void updateZoomMenu();
 
     void showAbout();
 
@@ -140,6 +140,8 @@ Editor::Editor(Processor &p)
         props.setStorageParameters(opts);
     }
 
+    impl.initializeZoom();
+
     static LookAndFeel lnf;
     setLookAndFeel(&lnf);
     juce::LookAndFeel::setDefaultLookAndFeel(&lnf);
@@ -177,7 +179,7 @@ Editor::Editor(Processor &p)
             .withParentComponent(this)
             .withTargetComponent(impl_->mainComponent_->zoomButton_.get()));
     };
-    impl.initializeZoom();
+    impl.updateZoomMenu();
 
     juce::PopupMenu *tapMenu = new juce::PopupMenu;
     impl.tapMenu_.reset(tapMenu);
@@ -574,7 +576,9 @@ void Editor::Impl::initializeZoom()
         zoomPercent = userFile->getIntValue("Zoom", 100);
 
     zoomPercent = juce::jlimit(validZoomPercents.front(), validZoomPercents.back(), zoomPercent);
-    setZoom(zoomPercent);
+
+    juce::Desktop &desktop = juce::Desktop::getInstance();
+    desktop.setGlobalScaleFactor((float)zoomPercent / 100.0f);
 }
 
 void Editor::Impl::setZoom(int zoomPercent)
@@ -586,12 +590,15 @@ void Editor::Impl::setZoom(int zoomPercent)
     if (juce::PropertiesFile *userFile = props.getUserSettings())
         userFile->setValue("Zoom", zoomPercent);
 
-    updateZoomMenu(zoomPercent);
+    updateZoomMenu();
 }
 
-void Editor::Impl::updateZoomMenu(int currentZoomPercent)
+void Editor::Impl::updateZoomMenu()
 {
     juce::PopupMenu &zoomMenu = *zoomMenu_;
+
+    juce::Desktop &desktop = juce::Desktop::getInstance();
+    int currentZoomPercent = juce::roundToInt(desktop.getGlobalScaleFactor() * 100.0f);
 
     zoomMenu.clear();
     for (int zoomPercent : validZoomPercents) {
