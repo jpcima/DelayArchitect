@@ -538,6 +538,11 @@ MainComponent::MainComponent ()
 
     menuButton_->setBounds (48, 4, 32, 32);
 
+    zoomButton_.reset (new FadGlyphButton (juce::String{}));
+    addAndMakeVisible (zoomButton_.get());
+
+    zoomButton_->setBounds (952, 0, 40, 40);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -564,6 +569,7 @@ MainComponent::MainComponent ()
         button.setIcon(iconName, textHeight);
     };
     setupFadGlyphButton(*menuButton_, 14.0f, fontaudio::HExpand);
+    setupFadGlyphButton(*zoomButton_, 20.0f, fontaudio::Zoomin);
     setupFadGlyphButton(*syncButton_, 14.0f, fontaudio::Powerswitch);
     setupFadGlyphButton(*feedbackEnableButton_, 14.0f, fontaudio::Powerswitch);
     setupFadGlyphButton(*tapEnabledButton_, 14.0f, fontaudio::Powerswitch);
@@ -690,6 +696,7 @@ MainComponent::~MainComponent()
     tapEnabledButton_ = nullptr;
     tapMenuButton_ = nullptr;
     menuButton_ = nullptr;
+    zoomButton_ = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -1214,6 +1221,9 @@ BEGIN_JUCER_METADATA
                     params="juce::String{}"/>
   <GENERICCOMPONENT name="" id="b47f9836c0b72c69" memberName="menuButton_" virtualName=""
                     explicitFocusOrder="0" pos="48 4 32 32" class="FadGlyphButton"
+                    params="juce::String{}"/>
+  <GENERICCOMPONENT name="" id="8b95d23578ed084c" memberName="zoomButton_" virtualName=""
+                    explicitFocusOrder="0" pos="952 0 40 40" class="FadGlyphButton"
                     params="juce::String{}"/>
 </JUCER_COMPONENT>
 

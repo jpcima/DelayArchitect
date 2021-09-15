@@ -62,6 +62,7 @@ struct Editor::Impl : public TapEditScreen::Listener,
     AutoDeletePool activeTapAttachments_;
 
     std::unique_ptr<juce::PopupMenu> mainMenu_;
+    std::unique_ptr<juce::PopupMenu> zoomMenu_;
     std::unique_ptr<juce::PopupMenu> tapMenu_;
 
     std::unique_ptr<juce::FileChooser> fileChooser_;
@@ -94,6 +95,8 @@ struct Editor::Impl : public TapEditScreen::Listener,
     void copyActiveTap();
     void pasteActiveTap();
     void copyToAllTaps(GdParameter decomposedId);
+
+    void setZoom(int zoomPercent);
 
     void showAbout();
 
@@ -143,6 +146,17 @@ Editor::Editor(Processor &p)
             juce::PopupMenu::Options()
             .withParentComponent(this)
             .withTargetComponent(impl_->mainComponent_->menuButton_.get()));
+    };
+
+    juce::PopupMenu *zoomMenu = new juce::PopupMenu;
+    impl.zoomMenu_.reset(zoomMenu);
+    for (int zoomPercent : {100, 125, 150, 175, 200})
+        zoomMenu->addItem(juce::String(zoomPercent) + "%", [&impl, zoomPercent]() { impl.setZoom(zoomPercent); });
+    mainComponent->zoomButton_->onClick = [this]() {
+        impl_->zoomMenu_->showMenuAsync(
+            juce::PopupMenu::Options()
+            .withParentComponent(this)
+            .withTargetComponent(impl_->mainComponent_->zoomButton_.get()));
     };
 
     juce::PopupMenu *tapMenu = new juce::PopupMenu;
@@ -529,6 +543,12 @@ void Editor::Impl::copyToAllTaps(GdParameter decomposedId)
         if (id != activeId)
             getRangedParameter((int)id)->setValueNotifyingHost(value01);
     }
+}
+
+void Editor::Impl::setZoom(int zoomPercent)
+{
+    juce::Desktop &desktop = juce::Desktop::getInstance();
+    desktop.setGlobalScaleFactor((float)zoomPercent / 100.0f);
 }
 
 void Editor::Impl::showAbout()
