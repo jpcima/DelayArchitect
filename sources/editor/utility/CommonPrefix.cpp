@@ -26,7 +26,6 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#pragma once
 #include "CommonPrefix.h"
 
 int getCommonPrefix(const juce::String strings[], size_t count)
