@@ -102,7 +102,7 @@ Ignorable static constexpr float GdMinFeedbackGainDB = -64.0f;
     GD_EACH_LINE_PARAMETER(_, R, 17)                                           \
     GD_EACH_LINE_PARAMETER(_, S, 18)                                           \
     GD_EACH_LINE_PARAMETER(_, T, 19)                                           \
-    GD_EACH_LINE_PARAMETER(_, U, 10)                                           \
+    GD_EACH_LINE_PARAMETER(_, U, 20)                                           \
     GD_EACH_LINE_PARAMETER(_, V, 21)                                           \
     GD_EACH_LINE_PARAMETER(_, W, 22)                                           \
     GD_EACH_LINE_PARAMETER(_, X, 23)                                           \
