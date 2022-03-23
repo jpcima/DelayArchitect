@@ -31,8 +31,10 @@
 #include <utility>
 
 class FunctionalTimer : public juce::Timer {
+protected:
+    FunctionalTimer() = default;
+    virtual ~FunctionalTimer() override {}
 public:
-    virtual ~FunctionalTimer() {}
     template <class T> static juce::Timer *create(T fn);
 };
 
@@ -40,6 +42,7 @@ template <class T>
 class FunctionalTimerT final : public FunctionalTimer {
 public:
     explicit FunctionalTimerT(T fn) : fn_(std::move(fn)) {}
+    ~FunctionalTimerT() override { stopTimer(); }
     void timerCallback() override { fn_(); }
 private:
     T fn_;
