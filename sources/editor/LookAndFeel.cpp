@@ -389,7 +389,7 @@ juce::MouseCursor LookAndFeel::createPencilCursor()
 
     int height = 20;
     juce::Image img = fad.getIcon(fontaudio::Pen, (float)height, juce::Colours::white);
-    juce::Point<int> hotspot{0, height};
+    juce::Point<int> hotspot{0, height - 1};
 
     return juce::MouseCursor(img, hotspot.getX(), hotspot.getY());
 }
