@@ -27,6 +27,7 @@ option(GD_COPY_AFTER_BUILD "Copy after build" OFF)
 option(GD_BENCHMARKS "Build benchmarks" OFF)
 set(GD_PITCH_SHIFTER_TYPE "SuperCollider" CACHE STRING "Pitch shifter implementation to use")
 set_property(CACHE GD_PITCH_SHIFTER_TYPE PROPERTY STRINGS "SuperCollider" "SoundTouch" "Simple")
+option(GD_PLUGIN_FORCE_DEBUG "Build debug features in plugin" OFF)
 
 ###
 add_library(jsl INTERFACE)
@@ -113,6 +114,10 @@ juce_add_binary_data(DelayArchitectResources
   SOURCES
   "resources/fonts/LiberationSans-Regular.ttf"
   "resources/fonts/LiberationSans-Bold.ttf")
+
+if(GD_PLUGIN_FORCE_DEBUG)
+    target_compile_definitions(DelayArchitect PRIVATE "JUCE_FORCE_DEBUG=1")
+endif()
 
 target_link_libraries(DelayArchitect
   PRIVATE
