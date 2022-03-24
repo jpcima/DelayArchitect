@@ -1403,6 +1403,7 @@ void TapEditItem::pencilAt(juce::Point<int> pos, juce::ModifierKeys mods)
 
     juce::Point<int> sliderPos = slider->getLocalPoint(this, pos);
     double proportion = 1.0 - ((double)sliderPos.getY() / (double)slider->getHeight());
+    proportion = juce::jlimit(0.0, 1.0, proportion);
     double value = slider->proportionOfLengthToValue(proportion);
 
     if (slider->isTwoValue()) {
