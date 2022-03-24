@@ -68,7 +68,10 @@ struct Processor::Impl : public juce::AudioProcessorListener {
 
 //==============================================================================
 Processor::Processor()
-    : impl_(new Impl(this))
+    : juce::AudioProcessor(BusesProperties()
+                           .withInput("Input", juce::AudioChannelSet::stereo(), true)
+                           .withOutput("Output", juce::AudioChannelSet::stereo(), true)),
+      impl_(new Impl(this))
 {
     Impl &impl = *impl_;
     addListener(&impl);
