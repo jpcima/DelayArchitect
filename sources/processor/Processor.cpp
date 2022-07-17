@@ -182,9 +182,9 @@ void Processor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer 
 
     ///
     juce::AudioPlayHead *playHead = getPlayHead();
-    juce::AudioPlayHead::CurrentPositionInfo playPosition;
-    if (playHead->getCurrentPosition(playPosition))
-        impl.updateBPM(playPosition.bpm);
+    juce::Optional<juce::AudioPlayHead::PositionInfo> positionInfo = playHead->getPosition();
+    if (juce::Optional<double> bpm = positionInfo->getBpm())
+        impl.updateBPM(*bpm);
 
     ///
     Gd *gd = impl.gd_.get();
@@ -354,15 +354,21 @@ void Processor::Impl::setupParameters()
         default:
         case GDP_FLOAT:
         {
-            parameter = new juce::AudioParameterFloat(name, label, GdJuceRange<float>(range), def, juce::String{}, juce::AudioProcessorParameter::genericParameter, stringFromValue);
+            parameter = new juce::AudioParameterFloat(
+                name, label, GdJuceRange<float>(range), def, juce::AudioParameterFloatAttributes{}
+                .withStringFromValueFunction(stringFromValue));
             break;
         }
         case GDP_BOOLEAN:
-            parameter = new juce::AudioParameterBool(name, label, (bool)def, juce::String{}, stringFromValue);
+            parameter = new juce::AudioParameterBool(
+                name, label, (bool)def, juce::AudioParameterBoolAttributes{}
+                .withStringFromValueFunction(stringFromValue));
             break;
         case GDP_INTEGER:
         {
-            parameter = new juce::AudioParameterInt(name, label, (int)range.start, (int)range.end, (int)def, juce::String{}, stringFromValue);
+            parameter = new juce::AudioParameterInt(
+                name, label, (int)range.start, (int)range.end, (int)def, juce::AudioParameterIntAttributes{}
+                .withStringFromValueFunction(stringFromValue));
             break;
         }
         case GDP_CHOICE:
@@ -371,7 +377,9 @@ void Processor::Impl::setupParameters()
                 choices.ensureStorageAllocated(32);
                 for (const char *const *p = GdParameterChoices((GdParameter)i); *p; ++p)
                     choices.add(*p);
-                parameter = new juce::AudioParameterChoice(name, label, std::move(choices), (int)def, juce::String{}, stringFromValue);
+                parameter = new juce::AudioParameterChoice(
+                    name, label, std::move(choices), (int)def, juce::AudioParameterChoiceAttributes{}
+                    .withStringFromValueFunction(stringFromValue));
             }
             break;
         }

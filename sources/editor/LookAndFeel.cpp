@@ -113,7 +113,7 @@ juce::Typeface::Ptr LookAndFeel::getTypefaceForFont(const juce::Font &font)
             tf = impl.sansTypeface_;
     }
     else if (typefaceName == "Fontaudio")
-        tf = impl.fontAudio_->getFont().getTypeface();
+        tf = impl.fontAudio_->getFont().getTypefacePtr();
 
     if (!tf)
         tf = BaseLookAndFeel::getTypefaceForFont(font);
